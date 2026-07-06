@@ -1,7 +1,7 @@
 {
   "name": "production-management-system",
   "version": "1.0.0",
-  "homepage": "https://[Souqka].github.io/production-management",
+  "homepage": "https://teniss-factory.vercel.app"
   "description": "Интерактивная система управления производством",
   "keywords": ["react", "production", "management"],
   "main": "src/index.js",
