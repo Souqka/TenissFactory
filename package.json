@@ -1,6 +1,7 @@
 {
   "name": "production-management-system",
   "version": "1.0.0",
+  "homepage": "https://[Souqka].github.io/production-management",
   "description": "Интерактивная система управления производством",
   "keywords": ["react", "production", "management"],
   "main": "src/index.js",
@@ -14,14 +15,17 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build"
+    "build": "react-scripts build",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
   },
   "browserslist": {
     "production": [">0.2%", "not dead", "not op_mini all"],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+    "development": ["last 1 chrome version", "last 1 firefox version", "last 1 safari version"]
+  },
+  "devDependencies": {
+    "gh-pages": "^6.0.0"
   }
 }
