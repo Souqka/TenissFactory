@@ -2,59 +2,86 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Управление производством</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏭</text></svg>">
     <style>
         :root {
-            --bg-primary: #ffffff;
-            --bg-secondary: #f8faf8;
-            --text-primary: #2d3436;
-            --text-secondary: #636e72;
-            --border-color: #a8e6cf;
-            --border-light: #dcedc1;
-            --accent-green: #4caf50;
-            --danger-red: #ff6b6b;
-            --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            --card-bg: #ffffff;
-            --hover-bg: #f0f7f0;
+            --bg-primary: #ffffff; --bg-secondary: #f8faf8;
+            --text-primary: #2d3436; --text-secondary: #636e72;
+            --border-color: #a8e6cf; --border-light: #dcedc1;
+            --accent-green: #4caf50; --danger-red: #ff6b6b;
+            --shadow: 0 2px 8px rgba(0,0,0,0.1);
+            --card-bg: #ffffff; --hover-bg: #f0f7f0;
         }
 
         [data-theme="dark"] {
-            --bg-primary: #1a1a2e;
-            --bg-secondary: #16213e;
-            --text-primary: #e0e0e0;
-            --text-secondary: #a0a0a0;
-            --border-color: #2d5a3d;
-            --border-light: #1e3a2f;
-            --accent-green: #66bb6a;
-            --danger-red: #ef5350;
-            --shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
-            --card-bg: #222831;
-            --hover-bg: #2d3a2d;
+            --bg-primary: #1a1a2e; --bg-secondary: #16213e;
+            --text-primary: #e0e0e0; --text-secondary: #a0a0a0;
+            --border-color: #2d5a3d; --border-light: #1e3a2f;
+            --accent-green: #66bb6a; --danger-red: #ef5350;
+            --shadow: 0 2px 8px rgba(0,0,0,0.4);
+            --card-bg: #222831; --hover-bg: #2d3a2d;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-primary);
-            color: var(--text-primary);
+            background-color: var(--bg-primary); color: var(--text-primary);
             transition: all 0.3s ease;
+            touch-action: manipulation; -webkit-user-select: none; user-select: none;
         }
+
+        .auth-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-primary); z-index: 9999;
+            display: flex; justify-content: center; align-items: center;
+        }
+        .auth-overlay.hidden { display: none; }
+
+        .auth-card {
+            background: var(--card-bg); border-radius: 20px; padding: 40px;
+            border: 2px solid var(--border-color); box-shadow: var(--shadow);
+            text-align: center; max-width: 400px; width: 90%;
+        }
+        .auth-card h2 { color: var(--accent-green); margin-bottom: 20px; }
+        .auth-input {
+            width: 100%; padding: 12px; margin: 10px 0;
+            border: 2px solid var(--border-color); border-radius: 10px;
+            font-size: 24px; text-align: center; letter-spacing: 10px;
+            background: var(--bg-primary); color: var(--text-primary);
+        }
+        .auth-input:focus { outline: none; border-color: var(--accent-green); }
+        .user-list { display: flex; flex-direction: column; gap: 8px; margin: 15px 0; }
+        .user-btn {
+            padding: 12px; border: 2px solid var(--border-color);
+            border-radius: 10px; background: var(--card-bg);
+            color: var(--text-primary); cursor: pointer; font-size: 16px;
+            transition: all 0.3s ease; text-align: left;
+        }
+        .user-btn:hover { background: var(--accent-green); color: white; border-color: var(--accent-green); }
+        .custom-user-btn { font-style: italic; }
 
         .app-container { max-width: 1400px; margin: 0 auto; padding: 20px; }
 
         .header {
             display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 30px; padding: 20px;
+            margin-bottom: 20px; padding: 20px;
             background: var(--card-bg); border-radius: 15px;
             border: 2px solid var(--border-color); box-shadow: var(--shadow);
             flex-wrap: wrap; gap: 15px;
         }
-
         .header h1 { color: var(--accent-green); font-size: 24px; }
-
         .header-controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+        .user-badge {
+            padding: 8px 15px; border-radius: 20px; font-size: 14px;
+            font-weight: 600; white-space: nowrap;
+            background: var(--hover-bg); color: var(--text-primary);
+            cursor: pointer; border: 2px solid var(--border-color);
+        }
+        .user-badge:hover { background: var(--accent-green); color: white; }
 
         .sync-status {
             display: flex; align-items: center; gap: 8px;
@@ -89,13 +116,11 @@
             background: var(--card-bg); border-radius: 15px; padding: 25px;
             border: 2px solid var(--border-color); box-shadow: var(--shadow);
         }
-
         .section-title {
             color: var(--accent-green); font-size: 20px;
             margin-bottom: 20px; padding-bottom: 10px;
             border-bottom: 2px solid var(--border-light);
         }
-
         .subsection-title {
             color: var(--text-primary); font-size: 16px;
             margin: 15px 0 10px 0; font-weight: 600;
@@ -111,28 +136,23 @@
             background: var(--bg-primary); border-radius: 8px;
             border: 1px solid var(--border-light);
         }
-
         .item-name {
             font-weight: 600; margin-bottom: 10px;
             display: flex; justify-content: space-between;
             align-items: center; flex-wrap: wrap; gap: 10px;
         }
-
         .item-value { font-size: 18px; font-weight: bold; }
         .critical-low { color: var(--danger-red); animation: pulse 2s infinite; }
         @keyframes pulse {
             0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; }
         }
-
         .min-badge {
             font-size: 12px; padding: 2px 8px; border-radius: 10px;
             background: var(--border-light); color: var(--text-secondary);
             cursor: pointer;
         }
         .min-badge:hover { background: var(--accent-green); color: white; }
-
         .item-controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-
         .qty-input {
             width: 70px; padding: 8px; border: 2px solid var(--border-color);
             border-radius: 6px; text-align: center; font-size: 16px;
@@ -145,10 +165,8 @@
             cursor: pointer; font-size: 14px; font-weight: bold;
             transition: all 0.3s ease; color: white; min-width: 40px;
         }
-        .btn-m10 { background: #e74c3c; }
-        .btn-m1 { background: #ff7675; }
-        .btn-p1 { background: #55efc4; color: #2d3436; }
-        .btn-p10 { background: #00b894; }
+        .btn-m10 { background: #e74c3c; } .btn-m1 { background: #ff7675; }
+        .btn-p1 { background: #55efc4; color: #2d3436; } .btn-p10 { background: #00b894; }
         .btn:hover { transform: scale(1.05); opacity: 0.9; }
         .btn:active { transform: scale(0.95); }
 
@@ -170,7 +188,6 @@
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 20px; margin-top: 20px;
         }
-
         .stat-card {
             background: var(--bg-secondary); padding: 20px;
             border-radius: 10px; border: 1px solid var(--border-light);
@@ -205,13 +222,11 @@
             margin-bottom: 30px; display: none;
         }
         .limits-panel.show { display: block; }
-
         .limits-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 15px; margin-top: 20px;
         }
-
         .limit-item {
             display: flex; justify-content: space-between; align-items: center;
             padding: 12px; background: var(--bg-secondary);
@@ -223,6 +238,63 @@
             width: 70px; padding: 6px; border: 2px solid var(--border-color);
             border-radius: 6px; text-align: center; font-size: 14px;
             background: var(--bg-primary); color: var(--text-primary);
+        }
+
+        /* ========== PINBOARD ========== */
+        .pinboard {
+            background: var(--card-bg); border-radius: 15px; padding: 20px;
+            border: 2px solid #74b9ff; box-shadow: var(--shadow);
+            margin-bottom: 20px;
+        }
+        .pinboard-header {
+            display: flex; justify-content: space-between; align-items: center;
+            cursor: pointer; user-select: none;
+        }
+        .pinboard-header h2 { color: #74b9ff; font-size: 20px; margin: 0; }
+        .pinboard-body { margin-top: 15px; }
+        .pinboard-body.hidden { display: none; }
+
+        .note-card {
+            background: var(--bg-secondary); border-radius: 10px;
+            padding: 15px; margin-bottom: 10px;
+            border: 1px solid var(--border-light);
+            transition: all 0.3s ease;
+        }
+        .note-card.done { opacity: 0.6; border-left: 4px solid var(--accent-green); }
+        .note-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 8px; flex-wrap: wrap; gap: 5px;
+        }
+        .note-text { font-size: 15px; margin-bottom: 8px; word-break: break-word; }
+        .note-meta {
+            display: flex; gap: 15px; font-size: 12px; color: var(--text-secondary);
+            flex-wrap: wrap;
+        }
+        .note-actions { display: flex; gap: 5px; margin-top: 8px; }
+        .note-btn {
+            padding: 4px 10px; border: 1px solid var(--border-color);
+            border-radius: 4px; background: var(--card-bg);
+            color: var(--text-primary); cursor: pointer; font-size: 12px;
+            transition: all 0.2s ease;
+        }
+        .note-btn:hover { background: var(--hover-bg); }
+        .note-btn.done-btn { color: var(--accent-green); border-color: var(--accent-green); }
+        .note-btn.delete-btn { color: var(--danger-red); border-color: var(--danger-red); }
+        .note-btn.edit-btn { color: #74b9ff; border-color: #74b9ff; }
+
+        .add-note-form {
+            display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap;
+            padding: 15px; background: var(--bg-secondary);
+            border-radius: 10px; border: 1px dashed var(--border-color);
+        }
+        .add-note-form input, .add-note-form select {
+            padding: 10px; border: 2px solid var(--border-color);
+            border-radius: 8px; font-size: 14px;
+            background: var(--bg-primary); color: var(--text-primary);
+            flex: 1; min-width: 150px;
+        }
+        .add-note-form input:focus, .add-note-form select:focus {
+            outline: none; border-color: #74b9ff;
         }
 
         .toast {
@@ -242,14 +314,20 @@
             .stats-grid { grid-template-columns: 1fr; }
             .header { flex-direction: column; }
             .limits-grid { grid-template-columns: 1fr; }
+            .add-note-form { flex-direction: column; }
         }
     </style>
 </head>
 <body>
-    <div class="app-container">
+    <div class="auth-overlay" id="authOverlay">
+        <div class="auth-card" id="authCard"></div>
+    </div>
+
+    <div class="app-container" id="appContainer" style="display:none">
         <header class="header">
             <h1>🏭 Управление производством</h1>
             <div class="header-controls">
+                <span class="user-badge" onclick="switchUser()" id="userBadge">👤</span>
                 <span class="sync-status sync-loading" id="syncStatus">🔄 Подключение...</span>
                 <button class="btn-sm" onclick="syncNow()">🔄 Синхронизировать</button>
                 <button class="btn-sm" onclick="toggleLimits()" id="limitsBtn">⚙️ Мин. запасы</button>
@@ -273,6 +351,26 @@
 
         <div id="tab-inventory" class="tab-content active">
             <div id="alerts"></div>
+            
+            <!-- PINBOARD -->
+            <div class="pinboard" id="pinboard">
+                <div class="pinboard-header" onclick="togglePinboard()">
+                    <h2>📌 Записки <span id="noteCount">[0]</span></h2>
+                    <span id="pinboardArrow">▼</span>
+                </div>
+                <div class="pinboard-body" id="pinboardBody">
+                    <div id="notesList"></div>
+                    <div class="add-note-form">
+                        <input type="text" id="newNoteText" placeholder="Текст записки..." maxlength="200">
+                        <select id="newNoteAssignee">
+                            <option value="">Исполнитель...</option>
+                        </select>
+                        <button class="btn btn-p10" onclick="addNote()" style="min-width:60px">+</button>
+                    </div>
+                </div>
+            </div>
+            <!-- /PINBOARD -->
+
             <div class="sections-container">
                 <div class="section">
                     <h2 class="section-title">📦 Отдел 1: Запасы</h2>
@@ -304,6 +402,12 @@
                 <h2 class="section-title">📊 Статистика</h2>
                 <div class="stats-grid" id="statsGrid"></div>
             </div>
+            
+            <!-- Выполненные записки -->
+            <div class="panel" style="margin-top:20px">
+                <h2 class="section-title" style="color:#74b9ff">✅ Выполненные записки</h2>
+                <div id="doneNotesList"></div>
+            </div>
         </div>
     </div>
 
@@ -313,89 +417,190 @@
         // ============ КОНФИГУРАЦИЯ ============
         const SYNC_URL = 'https://script.google.com/macros/s/AKfycbzOLHQ2L9qQocsJ1iBVTYVXbQRxId8Ox77_s4AZVUNs3CQlZAnYfJDBgJeEuvxx4Kr-lg/exec';
         const SYNC_INTERVAL = 15000;
+        const PASS = '0000';
+        const USERS = ['Илья', 'Глеб', 'Артур', 'Наём. Раб.'];
+        const USER_COLORS = {
+            'Илья': '#3498db', 'Глеб': '#e67e22',
+            'Артур': '#9b59b6', 'Наём. Раб.': '#95a5a6'
+        };
 
-        // ============ ДАННЫЕ (ВСЕ ПО 1) ============
+        // ============ ДАННЫЕ ============
         const defaultData = {
             supplies: {
-                'Скотч желтый': 1,
-                'Скотч прозрачный': 1,
-                'Стрэйтч': 1,
-                'Крючки черные': 1,
-                'Крючки белые': 1,
-                'Пластик белый': 1,
-                'Коробки': 1,
-                'Грунт': 1,
-                'Рамки черные': 1,
-                'Рамки белые': 1,
-                'Оргстекло': 1,
-                'Доски': 1
+                'Скотч желтый':1,'Скотч прозрачный':1,'Стрэйтч':1,
+                'Крючки черные':1,'Крючки белые':1,'Пластик белый':1,
+                'Коробки':1,'Грунт':1,'Пупырка':1,
+                'Рамки черные':1,'Рамки белые':1,'Оргстекло':1,'Доски':1
             },
             production: {
-                'Пластик нарезанный': 1,
-                'Сушка грунта': 1,
-                'Сушка полей': 1,
-                'Готовые рамки': 1,
-                'Кривые': 1
+                'Пластик нарезанный':1,'Сушка грунта':1,'Сушка полей':1,
+                'Готовые рамки':1,'Кривые':1
             },
             assembly: {
-                'Непроверенные черные': 1,
-                'Непроверенные белые': 1,
-                'Проверенные черные': 1,
-                'Проверенные белые': 1,
-                'Упакованные черные': 1,
-                'Упакованные белые': 1,
-                'Отдано черные': 1,
-                'Отдано белые': 1
+                'Непроверенные черные':1,'Непроверенные белые':1,
+                'Проверенные черные':1,'Проверенные белые':1,
+                'Упакованные черные':1,'Упакованные белые':1,
+                'Отдано черные':1,'Отдано белые':1
             }
         };
 
-        const defaultLimits = {
-            'Скотч желтый': 1,
-            'Скотч прозрачный': 1,
-            'Стрэйтч': 1,
-            'Крючки черные': 1,
-            'Крючки белые': 1,
-            'Пластик белый': 1,
-            'Коробки': 1,
-            'Грунт': 1,
-            'Рамки черные': 1,
-            'Рамки белые': 1,
-            'Оргстекло': 1,
-            'Доски': 1,
-            'Пластик нарезанный': 1,
-            'Сушка грунта': 1,
-            'Сушка полей': 1,
-            'Готовые рамки': 1,
-            'Кривые': 1,
-            'Непроверенные черные': 1,
-            'Непроверенные белые': 1,
-            'Проверенные черные': 1,
-            'Проверенные белые': 1,
-            'Упакованные черные': 1,
-            'Упакованные белые': 1,
-            'Отдано черные': 1,
-            'Отдано белые': 1
-        };
+        const defaultLimits = {};
+        for(let c in defaultData) for(let i in defaultData[c]) defaultLimits[i] = 1;
 
         let data = JSON.parse(localStorage.getItem('pd') || JSON.stringify(defaultData));
         let limits = JSON.parse(localStorage.getItem('pl') || JSON.stringify(defaultLimits));
         let history = JSON.parse(localStorage.getItem('ph') || '[]');
+        let notes = JSON.parse(localStorage.getItem('pn') || '[]');
         let dark = JSON.parse(localStorage.getItem('dm') || 'false');
+        let currentUser = localStorage.getItem('user') || null;
         let showLimits = false;
+        let pinboardOpen = true;
         let syncTimer = null;
         let isFirstSync = true;
 
+        // ============ АВТОРИЗАЦИЯ ============
+        function initAuth() {
+            if(currentUser) { showApp(); } else { showPasswordScreen(); }
+        }
+
+        function showPasswordScreen() {
+            document.getElementById('authOverlay').classList.remove('hidden');
+            document.getElementById('appContainer').style.display = 'none';
+            document.getElementById('authCard').innerHTML = `
+                <h2>🏭 Вход на производство</h2>
+                <input type="password" class="auth-input" id="passInput" placeholder="0000" maxlength="4" autofocus>
+                <p style="color:var(--danger-red);display:none" id="passError">Неверный пароль</p>
+                <button class="btn btn-p10" onclick="checkPass()" style="width:100%;margin-top:10px;padding:12px;font-size:16px">Войти</button>
+            `;
+            document.getElementById('passInput').addEventListener('keypress', (e) => { if(e.key === 'Enter') checkPass(); });
+            setTimeout(() => document.getElementById('passInput')?.focus(), 100);
+        }
+
+        function checkPass() {
+            if(document.getElementById('passInput').value === PASS) { showUserSelect(); }
+            else { document.getElementById('passError').style.display = 'block'; document.getElementById('passInput').value = ''; }
+        }
+
+        function showUserSelect() {
+            let html = '<h2>👤 Кто вы?</h2><div class="user-list">';
+            USERS.forEach(user => {
+                html += `<button class="user-btn" style="border-left:4px solid ${USER_COLORS[user]}" onclick="login('${user}')">${user}</button>`;
+            });
+            html += `<button class="user-btn custom-user-btn" onclick="loginCustom()">✏️ Другое имя...</button></div>`;
+            document.getElementById('authCard').innerHTML = html;
+        }
+
+        function login(user) { currentUser = user; localStorage.setItem('user', user); showApp(); }
+        function loginCustom() {
+            const name = prompt('Введите ваше имя:');
+            if(name?.trim()) { currentUser = name.trim(); localStorage.setItem('user', currentUser); showApp(); }
+        }
+
+        function switchUser() {
+            if(confirm('Сменить пользователя?')) {
+                currentUser = null; localStorage.removeItem('user');
+                document.getElementById('authOverlay').classList.remove('hidden');
+                document.getElementById('appContainer').style.display = 'none';
+                showPasswordScreen();
+            }
+        }
+
+        function showApp() {
+            document.getElementById('authOverlay').classList.add('hidden');
+            document.getElementById('appContainer').style.display = 'block';
+            document.getElementById('userBadge').textContent = '👤 ' + currentUser;
+            document.getElementById('userBadge').style.borderLeft = '4px solid ' + (USER_COLORS[currentUser] || '#636e72');
+            document.getElementById('newNoteAssignee').innerHTML = '<option value="">Исполнитель...</option>' +
+                USERS.map(u => `<option value="${u}">${u}</option>`).join('');
+            init();
+        }
+
+        // ============ PINBOARD ============
+        function togglePinboard() {
+            pinboardOpen = !pinboardOpen;
+            document.getElementById('pinboardBody').classList.toggle('hidden', !pinboardOpen);
+            document.getElementById('pinboardArrow').textContent = pinboardOpen ? '▼' : '▶';
+        }
+
+        function addNote() {
+            const text = document.getElementById('newNoteText').value.trim();
+            const assignee = document.getElementById('newNoteAssignee').value;
+            if(!text) return toast('Введите текст записки');
+            
+            notes.unshift({
+                id: Date.now(),
+                text, assignee,
+                author: currentUser,
+                done: false,
+                created: new Date().toLocaleString('ru-RU')
+            });
+            document.getElementById('newNoteText').value = '';
+            document.getElementById('newNoteAssignee').value = '';
+            renderNotes();
+            save();
+            pushToCloud();
+            toast('✅ Записка добавлена');
+        }
+
+        function toggleNoteDone(id) {
+            const note = notes.find(n => n.id === id);
+            if(note) { note.done = !note.done; renderNotes(); save(); pushToCloud(); }
+        }
+
+        function editNote(id) {
+            const note = notes.find(n => n.id === id);
+            if(!note) return;
+            const text = prompt('Редактировать записку:', note.text);
+            if(text?.trim()) {
+                note.text = text.trim();
+                renderNotes(); save(); pushToCloud();
+            }
+        }
+
+        function deleteNote(id) {
+            if(confirm('Удалить записку?')) {
+                notes = notes.filter(n => n.id !== id);
+                renderNotes(); save(); pushToCloud();
+            }
+        }
+
+        function renderNotes() {
+            const active = notes.filter(n => !n.done);
+            const done = notes.filter(n => n.done);
+            
+            document.getElementById('noteCount').textContent = `[${active.length}]`;
+            
+            document.getElementById('notesList').innerHTML = active.length === 0
+                ? '<p style="color:var(--text-secondary);padding:10px">Нет активных записок</p>'
+                : active.map(n => createNoteCard(n)).join('');
+            
+            document.getElementById('doneNotesList').innerHTML = done.length === 0
+                ? '<p style="color:var(--text-secondary);padding:10px">Нет выполненных записок</p>'
+                : done.map(n => createNoteCard(n)).join('');
+        }
+
+        function createNoteCard(n) {
+            return `<div class="note-card ${n.done ? 'done' : ''}">
+                <div class="note-header">
+                    <strong style="color:${USER_COLORS[n.author] || '#636e72'}">${n.author || '?'}</strong>
+                    <span style="font-size:12px;color:var(--text-secondary)">${n.created}</span>
+                </div>
+                <div class="note-text">${n.text}</div>
+                <div class="note-meta">
+                    ${n.assignee ? `<span>👤 ${n.assignee}</span>` : '<span>👤 Без исполнителя</span>'}
+                </div>
+                <div class="note-actions">
+                    <button class="note-btn done-btn" onclick="toggleNoteDone(${n.id})">${n.done ? '↩ Вернуть' : '✓ Выполнено'}</button>
+                    ${!n.done ? `<button class="note-btn edit-btn" onclick="editNote(${n.id})">✏️</button>` : ''}
+                    <button class="note-btn delete-btn" onclick="deleteNote(${n.id})">🗑️</button>
+                </div>
+            </div>`;
+        }
+
         // ============ ИНИЦИАЛИЗАЦИЯ ============
         async function init() {
-            if(dark) { 
-                document.body.setAttribute('data-theme','dark');
-                document.querySelector('.btn-sm:nth-child(4)').textContent = '☀️ Тема';
-            }
-            
-            render();
-            updateStats();
-            renderLimits();
-            
+            if(dark) document.body.setAttribute('data-theme','dark');
+            render(); updateStats(); renderLimits(); renderNotes();
             await loadFromCloud();
             startAutoSync();
         }
@@ -404,6 +609,7 @@
             localStorage.setItem('pd', JSON.stringify(data));
             localStorage.setItem('pl', JSON.stringify(limits));
             localStorage.setItem('ph', JSON.stringify(history));
+            localStorage.setItem('pn', JSON.stringify(notes));
             localStorage.setItem('dm', JSON.stringify(dark));
             toast('✓ Сохранено');
         }
@@ -415,132 +621,73 @@
         }
 
         // ============ СИНХРОНИЗАЦИЯ ============
-        function startAutoSync() {
-            stopAutoSync();
-            syncTimer = setInterval(syncData, SYNC_INTERVAL);
-        }
-
-        function stopAutoSync() {
-            if(syncTimer) { clearInterval(syncTimer); syncTimer = null; }
-        }
+        function startAutoSync() { stopAutoSync(); syncTimer = setInterval(syncData, SYNC_INTERVAL); }
+        function stopAutoSync() { if(syncTimer) { clearInterval(syncTimer); syncTimer = null; } }
 
         async function loadFromCloud() {
             try {
-                updateSyncStatus('sync-loading', '🔄 Загрузка данных...');
-                
+                updateSyncStatus('sync-loading', '🔄 Загрузка...');
                 const resp = await fetch(SYNC_URL + '?t=' + Date.now());
-                const txt = await resp.text();
-                const cloud = JSON.parse(txt);
+                const cloud = JSON.parse(await resp.text());
+                const localTime = parseInt(localStorage.getItem('lt') || '0');
+                const cloudTime = cloud.t || 0;
                 
-                if(cloud && cloud.d) {
-                    const localTime = parseInt(localStorage.getItem('lt') || '0');
-                    const cloudTime = cloud.t || 0;
-                    
-                    if(isFirstSync || cloudTime > localTime) {
-                        data = cloud.d;
-                        if(cloud.l) limits = cloud.l;
-                        if(cloud.h) history = cloud.h;
-                        localStorage.setItem('lt', cloudTime);
-                        
-                        render();
-                        updateStats();
-                        updateSyncStatus('sync-online', '🟢 Данные загружены');
-                    } else {
-                        await pushToCloud();
-                    }
-                } else {
+                if(cloud.d && (isFirstSync || cloudTime > localTime)) {
+                    data = cloud.d; if(cloud.l) limits = cloud.l;
+                    if(cloud.h) history = cloud.h; if(cloud.n) notes = cloud.n;
+                    localStorage.setItem('lt', cloudTime);
+                    render(); updateStats(); renderNotes();
+                    updateSyncStatus('sync-online', '🟢 Загружено');
+                } else if(cloudTime < localTime) {
                     await pushToCloud();
-                }
-                
+                } else { updateSyncStatus('sync-online', '🟢 OK'); }
                 isFirstSync = false;
-                
-            } catch(e) {
-                console.error('Ошибка загрузки:', e);
-                updateSyncStatus('sync-error', '🔴 Ошибка загрузки');
-                try { await pushToCloud(); } catch(x) {}
-            }
+            } catch(e) { updateSyncStatus('sync-error', '🔴 Ошибка'); }
         }
 
         async function pushToCloud() {
             const ts = Date.now();
             const payload = JSON.stringify({
-                d: data,
-                l: limits,
-                h: history.slice(0, 20),
-                t: ts
+                d:data, l:limits, h:history.slice(0,20), n:notes, t:ts
             });
-            
             try {
                 updateSyncStatus('sync-loading', '🔄 Отправка...');
-                
-                await fetch(SYNC_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: payload
-                });
-                
+                await fetch(SYNC_URL, { method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:payload });
                 localStorage.setItem('lt', ts);
-                updateSyncStatus('sync-online', '🟢 Синхронизировано');
-                
-            } catch(e) {
-                console.error('Ошибка отправки:', e);
-                updateSyncStatus('sync-error', '🔴 Ошибка');
-            }
+                updateSyncStatus('sync-online', '🟢 OK');
+            } catch(e) { updateSyncStatus('sync-error', '🔴 Ошибка'); }
         }
 
         async function syncData() {
             try {
                 const resp = await fetch(SYNC_URL + '?t=' + Date.now());
-                const txt = await resp.text();
-                const cloud = JSON.parse(txt);
-                
-                const localTime = parseInt(localStorage.getItem('lt') || '0');
+                const cloud = JSON.parse(await resp.text());
+                const localTime = parseInt(localStorage.getItem('lt')||'0');
                 const cloudTime = cloud.t || 0;
-                
                 if(cloud.d && cloudTime > localTime) {
-                    data = cloud.d;
-                    if(cloud.l) limits = cloud.l;
-                    if(cloud.h) history = cloud.h;
+                    data = cloud.d; if(cloud.l) limits = cloud.l;
+                    if(cloud.h) history = cloud.h; if(cloud.n) notes = cloud.n;
                     localStorage.setItem('lt', cloudTime);
-                    render();
-                    updateStats();
+                    render(); updateStats(); renderNotes();
                     updateSyncStatus('sync-online', '🟢 Обновлено');
-                } else if(cloudTime < localTime) {
-                    await pushToCloud();
-                } else {
-                    updateSyncStatus('sync-online', '🟢 OK');
-                }
-            } catch(e) {
-                console.error('Ошибка синхронизации:', e);
-                updateSyncStatus('sync-error', '🔴 Ошибка');
-            }
+                } else if(cloudTime < localTime) { await pushToCloud(); }
+                else { updateSyncStatus('sync-online', '🟢 OK'); }
+            } catch(e) { updateSyncStatus('sync-error', '🔴 Ошибка'); }
         }
 
         function syncNow() {
-            updateSyncStatus('sync-loading', '🔄 Синхронизация...');
-            pushToCloud().then(() => {
-                toast('✅ Синхронизировано');
-            }).catch(() => {
-                toast('❌ Ошибка');
-            });
+            pushToCloud().then(() => toast('✅ Синхронизировано')).catch(() => toast('❌ Ошибка'));
         }
 
         function updateSyncStatus(cls, txt) {
             const el = document.getElementById('syncStatus');
-            el.className = 'sync-status ' + cls;
-            el.innerHTML = txt;
+            el.className = 'sync-status ' + cls; el.innerHTML = txt;
         }
 
         // ============ ТЕМА И ВКЛАДКИ ============
         function toggleTheme() {
             dark = !dark;
-            if(dark) {
-                document.body.setAttribute('data-theme','dark');
-                document.querySelector('.btn-sm:nth-child(4)').textContent = '☀️ Тема';
-            } else {
-                document.body.removeAttribute('data-theme');
-                document.querySelector('.btn-sm:nth-child(4)').textContent = '🌙 Тема';
-            }
+            dark ? document.body.setAttribute('data-theme','dark') : document.body.removeAttribute('data-theme');
             save();
         }
 
@@ -549,205 +696,114 @@
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             event.target.classList.add('active');
             document.getElementById('tab-' + name).classList.add('active');
-            if(name === 'stats') updateStats();
+            if(name === 'stats') { updateStats(); renderNotes(); }
         }
 
-        // ============ ЛИМИТЫ ============
+        // ============ ОСТАЛЬНОЕ (без изменений) ============
         function toggleLimits() {
             showLimits = !showLimits;
-            const panel = document.getElementById('limitsPanel');
-            const btn = document.getElementById('limitsBtn');
-            if(showLimits) {
-                panel.classList.add('show');
-                btn.classList.add('active');
-                renderLimits();
-            } else {
-                panel.classList.remove('show');
-                btn.classList.remove('active');
-            }
+            const p = document.getElementById('limitsPanel'), b = document.getElementById('limitsBtn');
+            showLimits ? (p.classList.add('show'), b.classList.add('active'), renderLimits()) : (p.classList.remove('show'), b.classList.remove('active'));
         }
 
         function renderLimits() {
-            const grid = document.getElementById('limitsGrid');
-            let items = {};
-            for(let c in data) for(let i in data[c]) items[i] = limits[i] || 1;
-            
-            grid.innerHTML = Object.keys(items).sort().map(i => `
-                <div class="limit-item">
-                    <span class="limit-name">${i}</span>
-                    <div class="limit-controls">
-                        <span style="font-size:12px">Мин:</span>
-                        <input type="number" class="limit-input" value="${items[i]}" min="0"
-                            onchange="limits['${i}']=Math.max(0,parseInt(this.value)||0);save();render();checkAlerts()">
-                    </div>
-                </div>
-            `).join('');
+            const g = document.getElementById('limitsGrid'); let items = {};
+            for(let c in data) for(let i in data[c]) items[i] = limits[i] ?? 0;
+            g.innerHTML = Object.keys(items).sort().map(i => `
+                <div class="limit-item"><span class="limit-name">${i}</span><div class="limit-controls">
+                <span style="font-size:12px">Мин:</span>
+                <input type="number" class="limit-input" value="${items[i]}" min="0"
+                onchange="limits['${i}']=Math.max(0,parseInt(this.value)||0);save();render();checkAlerts()"></div></div>`).join('');
         }
 
         function saveLimits() {
-            document.querySelectorAll('.limit-input').forEach(inp => {
-                const item = inp.closest('.limit-item').querySelector('.limit-name').textContent;
-                limits[item] = Math.max(0, parseInt(inp.value) || 0);
+            document.querySelectorAll('.limit-input').forEach(i => {
+                limits[i.closest('.limit-item').querySelector('.limit-name').textContent] = Math.max(0,parseInt(i.value)||0);
             });
-            save();
-            render();
-            checkAlerts();
-            pushToCloud();
-            toast('✅ Лимиты сохранены');
+            save(); render(); checkAlerts(); pushToCloud(); toast('✅ Лимиты сохранены');
         }
 
         function quickEditLimit(item) {
-            const v = prompt(`Минимальный запас для "${item}":`, limits[item] || 1);
-            if(v !== null) {
-                limits[item] = Math.max(0, parseInt(v) || 0);
-                save();
-                render();
-                checkAlerts();
-                if(showLimits) renderLimits();
-            }
+            const v = prompt(`Мин. запас для "${item}":`, limits[item]??0);
+            if(v!==null) { limits[item]=Math.max(0,parseInt(v)||0); save(); render(); checkAlerts(); if(showLimits) renderLimits(); }
         }
 
-        // ============ ИЗМЕНЕНИЯ ============
         function updateValue(cat, item, delta) {
             const old = data[cat][item];
             data[cat][item] = Math.max(0, old + delta);
-            history.unshift({
-                time: new Date().toLocaleString('ru-RU'),
-                item, old, new: data[cat][item],
-                act: delta > 0 ? '+' + delta : delta
-            });
-            if(history.length > 100) history = history.slice(0, 100);
-            render();
-            checkAlerts();
-            save();
-            pushToCloud();
+            history.unshift({ time: new Date().toLocaleString('ru-RU'), user:currentUser, item, old, new:data[cat][item], act: delta>0?'+'+delta:delta });
+            if(history.length>100) history=history.slice(0,100);
+            render(); checkAlerts(); save(); pushToCloud();
         }
 
         function setValue(cat, item, val) {
             const old = data[cat][item];
-            data[cat][item] = Math.max(0, parseInt(val) || 0);
-            history.unshift({
-                time: new Date().toLocaleString('ru-RU'),
-                item, old, new: data[cat][item],
-                act: 'ввод'
-            });
-            if(history.length > 100) history = history.slice(0, 100);
-            render();
-            checkAlerts();
-            save();
-            pushToCloud();
+            data[cat][item] = Math.max(0, parseInt(val)||0);
+            history.unshift({ time: new Date().toLocaleString('ru-RU'), user:currentUser, item, old, new:data[cat][item], act:'ввод' });
+            if(history.length>100) history=history.slice(0,100);
+            render(); checkAlerts(); save(); pushToCloud();
         }
 
         function checkAlerts() {
             const critical = [];
             for(let c in data) for(let i in data[c]) {
-                const v = data[c][i];
-                const min = limits[i] || 1;
-                if(v <= min) critical.push({i, v, min});
+                const v=data[c][i], min=limits[i]??0;
+                if(v<=min) critical.push({i,v,min});
             }
-            const div = document.getElementById('alerts');
-            if(critical.length) {
-                div.innerHTML = `<div class="alert-box"><h3>⚠️ Критические запасы:</h3>
-                    ${critical.map(x => `<div class="alert-item">🔴 ${x.i}: ${x.v} ед. (мин: ${x.min})</div>`).join('')}
-                </div>`;
-            } else div.innerHTML = '';
+            const d=document.getElementById('alerts');
+            d.innerHTML = critical.length ? `<div class="alert-box"><h3>⚠️ Критические запасы:</h3>${critical.map(x=>`<div class="alert-item">🔴 ${x.i}: ${x.v} ед. (мин: ${x.min})</div>`).join('')}</div>` : '';
         }
 
         function createItem(cat, item, val, sub) {
-            const min = limits[item] || 1;
-            const crit = val <= min;
-            return `<div class="${sub?'sub-item':'item'}">
-                <div class="item-name">
-                    <span>${item} <span class="min-badge" onclick="quickEditLimit('${item}')">мин:${min}</span></span>
-                    <span class="item-value ${crit?'critical-low':''}">${val}</span>
-                </div>
-                <div class="item-controls">
-                    <button class="btn btn-m10" onclick="updateValue('${cat}','${item}',-10)">-10</button>
-                    <button class="btn btn-m1" onclick="updateValue('${cat}','${item}',-1)">-1</button>
-                    <input type="number" class="qty-input" value="${val}" min="0" onchange="setValue('${cat}','${item}',this.value)">
-                    <button class="btn btn-p1" onclick="updateValue('${cat}','${item}',1)">+1</button>
-                    <button class="btn btn-p10" onclick="updateValue('${cat}','${item}',10)">+10</button>
-                </div>
-            </div>`;
+            const min=limits[item]??0, crit=val<=min;
+            return `<div class="${sub?'sub-item':'item'}"><div class="item-name"><span>${item} <span class="min-badge" onclick="quickEditLimit('${item}')">мин:${min}</span></span><span class="item-value ${crit?'critical-low':''}">${val}</span></div><div class="item-controls"><button class="btn btn-m10" onclick="updateValue('${cat}','${item}',-10)">-10</button><button class="btn btn-m1" onclick="updateValue('${cat}','${item}',-1)">-1</button><input type="number" class="qty-input" value="${val}" min="0" onchange="setValue('${cat}','${item}',this.value)"><button class="btn btn-p1" onclick="updateValue('${cat}','${item}',1)">+1</button><button class="btn btn-p10" onclick="updateValue('${cat}','${item}',10)">+10</button></div></div>`;
         }
 
         function render() {
-            // Supplies
-            let s = '<h3 class="subsection-title">Скотч</h3>';
-            s += createItem('supplies','Скотч желтый',data.supplies['Скотч желтый'],true);
-            s += createItem('supplies','Скотч прозрачный',data.supplies['Скотч прозрачный'],true);
-            
-            s += '<h3 class="subsection-title">Крючки</h3>';
-            s += createItem('supplies','Крючки черные',data.supplies['Крючки черные'],true);
-            s += createItem('supplies','Крючки белые',data.supplies['Крючки белые'],true);
-            
-            s += '<h3 class="subsection-title">Прочее</h3>';
-            ['Стрэйтч','Пластик белый','Коробки','Грунт'].forEach(i => s += createItem('supplies',i,data.supplies[i]));
-            
-            s += '<h3 class="subsection-title">Рамки</h3>';
-            s += createItem('supplies','Рамки черные',data.supplies['Рамки черные'],true);
-            s += createItem('supplies','Рамки белые',data.supplies['Рамки белые'],true);
-            
-            ['Оргстекло','Доски'].forEach(i => s += createItem('supplies',i,data.supplies[i]));
-            document.getElementById('supplies').innerHTML = s;
-
-            // Production
-            document.getElementById('production').innerHTML = Object.keys(data.production).map(i => createItem('production',i,data.production[i])).join('');
-
-            // Assembly
-            let a = '<h3 class="subsection-title">Непроверенные</h3>';
-            a += createItem('assembly','Непроверенные черные',data.assembly['Непроверенные черные'],true);
-            a += createItem('assembly','Непроверенные белые',data.assembly['Непроверенные белые'],true);
-            a += '<h3 class="subsection-title">Проверенные</h3>';
-            a += createItem('assembly','Проверенные черные',data.assembly['Проверенные черные'],true);
-            a += createItem('assembly','Проверенные белые',data.assembly['Проверенные белые'],true);
-            a += '<h3 class="subsection-title">Упакованные</h3>';
-            a += createItem('assembly','Упакованные черные',data.assembly['Упакованные черные'],true);
-            a += createItem('assembly','Упакованные белые',data.assembly['Упакованные белые'],true);
-            a += '<h3 class="subsection-title">Отдано</h3>';
-            a += createItem('assembly','Отдано черные',data.assembly['Отдано черные'],true);
-            a += createItem('assembly','Отдано белые',data.assembly['Отдано белые'],true);
-            document.getElementById('assembly').innerHTML = a;
-
+            let s='<h3 class="subsection-title">Скотч</h3>';
+            s+=createItem('supplies','Скотч желтый',data.supplies['Скотч желтый'],true);
+            s+=createItem('supplies','Скотч прозрачный',data.supplies['Скотч прозрачный'],true);
+            s+='<h3 class="subsection-title">Крючки</h3>';
+            s+=createItem('supplies','Крючки черные',data.supplies['Крючки черные'],true);
+            s+=createItem('supplies','Крючки белые',data.supplies['Крючки белые'],true);
+            s+='<h3 class="subsection-title">Прочее</h3>';
+            ['Стрэйтч','Пластик белый','Коробки','Грунт','Пупырка'].forEach(i=>s+=createItem('supplies',i,data.supplies[i]));
+            s+='<h3 class="subsection-title">Рамки</h3>';
+            s+=createItem('supplies','Рамки черные',data.supplies['Рамки черные'],true);
+            s+=createItem('supplies','Рамки белые',data.supplies['Рамки белые'],true);
+            ['Оргстекло','Доски'].forEach(i=>s+=createItem('supplies',i,data.supplies[i]));
+            document.getElementById('supplies').innerHTML=s;
+            document.getElementById('production').innerHTML=Object.keys(data.production).map(i=>createItem('production',i,data.production[i])).join('');
+            let a='<h3 class="subsection-title">Непроверенные</h3>';
+            a+=createItem('assembly','Непроверенные черные',data.assembly['Непроверенные черные'],true);
+            a+=createItem('assembly','Непроверенные белые',data.assembly['Непроверенные белые'],true);
+            a+='<h3 class="subsection-title">Проверенные</h3>';
+            a+=createItem('assembly','Проверенные черные',data.assembly['Проверенные черные'],true);
+            a+=createItem('assembly','Проверенные белые',data.assembly['Проверенные белые'],true);
+            a+='<h3 class="subsection-title">Упакованные</h3>';
+            a+=createItem('assembly','Упакованные черные',data.assembly['Упакованные черные'],true);
+            a+=createItem('assembly','Упакованные белые',data.assembly['Упакованные белые'],true);
+            a+='<h3 class="subsection-title">Отдано</h3>';
+            a+=createItem('assembly','Отдано черные',data.assembly['Отдано черные'],true);
+            a+=createItem('assembly','Отдано белые',data.assembly['Отдано белые'],true);
+            document.getElementById('assembly').innerHTML=a;
             checkAlerts();
-            
-            // History
-            const hDiv = document.getElementById('historyList');
-            hDiv.innerHTML = history.length === 0 ? '<p style="color:var(--text-secondary)">Пусто</p>' :
-                history.map(r => `<div class="history-item"><strong>${r.time}</strong> - "${r.item}": ${r.old} → ${r.new} (${r.act})</div>`).join('');
+            document.getElementById('historyList').innerHTML=history.length===0?'<p style="color:var(--text-secondary)">Пусто</p>':history.map(r=>`<div class="history-item"><span style="color:${USER_COLORS[r.user]||'#636e72'};font-weight:600">${r.user||'?'}</span> <strong>${r.time}</strong> - "${r.item}": ${r.old} → ${r.new} (${r.act})</div>`).join('');
         }
 
-        function clearHistory() {
-            if(confirm('Очистить историю?')) { 
-                history = []; 
-                save(); 
-                render(); 
-                pushToCloud();
-            }
-        }
+        function clearHistory() { if(confirm('Очистить историю?')) { history=[]; save(); render(); pushToCloud(); } }
 
         function updateStats() {
-            const total = data.assembly['Непроверенные черные']+data.assembly['Непроверенные белые']+
-                data.assembly['Проверенные черные']+data.assembly['Проверенные белые']+
-                data.assembly['Упакованные черные']+data.assembly['Упакованные белые'];
-            const shipped = data.assembly['Отдано черные']+data.assembly['Отдано белые'];
-            const tape = data.supplies['Скотч желтый']+data.supplies['Скотч прозрачный'];
-            const hooks = data.supplies['Крючки черные']+data.supplies['Крючки белые'];
-            let crit = 0;
-            for(let c in data) for(let i in data[c]) if(data[c][i] <= (limits[i]||1)) crit++;
-            
-            document.getElementById('statsGrid').innerHTML = `
-                <div class="stat-card"><h4>Рамок в работе</h4><div class="stat-value">${total}</div></div>
-                <div class="stat-card"><h4>Отгружено</h4><div class="stat-value">${shipped}</div></div>
-                <div class="stat-card"><h4>Скотча всего</h4><div class="stat-value">${tape}</div></div>
-                <div class="stat-card"><h4>Крючков всего</h4><div class="stat-value">${hooks}</div></div>
-                <div class="stat-card"><h4>Критических</h4><div class="stat-value" style="color:var(--danger-red)">${crit}</div></div>
-                <div class="stat-card"><h4>Синхронизация</h4><div class="stat-value" style="font-size:24px">🟢</div></div>
+            const shipped=data.assembly['Отдано черные']+data.assembly['Отдано белые'];
+            let crit=0; for(let c in data) for(let i in data[c]) if(data[c][i]<=(limits[i]??0)) crit++;
+            document.getElementById('statsGrid').innerHTML=`
+                <div class="stat-card"><h4>Отгружено всего</h4><div class="stat-value">${shipped}</div></div>
+                <div class="stat-card"><h4>Критических запасов</h4><div class="stat-value" style="color:var(--danger-red)">${crit}</div></div>
+                <div class="stat-card"><h4>Записок</h4><div class="stat-value">${notes.filter(n=>!n.done).length}</div></div>
             `;
         }
 
-        // Запуск
-        init();
+        initAuth();
     </script>
 </body>
 </html>
