@@ -13,6 +13,7 @@
             --accent-green: #4caf50; --danger-red: #ff6b6b;
             --shadow: 0 2px 8px rgba(0,0,0,0.1);
             --card-bg: #ffffff; --hover-bg: #f0f7f0;
+            --chart-grid: #e0e0e0;
         }
 
         [data-theme="dark"] {
@@ -22,6 +23,7 @@
             --accent-green: #66bb6a; --danger-red: #ef5350;
             --shadow: 0 2px 8px rgba(0,0,0,0.4);
             --card-bg: #222831; --hover-bg: #2d3a2d;
+            --chart-grid: #3a3a4a;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -145,9 +147,7 @@
         }
         .item-value { font-size: clamp(14px, 3vw, 18px); font-weight: bold; }
         .critical-low { color: var(--danger-red); animation: pulse 2s infinite; }
-        @keyframes pulse {
-            0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; }
-        }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
         .min-badge {
             font-size: 11px; padding: 2px 6px; border-radius: 10px;
             background: var(--border-light); color: var(--text-secondary);
@@ -184,6 +184,14 @@
             font-size: 13px; color: var(--text-secondary);
         }
         .history-item:last-child { border-bottom: none; }
+        .history-summary {
+            padding: 10px; border-radius: 8px; margin: 5px 0;
+            font-weight: bold; font-size: 14px;
+        }
+        .history-summary.added { background: #d4edda; color: #155724; }
+        .history-summary.removed { background: #f8d7da; color: #721c24; }
+        [data-theme="dark"] .history-summary.added { background: #1e3a2f; color: #66bb6a; }
+        [data-theme="dark"] .history-summary.removed { background: #3d2020; color: #ef5350; }
 
         .stats-grid {
             display: grid;
@@ -251,7 +259,6 @@
             background: var(--bg-primary); color: var(--text-primary);
         }
 
-        /* PINBOARD */
         .pinboard {
             background: var(--card-bg); border-radius: 15px; padding: 15px;
             border: 2px solid #74b9ff; box-shadow: var(--shadow);
@@ -299,7 +306,6 @@
             flex: 1; min-width: 120px;
         }
 
-        /* GOALS */
         .goal-item {
             display: flex; align-items: center; gap: 10px;
             padding: 10px; background: var(--bg-secondary);
@@ -317,6 +323,24 @@
         }
         .goal-done { background: #d4edda; color: #155724; }
         .goal-pending { background: #fff3cd; color: #856404; }
+
+        /* CHART */
+        .chart-container {
+            position: relative; width: 100%; max-width: 800px;
+            margin: 20px auto; background: var(--bg-secondary);
+            border-radius: 15px; padding: 20px;
+        }
+        canvas { display: block; width: 100%; cursor: crosshair; }
+        .chart-controls {
+            display: flex; gap: 8px; justify-content: center;
+            margin-bottom: 15px; flex-wrap: wrap;
+        }
+        .chart-tooltip {
+            position: absolute; background: var(--card-bg); color: var(--text-primary);
+            padding: 6px 10px; border-radius: 6px; font-size: 12px;
+            pointer-events: none; display: none; z-index: 10;
+            border: 1px solid var(--border-color); box-shadow: var(--shadow);
+        }
 
         .toast {
             position: fixed; bottom: 20px; right: 20px;
@@ -344,14 +368,7 @@
             .item { padding: 10px; }
             .btn { padding: 5px 8px; font-size: 11px; min-width: 30px; }
             .qty-input { width: 50px; padding: 5px; font-size: 12px; }
-        }
-
-        @media (max-width: 400px) {
-            .header-controls { gap: 4px; }
-            .btn-sm { padding: 5px 8px; font-size: 10px; }
-            .stats-grid { grid-template-columns: 1fr; }
-            .goal-item { flex-direction: column; align-items: flex-start; }
-            .tab { padding: 5px 8px; font-size: 11px; }
+            .chart-container { padding: 10px; }
         }
     </style>
 </head>
@@ -367,6 +384,7 @@
                 <span class="user-badge" onclick="switchUser()" id="userBadge">👤</span>
                 <span class="sync-status sync-loading" id="syncStatus">🔄</span>
                 <button class="btn-sm" onclick="syncNow()">🔄</button>
+                <button class="btn-sm" onclick="dailySummary()">📅 Итог дня</button>
                 <button class="btn-sm" onclick="toggleLimits()" id="limitsBtn">⚙️</button>
                 <button class="btn-sm" onclick="toggleTheme()">🌙</button>
             </div>
@@ -384,6 +402,7 @@
             <button class="tab active" onclick="switchTab('inventory')">📦 Производство</button>
             <button class="tab" onclick="switchTab('history')">📋 История</button>
             <button class="tab" onclick="switchTab('stats')">📊 Статистика</button>
+            <button class="tab" onclick="switchTab('chart')">📈 График</button>
             <button class="tab" onclick="switchTab('goals')">🎯 Цели</button>
         </div>
 
@@ -399,27 +418,16 @@
                     <div id="notesList"></div>
                     <div class="add-note-form">
                         <input type="text" id="newNoteText" placeholder="Текст записки..." maxlength="200">
-                        <select id="newNoteAssignee">
-                            <option value="">Исполнитель...</option>
-                        </select>
+                        <select id="newNoteAssignee"><option value="">Исполнитель...</option></select>
                         <button class="btn btn-p10" onclick="addNote()">+</button>
                     </div>
                 </div>
             </div>
 
             <div class="sections-container">
-                <div class="section">
-                    <h2 class="section-title">📦 Отдел 1: Запасы</h2>
-                    <div id="supplies"></div>
-                </div>
-                <div class="section">
-                    <h2 class="section-title">⚙️ Отдел 2: Производство</h2>
-                    <div id="production"></div>
-                </div>
-                <div class="section">
-                    <h2 class="section-title">🔧 Отдел 3: Сборка</h2>
-                    <div id="assembly"></div>
-                </div>
+                <div class="section"><h2 class="section-title">📦 Отдел 1: Запасы</h2><div id="supplies"></div></div>
+                <div class="section"><h2 class="section-title">⚙️ Отдел 2: Производство</h2><div id="production"></div></div>
+                <div class="section"><h2 class="section-title">🔧 Отдел 3: Сборка</h2><div id="assembly"></div></div>
             </div>
         </div>
 
@@ -428,28 +436,34 @@
                 <h2 class="section-title">📋 История изменений</h2>
                 <div style="margin-bottom:15px;display:flex;gap:10px">
                     <button class="btn btn-m10" onclick="clearHistory()">🗑️ Очистить</button>
+                    <button class="btn btn-p10" onclick="dailySummary()">📅 Итог дня</button>
                 </div>
                 <div class="history-list" id="historyList"></div>
             </div>
         </div>
 
         <div id="tab-stats" class="tab-content">
+            <div class="panel"><h2 class="section-title">📊 Статистика</h2><div class="stats-grid" id="statsGrid"></div></div>
+            <div class="panel" style="margin-top:15px"><h2 class="section-title" style="color:#74b9ff">✅ Выполненные записки</h2><div id="doneNotesList"></div></div>
+        </div>
+
+        <div id="tab-chart" class="tab-content">
             <div class="panel">
-                <h2 class="section-title">📊 Статистика</h2>
-                <div class="stats-grid" id="statsGrid"></div>
-            </div>
-            
-            <div class="panel" style="margin-top:15px">
-                <h2 class="section-title" style="color:#74b9ff">✅ Выполненные записки</h2>
-                <div id="doneNotesList"></div>
+                <h2 class="section-title">📈 График отданных рамок</h2>
+                <div class="chart-controls">
+                    <button class="btn-sm period-btn active" onclick="changePeriod(7, this)">7 дней</button>
+                    <button class="btn-sm period-btn" onclick="changePeriod(30, this)">30 дней</button>
+                    <button class="btn-sm period-btn" onclick="changePeriod(0, this)">Всё время</button>
+                </div>
+                <div class="chart-container" id="chartContainer">
+                    <canvas id="chartCanvas"></canvas>
+                    <div class="chart-tooltip" id="chartTooltip"></div>
+                </div>
             </div>
         </div>
 
         <div id="tab-goals" class="tab-content">
-            <div class="panel">
-                <h2 class="section-title">🎯 Цели на день</h2>
-                <div id="goalsContent"></div>
-            </div>
+            <div class="panel"><h2 class="section-title">🎯 Цели на день</h2><div id="goalsContent"></div></div>
         </div>
     </div>
 
@@ -486,13 +500,7 @@
             }
         };
 
-        // Названия отделов для критических запасов
-        const sectionNames = {
-            supplies: '📦 Запасы',
-            production: '⚙️ Производство',
-            assembly: '🔧 Сборка'
-        };
-
+        const sectionNames = { supplies:'📦 Запасы', production:'⚙️ Производство', assembly:'🔧 Сборка' };
         const defaultLimits = {};
         for(let c in defaultData) for(let i in defaultData[c]) defaultLimits[i] = 1;
 
@@ -501,24 +509,21 @@
         let history = JSON.parse(localStorage.getItem('ph') || '[]');
         let notes = JSON.parse(localStorage.getItem('pn') || '[]');
         let goals = JSON.parse(localStorage.getItem('pg') || '{"total":100}');
+        let shippedHistory = JSON.parse(localStorage.getItem('sh') || '{}');
         let dark = JSON.parse(localStorage.getItem('dm') || 'false');
         let currentUser = localStorage.getItem('user') || null;
-        let showLimits = false;
-        let pinboardOpen = true;
-        let alertsOpen = true;
-        let syncTimer = null;
-        let isFirstSync = true;
+        let showLimits = false, pinboardOpen = true, alertsOpen = true;
+        let syncTimer = null, isFirstSync = true;
         let isOnline = navigator.onLine;
+        let chartPeriod = 7;
+        let chartAnimFrame = null;
 
         // ============ СЕТЬ ============
         window.addEventListener('online', () => { isOnline = true; updateSyncStatus('sync-online', '🟢 Онлайн'); syncNow(); });
         window.addEventListener('offline', () => { isOnline = false; updateSyncStatus('sync-offline', '🟡 Оффлайн'); });
 
         // ============ АВТОРИЗАЦИЯ ============
-        function initAuth() {
-            if(currentUser) { showApp(); } else { showPasswordScreen(); }
-        }
-
+        function initAuth() { currentUser ? showApp() : showPasswordScreen(); }
         function showPasswordScreen() {
             document.getElementById('authOverlay').classList.remove('hidden');
             document.getElementById('appContainer').style.display = 'none';
@@ -526,358 +531,471 @@
                 <h2>🏭 Вход</h2>
                 <input type="password" class="auth-input" id="passInput" placeholder="0000" maxlength="4" autofocus>
                 <p style="color:var(--danger-red);display:none" id="passError">Неверный пароль</p>
-                <button class="btn btn-p10" onclick="checkPass()" style="width:100%;margin-top:10px;padding:12px;font-size:16px">Войти</button>
-            `;
-            document.getElementById('passInput').addEventListener('keypress', (e) => { if(e.key === 'Enter') checkPass(); });
+                <button class="btn btn-p10" onclick="checkPass()" style="width:100%;margin-top:10px;padding:12px;font-size:16px">Войти</button>`;
+            document.getElementById('passInput').addEventListener('keypress', e => { if(e.key==='Enter') checkPass(); });
             setTimeout(() => document.getElementById('passInput')?.focus(), 100);
         }
-
         function checkPass() {
-            if(document.getElementById('passInput').value === PASS) { showUserSelect(); }
-            else { document.getElementById('passError').style.display = 'block'; document.getElementById('passInput').value = ''; }
+            if(document.getElementById('passInput').value===PASS) showUserSelect();
+            else { document.getElementById('passError').style.display='block'; document.getElementById('passInput').value=''; }
         }
-
         function showUserSelect() {
             let html = '<h2>👤 Кто вы?</h2><div class="user-list">';
-            USERS.forEach(user => {
-                html += `<button class="user-btn" style="border-left:4px solid ${USER_COLORS[user]}" onclick="login('${user}')">${user}</button>`;
-            });
+            USERS.forEach(u => html += `<button class="user-btn" style="border-left:4px solid ${USER_COLORS[u]}" onclick="login('${u}')">${u}</button>`);
             html += `<button class="user-btn custom-user-btn" onclick="loginCustom()">✏️ Другое имя...</button></div>`;
             document.getElementById('authCard').innerHTML = html;
         }
-
-        function login(user) { currentUser = user; localStorage.setItem('user', user); showApp(); }
-        function loginCustom() {
-            const name = prompt('Введите ваше имя:');
-            if(name?.trim()) { currentUser = name.trim(); localStorage.setItem('user', currentUser); showApp(); }
-        }
-
+        function login(u) { currentUser=u; localStorage.setItem('user',u); showApp(); }
+        function loginCustom() { const n=prompt('Введите ваше имя:'); if(n?.trim()){currentUser=n.trim();localStorage.setItem('user',currentUser);showApp();} }
         function switchUser() {
-            if(confirm('Сменить пользователя?')) {
-                currentUser = null; localStorage.removeItem('user');
-                document.getElementById('authOverlay').classList.remove('hidden');
-                document.getElementById('appContainer').style.display = 'none';
-                showPasswordScreen();
-            }
+            if(confirm('Сменить пользователя?')){currentUser=null;localStorage.removeItem('user');
+            document.getElementById('authOverlay').classList.remove('hidden');document.getElementById('appContainer').style.display='none';showPasswordScreen();}
         }
-
         function showApp() {
             document.getElementById('authOverlay').classList.add('hidden');
-            document.getElementById('appContainer').style.display = 'block';
-            document.getElementById('userBadge').textContent = '👤 ' + currentUser;
-            document.getElementById('userBadge').style.borderLeft = '4px solid ' + (USER_COLORS[currentUser] || '#636e72');
-            document.getElementById('newNoteAssignee').innerHTML = '<option value="">Исполнитель...</option>' +
-                USERS.map(u => `<option value="${u}">${u}</option>`).join('');
+            document.getElementById('appContainer').style.display='block';
+            document.getElementById('userBadge').textContent='👤 '+currentUser;
+            document.getElementById('userBadge').style.borderLeft='4px solid '+(USER_COLORS[currentUser]||'#636e72');
+            document.getElementById('newNoteAssignee').innerHTML='<option value="">Исполнитель...</option>'+USERS.map(u=>`<option value="${u}">${u}</option>`).join('');
             init();
         }
 
-        // ============ ЦЕЛИ (проверка по упакованным рамкам) ============
+        // ============ ИТОГИ ДНЯ ============
+        function dailySummary() {
+            const today = new Date().toLocaleDateString('ru-RU');
+            const todayStart = new Date().setHours(0,0,0,0);
+            
+            const todayHistory = history.filter(h => {
+                const d = h.time.split(',')[0];
+                return d === today;
+            });
+
+            if(todayHistory.length === 0) {
+                toast('📅 Нет изменений за сегодня');
+                return;
+            }
+
+            const summary = {};
+            todayHistory.forEach(h => {
+                if(!summary[h.item]) summary[h.item] = { added: 0, removed: 0, start: h.old, end: h.new };
+                const diff = h.new - h.old;
+                if(diff > 0) summary[h.item].added += diff;
+                else summary[h.item].removed += Math.abs(diff);
+                summary[h.item].start = Math.min(summary[h.item].start, h.old);
+                summary[h.item].end = h.new;
+            });
+
+            let addedHtml = '', removedHtml = '';
+            for(let item in summary) {
+                const s = summary[item];
+                if(s.added > 0) addedHtml += `<div class="history-item">🟢 <strong>${item}</strong>: +${s.added} (${s.start} → ${s.end})</div>`;
+                if(s.removed > 0) removedHtml += `<div class="history-item">🔴 <strong>${item}</strong>: -${s.removed} (${s.start} → ${s.end})</div>`;
+            }
+
+            const summaryEntry = {
+                time: `📅 ${today}`,
+                type: 'summary',
+                addedHtml, removedHtml
+            };
+
+            // Добавляем в начало истории
+            history.unshift(summaryEntry);
+            if(history.length > 150) history = history.slice(0, 150);
+            save();
+            render();
+            pushToCloud();
+            toast('✅ Итог дня добавлен в историю');
+        }
+
+        function autoDailySummary() {
+            const lastSummary = localStorage.getItem('lastSummaryDate');
+            const today = new Date().toLocaleDateString('ru-RU');
+            if(lastSummary !== today) {
+                localStorage.setItem('lastSummaryDate', today);
+                // Проверяем есть ли изменения за вчера
+                const yesterday = new Date(Date.now() - 86400000).toLocaleDateString('ru-RU');
+                const hasYesterdayChanges = history.some(h => h.time && h.time.includes(yesterday));
+                if(hasYesterdayChanges && history.length > 0) {
+                    dailySummary();
+                }
+            }
+        }
+
+        // ============ ГРАФИК CANVAS ============
+        function changePeriod(days, btn) {
+            chartPeriod = days;
+            document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+            if(btn) btn.classList.add('active');
+            drawChart();
+        }
+
+        function getShippedData() {
+            // Сохраняем текущие значения в историю с датой
+            const today = new Date().toLocaleDateString('ru-RU');
+            if(!shippedHistory[today]) {
+                shippedHistory[today] = {
+                    black: data.assembly['Отдано черные'] || 0,
+                    white: data.assembly['Отдано белые'] || 0
+                };
+                // Ограничиваем 365 днями
+                const keys = Object.keys(shippedHistory);
+                if(keys.length > 365) {
+                    delete shippedHistory[keys[0]];
+                }
+                localStorage.setItem('sh', JSON.stringify(shippedHistory));
+            } else {
+                // Обновляем сегодняшние значения
+                shippedHistory[today].black = data.assembly['Отдано черные'] || 0;
+                shippedHistory[today].white = data.assembly['Отдано белые'] || 0;
+            }
+
+            const dates = Object.keys(shippedHistory).sort();
+            let filtered = dates;
+            
+            if(chartPeriod > 0) {
+                filtered = dates.slice(-chartPeriod);
+            }
+
+            return {
+                labels: filtered,
+                black: filtered.map(d => shippedHistory[d].black),
+                white: filtered.map(d => shippedHistory[d].white)
+            };
+        }
+
+        function drawChart() {
+            const canvas = document.getElementById('chartCanvas');
+            if(!canvas) return;
+            
+            const container = document.getElementById('chartContainer');
+            canvas.width = container.offsetWidth - 40;
+            canvas.height = 300;
+            
+            const ctx = canvas.getContext('2d');
+            const chartData = getShippedData();
+            
+            if(chartData.labels.length === 0) {
+                ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text-secondary');
+                ctx.font = '14px Segoe UI';
+                ctx.textAlign = 'center';
+                ctx.fillText('Нет данных для отображения', canvas.width/2, canvas.height/2);
+                return;
+            }
+
+            const padding = { top: 20, right: 30, bottom: 50, left: 60 };
+            const w = canvas.width - padding.left - padding.right;
+            const h = canvas.height - padding.top - padding.bottom;
+
+            // Находим максимум
+            let maxVal = Math.max(...chartData.black, ...chartData.white, 1);
+            maxVal = Math.ceil(maxVal * 1.1);
+
+            // Сетка
+            ctx.strokeStyle = getComputedStyle(document.body).getPropertyValue('--chart-grid');
+            ctx.lineWidth = 1;
+            const gridLines = 5;
+            for(let i = 0; i <= gridLines; i++) {
+                const y = padding.top + (h / gridLines) * i;
+                ctx.beginPath();
+                ctx.moveTo(padding.left, y);
+                ctx.lineTo(padding.left + w, y);
+                ctx.stroke();
+                
+                ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text-secondary');
+                ctx.font = '11px Segoe UI';
+                ctx.textAlign = 'right';
+                const val = Math.round(maxVal - (maxVal / gridLines) * i);
+                ctx.fillText(val, padding.left - 8, y + 4);
+            }
+
+            // Ось X
+            ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text-secondary');
+            ctx.font = '10px Segoe UI';
+            ctx.textAlign = 'center';
+            const step = Math.max(1, Math.floor(chartData.labels.length / 7));
+            chartData.labels.forEach((label, i) => {
+                if(i % step === 0 || i === chartData.labels.length - 1) {
+                    const x = padding.left + (w / (chartData.labels.length - 1 || 1)) * i;
+                    ctx.fillText(label.split('.').slice(0,2).join('.'), x, padding.top + h + 18);
+                }
+            });
+
+            // Функция отрисовки линии с анимацией
+            const drawLine = (data, color, progress) => {
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 2.5;
+                ctx.beginPath();
+                
+                const points = data.length - 1;
+                const endIdx = Math.floor(points * progress);
+                
+                data.forEach((val, i) => {
+                    const x = padding.left + (w / (points || 1)) * i;
+                    const y = padding.top + h - (val / maxVal) * h;
+                    if(i === 0) ctx.moveTo(x, y);
+                    else if(i <= endIdx) ctx.lineTo(x, y);
+                });
+                ctx.stroke();
+
+                // Точки
+                data.forEach((val, i) => {
+                    if(i <= endIdx) {
+                        const x = padding.left + (w / (points || 1)) * i;
+                        const y = padding.top + h - (val / maxVal) * h;
+                        ctx.fillStyle = color;
+                        ctx.beginPath();
+                        ctx.arc(x, y, 4, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                });
+            };
+
+            // Анимация
+            if(chartAnimFrame) cancelAnimationFrame(chartAnimFrame);
+            let progress = 0;
+            const animate = () => {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // Перерисовываем сетку
+                ctx.strokeStyle = getComputedStyle(document.body).getPropertyValue('--chart-grid');
+                ctx.lineWidth = 1;
+                for(let i = 0; i <= gridLines; i++) {
+                    const y = padding.top + (h / gridLines) * i;
+                    ctx.beginPath(); ctx.moveTo(padding.left, y);
+                    ctx.lineTo(padding.left + w, y); ctx.stroke();
+                    ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text-secondary');
+                    ctx.fillText(Math.round(maxVal - (maxVal / gridLines) * i), padding.left - 8, y + 4);
+                }
+                
+                chartData.labels.forEach((label, i) => {
+                    if(i % step === 0 || i === chartData.labels.length - 1) {
+                        const x = padding.left + (w / (chartData.labels.length - 1 || 1)) * i;
+                        ctx.fillText(label.split('.').slice(0,2).join('.'), x, padding.top + h + 18);
+                    }
+                });
+
+                drawLine(chartData.black, '#2d3436', progress);
+                drawLine(chartData.white, '#b2bec3', progress);
+                
+                // Легенда
+                ctx.fillStyle = '#2d3436';
+                ctx.fillRect(padding.left, padding.top - 12, 12, 12);
+                ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text-primary');
+                ctx.textAlign = 'left';
+                ctx.fillText('Черные', padding.left + 18, padding.top);
+                
+                ctx.fillStyle = '#b2bec3';
+                ctx.fillRect(padding.left + 80, padding.top - 12, 12, 12);
+                ctx.fillText('Белые', padding.left + 98, padding.top);
+
+                progress += 0.05;
+                if(progress <= 1) {
+                    chartAnimFrame = requestAnimationFrame(animate);
+                }
+            };
+            animate();
+
+            // Сохраняем данные для tooltip
+            canvas._chartData = chartData;
+            canvas._padding = padding;
+            canvas._maxVal = maxVal;
+        }
+
+        // Tooltip при наведении
+        document.addEventListener('mousemove', function(e) {
+            const canvas = document.getElementById('chartCanvas');
+            if(!canvas || !canvas._chartData) return;
+            
+            const tooltip = document.getElementById('chartTooltip');
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const data = canvas._chartData;
+            const pad = canvas._padding;
+            const w = canvas.width - pad.left - pad.right;
+            
+            const points = data.labels.length - 1;
+            if(points <= 0) return;
+            
+            const step = w / points;
+            const idx = Math.round((x - pad.left) / step);
+            
+            if(idx >= 0 && idx < data.labels.length && 
+               x >= pad.left && x <= pad.left + w &&
+               y >= pad.top && y <= pad.top + (canvas.height - pad.top - pad.bottom)) {
+                
+                tooltip.style.display = 'block';
+                tooltip.style.left = (e.clientX - rect.left + 15) + 'px';
+                tooltip.style.top = (e.clientY - rect.top - 30) + 'px';
+                tooltip.innerHTML = `
+                    📅 ${data.labels[idx]}<br>
+                    ⚫ Черные: <strong>${data.black[idx]}</strong><br>
+                    ⚪ Белые: <strong>${data.white[idx]}</strong>
+                `;
+            } else {
+                tooltip.style.display = 'none';
+            }
+        });
+
+        // ============ GOALS ============
         function renderGoals() {
             const total = goals.total || 100;
-            // Сумма упакованных рамок (черные + белые)
-            const packed = (data.assembly['Упакованные черные'] || 0) + (data.assembly['Упакованные белые'] || 0);
-            const percent = total > 0 ? Math.round((packed / total) * 100) : 0;
+            const packed = (data.assembly['Упакованные черные']||0) + (data.assembly['Упакованные белые']||0);
+            const percent = total > 0 ? Math.round((packed/total)*100) : 0;
             const done = packed >= total;
-
             document.getElementById('goalsContent').innerHTML = `
-                <div class="goal-item">
-                    <span class="goal-label">🎯 План:</span>
-                    <input type="number" class="goal-input" value="${total}" min="1" onchange="updateGoal(this.value)">
-                    <span style="font-size:14px">упакованных рамок</span>
-                </div>
-                <div class="goal-item">
-                    <span class="goal-label">✅ Факт:</span>
-                    <span style="font-size:18px;font-weight:bold">${packed}</span>
-                    <span style="font-size:14px">упаковано</span>
-                    <span class="goal-progress ${done ? 'goal-done' : 'goal-pending'}">${percent}%</span>
-                </div>
-                ${done ? '<p style="color:var(--accent-green);text-align:center;font-weight:bold;margin-top:10px">🎉 План выполнен!</p>' : 
-                `<p style="color:var(--text-secondary);text-align:center;margin-top:10px">Осталось упаковать: ${total - packed} рамок</p>`}
-            `;
+                <div class="goal-item"><span class="goal-label">🎯 План:</span><input type="number" class="goal-input" value="${total}" min="1" onchange="updateGoal(this.value)"><span style="font-size:14px">упакованных рамок</span></div>
+                <div class="goal-item"><span class="goal-label">✅ Факт:</span><span style="font-size:18px;font-weight:bold">${packed}</span><span style="font-size:14px">упаковано</span><span class="goal-progress ${done?'goal-done':'goal-pending'}">${percent}%</span></div>
+                ${done?'<p style="color:var(--accent-green);text-align:center;font-weight:bold;margin-top:10px">🎉 План выполнен!</p>':'<p style="color:var(--text-secondary);text-align:center;margin-top:10px">Осталось упаковать: '+(total-packed)+' рамок</p>'}`;
         }
-
-        function updateGoal(val) {
-            goals.total = Math.max(1, parseInt(val) || 100);
-            localStorage.setItem('pg', JSON.stringify(goals));
-            renderGoals();
-            pushToCloud();
-        }
+        function updateGoal(val) { goals.total = Math.max(1,parseInt(val)||100); localStorage.setItem('pg',JSON.stringify(goals)); renderGoals(); pushToCloud(); }
 
         // ============ PINBOARD ============
-        function togglePinboard() {
-            pinboardOpen = !pinboardOpen;
-            document.getElementById('pinboardBody').classList.toggle('hidden', !pinboardOpen);
-            document.getElementById('pinboardArrow').textContent = pinboardOpen ? '▼' : '▶';
-        }
-
+        function togglePinboard() { pinboardOpen=!pinboardOpen; document.getElementById('pinboardBody').classList.toggle('hidden',!pinboardOpen); document.getElementById('pinboardArrow').textContent=pinboardOpen?'▼':'▶'; }
         function addNote() {
-            const text = document.getElementById('newNoteText').value.trim();
-            const assignee = document.getElementById('newNoteAssignee').value;
+            const text=document.getElementById('newNoteText').value.trim(), assignee=document.getElementById('newNoteAssignee').value;
             if(!text) return toast('Введите текст записки');
-            
-            notes.unshift({
-                id: Date.now(), text, assignee,
-                author: currentUser, done: false,
-                created: new Date().toLocaleString('ru-RU')
-            });
-            document.getElementById('newNoteText').value = '';
-            document.getElementById('newNoteAssignee').value = '';
+            notes.unshift({id:Date.now(),text,assignee,author:currentUser,done:false,created:new Date().toLocaleString('ru-RU')});
+            document.getElementById('newNoteText').value=''; document.getElementById('newNoteAssignee').value='';
             renderNotes(); save(); pushToCloud();
         }
-
-        function toggleNoteDone(id) {
-            const note = notes.find(n => n.id === id);
-            if(note) { note.done = !note.done; renderNotes(); save(); pushToCloud(); }
-        }
-
-        function editNote(id) {
-            const note = notes.find(n => n.id === id);
-            if(!note) return;
-            const text = prompt('Редактировать записку:', note.text);
-            if(text?.trim()) { note.text = text.trim(); renderNotes(); save(); pushToCloud(); }
-        }
-
-        function deleteNote(id) {
-            if(confirm('Удалить записку?')) { notes = notes.filter(n => n.id !== id); renderNotes(); save(); pushToCloud(); }
-        }
-
+        function toggleNoteDone(id) { const n=notes.find(n=>n.id===id); if(n){n.done=!n.done;renderNotes();save();pushToCloud();} }
+        function editNote(id) { const n=notes.find(n=>n.id===id); if(!n) return; const t=prompt('Редактировать:',n.text); if(t?.trim()){n.text=t.trim();renderNotes();save();pushToCloud();} }
+        function deleteNote(id) { if(confirm('Удалить?')){notes=notes.filter(n=>n.id!==id);renderNotes();save();pushToCloud();} }
         function renderNotes() {
-            const active = notes.filter(n => !n.done);
-            const done = notes.filter(n => n.done);
-            document.getElementById('noteCount').textContent = `[${active.length}]`;
-            document.getElementById('notesList').innerHTML = active.length === 0
-                ? '<p style="color:var(--text-secondary);padding:10px">Нет активных записок</p>'
-                : active.map(n => createNoteCard(n)).join('');
-            document.getElementById('doneNotesList').innerHTML = done.length === 0
-                ? '<p style="color:var(--text-secondary);padding:10px">Нет выполненных записок</p>'
-                : done.map(n => createNoteCard(n)).join('');
+            const a=notes.filter(n=>!n.done), d=notes.filter(n=>n.done);
+            document.getElementById('noteCount').textContent=`[${a.length}]`;
+            document.getElementById('notesList').innerHTML=a.length===0?'<p style="color:var(--text-secondary);padding:10px">Нет активных</p>':a.map(n=>createNoteCard(n)).join('');
+            document.getElementById('doneNotesList').innerHTML=d.length===0?'<p style="color:var(--text-secondary);padding:10px">Нет выполненных</p>':d.map(n=>createNoteCard(n)).join('');
         }
-
         function createNoteCard(n) {
-            return `<div class="note-card ${n.done ? 'done' : ''}">
-                <div class="note-header">
-                    <strong style="color:${USER_COLORS[n.author] || '#636e72'}">${n.author || '?'}</strong>
-                    <span style="font-size:11px;color:var(--text-secondary)">${n.created}</span>
-                </div>
-                <div class="note-text">${n.text}</div>
-                <div class="note-meta">${n.assignee ? `<span>👤 ${n.assignee}</span>` : '<span>👤 Без исполнителя</span>'}</div>
-                <div class="note-actions">
-                    <button class="note-btn done-btn" onclick="toggleNoteDone(${n.id})">${n.done ? '↩' : '✓'}</button>
-                    ${!n.done ? `<button class="note-btn edit-btn" onclick="editNote(${n.id})">✏️</button>` : ''}
-                    <button class="note-btn delete-btn" onclick="deleteNote(${n.id})">🗑️</button>
-                </div>
-            </div>`;
+            return `<div class="note-card ${n.done?'done':''}"><div class="note-header"><strong style="color:${USER_COLORS[n.author]||'#636e72'}">${n.author||'?'}</strong><span style="font-size:11px;color:var(--text-secondary)">${n.created}</span></div><div class="note-text">${n.text}</div><div class="note-meta">${n.assignee?`<span>👤 ${n.assignee}</span>`:'<span>👤 Без исполнителя</span>'}</div><div class="note-actions"><button class="note-btn done-btn" onclick="toggleNoteDone(${n.id})">${n.done?'↩':'✓'}</button>${!n.done?`<button class="note-btn edit-btn" onclick="editNote(${n.id})">✏️</button>`:''}<button class="note-btn delete-btn" onclick="deleteNote(${n.id})">🗑️</button></div></div>`;
         }
 
-        // ============ ИНИЦИАЛИЗАЦИЯ ============
+        // ============ INIT ============
         async function init() {
             if(dark) document.body.setAttribute('data-theme','dark');
             render(); updateStats(); renderLimits(); renderNotes(); renderGoals();
             if(isOnline) { await loadFromCloud(); startAutoSync(); }
-            else { updateSyncStatus('sync-offline', '🟡 Оффлайн'); }
+            else updateSyncStatus('sync-offline','🟡 Оффлайн');
+            autoDailySummary();
+            setTimeout(() => { if(document.getElementById('chartCanvas')) drawChart(); }, 500);
         }
-
         function save() {
-            localStorage.setItem('pd', JSON.stringify(data));
-            localStorage.setItem('pl', JSON.stringify(limits));
-            localStorage.setItem('ph', JSON.stringify(history));
-            localStorage.setItem('pn', JSON.stringify(notes));
-            localStorage.setItem('pg', JSON.stringify(goals));
-            localStorage.setItem('dm', JSON.stringify(dark));
-            toast('✓ Сохранено');
+            localStorage.setItem('pd',JSON.stringify(data)); localStorage.setItem('pl',JSON.stringify(limits));
+            localStorage.setItem('ph',JSON.stringify(history)); localStorage.setItem('pn',JSON.stringify(notes));
+            localStorage.setItem('pg',JSON.stringify(goals)); localStorage.setItem('sh',JSON.stringify(shippedHistory));
+            localStorage.setItem('dm',JSON.stringify(dark)); toast('✓ Сохранено');
         }
+        function toast(msg) { const t=document.getElementById('toast'); t.textContent=msg; t.style.display='block'; setTimeout(()=>t.style.display='none',1500); }
 
-        function toast(msg) {
-            const t = document.getElementById('toast');
-            t.textContent = msg; t.style.display = 'block';
-            setTimeout(() => t.style.display = 'none', 1500);
-        }
-
-        // ============ СИНХРОНИЗАЦИЯ ============
-        function startAutoSync() { stopAutoSync(); syncTimer = setInterval(syncData, SYNC_INTERVAL); }
-        function stopAutoSync() { if(syncTimer) { clearInterval(syncTimer); syncTimer = null; } }
-
+        // ============ SYNC ============
+        function startAutoSync() { stopAutoSync(); syncTimer=setInterval(syncData,SYNC_INTERVAL); }
+        function stopAutoSync() { if(syncTimer){clearInterval(syncTimer);syncTimer=null;} }
         async function loadFromCloud() {
             if(!isOnline) return;
             try {
-                updateSyncStatus('sync-loading', '🔄 Загрузка...');
-                const resp = await fetch(SYNC_URL + '?t=' + Date.now());
-                const cloud = JSON.parse(await resp.text());
-                const localTime = parseInt(localStorage.getItem('lt') || '0');
-                const cloudTime = cloud.t || 0;
-                
-                if(cloud.d && (isFirstSync || cloudTime > localTime)) {
-                    data = cloud.d; if(cloud.l) limits = cloud.l;
-                    if(cloud.h) history = cloud.h; if(cloud.n) notes = cloud.n;
-                    if(cloud.g) goals = cloud.g;
-                    localStorage.setItem('lt', cloudTime);
-                    render(); updateStats(); renderNotes(); renderGoals();
-                    updateSyncStatus('sync-online', '🟢 Загружено');
-                } else if(cloudTime < localTime) { await pushToCloud(); }
-                else { updateSyncStatus('sync-online', '🟢 OK'); }
-                isFirstSync = false;
-            } catch(e) { updateSyncStatus('sync-error', '🔴 Ошибка'); }
+                updateSyncStatus('sync-loading','🔄 Загрузка...');
+                const r=await fetch(SYNC_URL+'?t='+Date.now()); const c=JSON.parse(await r.text());
+                const lt=parseInt(localStorage.getItem('lt')||'0'), ct=c.t||0;
+                if(c.d&&(isFirstSync||ct>lt)){
+                    data=c.d; if(c.l) limits=c.l; if(c.h) history=c.h; if(c.n) notes=c.n; if(c.g) goals=c.g;
+                    localStorage.setItem('lt',ct); render(); updateStats(); renderNotes(); renderGoals();
+                    updateSyncStatus('sync-online','🟢 Загружено');
+                } else if(ct<lt) await pushToCloud();
+                else updateSyncStatus('sync-online','🟢 OK');
+                isFirstSync=false;
+            } catch(e) { updateSyncStatus('sync-error','🔴 Ошибка'); }
         }
-
         async function pushToCloud() {
             if(!isOnline) { save(); return; }
-            const ts = Date.now();
-            const payload = JSON.stringify({
-                d:data, l:limits, h:history.slice(0,20), n:notes, g:goals, t:ts
-            });
+            const ts=Date.now(), p=JSON.stringify({d:data,l:limits,h:history.slice(0,30),n:notes,g:goals,t:ts});
             try {
-                updateSyncStatus('sync-loading', '🔄 Отправка...');
-                await fetch(SYNC_URL, { method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:payload });
-                localStorage.setItem('lt', ts);
-                updateSyncStatus('sync-online', '🟢 OK');
-            } catch(e) { updateSyncStatus('sync-error', '🔴 Ошибка'); save(); }
+                updateSyncStatus('sync-loading','🔄 Отправка...');
+                await fetch(SYNC_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:p});
+                localStorage.setItem('lt',ts); updateSyncStatus('sync-online','🟢 OK');
+            } catch(e) { updateSyncStatus('sync-error','🔴 Ошибка'); save(); }
         }
-
         async function syncData() {
             if(!isOnline) return;
             try {
-                const resp = await fetch(SYNC_URL + '?t=' + Date.now());
-                const cloud = JSON.parse(await resp.text());
-                const localTime = parseInt(localStorage.getItem('lt')||'0');
-                const cloudTime = cloud.t || 0;
-                if(cloud.d && cloudTime > localTime) {
-                    data = cloud.d; if(cloud.l) limits = cloud.l;
-                    if(cloud.h) history = cloud.h; if(cloud.n) notes = cloud.n;
-                    if(cloud.g) goals = cloud.g;
-                    localStorage.setItem('lt', cloudTime);
-                    render(); updateStats(); renderNotes(); renderGoals();
-                    updateSyncStatus('sync-online', '🟢 Обновлено');
-                } else if(cloudTime < localTime) { await pushToCloud(); }
-                else { updateSyncStatus('sync-online', '🟢 OK'); }
-            } catch(e) { updateSyncStatus('sync-error', '🔴 Ошибка'); }
+                const r=await fetch(SYNC_URL+'?t='+Date.now()); const c=JSON.parse(await r.text());
+                const lt=parseInt(localStorage.getItem('lt')||'0'), ct=c.t||0;
+                if(c.d&&ct>lt){
+                    data=c.d; if(c.l) limits=c.l; if(c.h) history=c.h; if(c.n) notes=c.n; if(c.g) goals=c.g;
+                    localStorage.setItem('lt',ct); render(); updateStats(); renderNotes(); renderGoals();
+                    updateSyncStatus('sync-online','🟢 Обновлено');
+                } else if(ct<lt) await pushToCloud();
+                else updateSyncStatus('sync-online','🟢 OK');
+            } catch(e) { updateSyncStatus('sync-error','🔴 Ошибка'); }
         }
+        function syncNow() { if(!isOnline){toast('❌ Нет интернета');return;} pushToCloud().then(()=>toast('✅')).catch(()=>toast('❌')); }
+        function updateSyncStatus(cls,txt) { const el=document.getElementById('syncStatus'); el.className='sync-status '+cls; el.innerHTML=txt; }
 
-        function syncNow() {
-            if(!isOnline) { toast('❌ Нет интернета'); return; }
-            pushToCloud().then(() => toast('✅ Синхронизировано')).catch(() => toast('❌ Ошибка'));
-        }
-
-        function updateSyncStatus(cls, txt) {
-            const el = document.getElementById('syncStatus');
-            el.className = 'sync-status ' + cls; el.innerHTML = txt;
-        }
-
-        // ============ ТЕМА И ВКЛАДКИ ============
-        function toggleTheme() {
-            dark = !dark;
-            dark ? document.body.setAttribute('data-theme','dark') : document.body.removeAttribute('data-theme');
-            save();
-        }
-
+        // ============ UI ============
+        function toggleTheme() { dark=!dark; dark?document.body.setAttribute('data-theme','dark'):document.body.removeAttribute('data-theme'); save(); }
         function switchTab(name) {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
             event.target.classList.add('active');
-            document.getElementById('tab-' + name).classList.add('active');
-            if(name === 'stats') { updateStats(); renderNotes(); }
-            if(name === 'goals') renderGoals();
+            document.getElementById('tab-'+name).classList.add('active');
+            if(name==='stats'){updateStats();renderNotes();}
+            if(name==='goals') renderGoals();
+            if(name==='chart') setTimeout(drawChart, 100);
         }
-
-        // ============ ОСТАЛЬНОЕ ============
         function toggleLimits() {
-            showLimits = !showLimits;
-            const p = document.getElementById('limitsPanel'), b = document.getElementById('limitsBtn');
-            showLimits ? (p.classList.add('show'), b.classList.add('active'), renderLimits()) : (p.classList.remove('show'), b.classList.remove('active'));
+            showLimits=!showLimits; const p=document.getElementById('limitsPanel'),b=document.getElementById('limitsBtn');
+            showLimits?(p.classList.add('show'),b.classList.add('active'),renderLimits()):(p.classList.remove('show'),b.classList.remove('active'));
         }
-
         function renderLimits() {
-            const g = document.getElementById('limitsGrid'); let items = {};
-            for(let c in data) for(let i in data[c]) items[i] = limits[i] ?? 0;
-            g.innerHTML = Object.keys(items).sort().map(i => `
-                <div class="limit-item"><span class="limit-name">${i}</span><div class="limit-controls">
-                <span style="font-size:11px">Мин:</span>
-                <input type="number" class="limit-input" value="${items[i]}" min="0"
-                onchange="limits['${i}']=Math.max(0,parseInt(this.value)||0);save();render();checkAlerts()"></div></div>`).join('');
+            const g=document.getElementById('limitsGrid'); let items={};
+            for(let c in data) for(let i in data[c]) items[i]=limits[i]??0;
+            g.innerHTML=Object.keys(items).sort().map(i=>`<div class="limit-item"><span class="limit-name">${i}</span><div class="limit-controls"><span style="font-size:11px">Мин:</span><input type="number" class="limit-input" value="${items[i]}" min="0" onchange="limits['${i}']=Math.max(0,parseInt(this.value)||0);save();render();checkAlerts()"></div></div>`).join('');
         }
-
         function saveLimits() {
-            document.querySelectorAll('.limit-input').forEach(i => {
-                limits[i.closest('.limit-item').querySelector('.limit-name').textContent] = Math.max(0,parseInt(i.value)||0);
-            });
+            document.querySelectorAll('.limit-input').forEach(i=>{limits[i.closest('.limit-item').querySelector('.limit-name').textContent]=Math.max(0,parseInt(i.value)||0);});
             save(); render(); checkAlerts(); pushToCloud(); toast('✅ Лимиты сохранены');
         }
-
         function quickEditLimit(item) {
-            const v = prompt(`Мин. запас для "${item}":`, limits[item]??0);
-            if(v!==null) { limits[item]=Math.max(0,parseInt(v)||0); save(); render(); checkAlerts(); if(showLimits) renderLimits(); }
+            const v=prompt(`Мин. запас для "${item}":`,limits[item]??0);
+            if(v!==null){limits[item]=Math.max(0,parseInt(v)||0);save();render();checkAlerts();if(showLimits)renderLimits();}
         }
-
-        function updateValue(cat, item, delta) {
-            const old = data[cat][item];
-            data[cat][item] = Math.max(0, old + delta);
-            history.unshift({ time: new Date().toLocaleString('ru-RU'), user:currentUser, item, old, new:data[cat][item], act: delta>0?'+'+delta:delta });
-            if(history.length>100) history=history.slice(0,100);
+        function updateValue(cat,item,delta) {
+            const old=data[cat][item]; data[cat][item]=Math.max(0,old+delta);
+            history.unshift({time:new Date().toLocaleString('ru-RU'),user:currentUser,item,old,new:data[cat][item],act:delta>0?'+'+delta:delta});
+            if(history.length>150) history=history.slice(0,150);
+            // Сохраняем в shippedHistory
+            const today=new Date().toLocaleDateString('ru-RU');
+            if(!shippedHistory[today]) shippedHistory[today]={black:data.assembly['Отдано черные']||0,white:data.assembly['Отдано белые']||0};
             render(); checkAlerts(); save(); pushToCloud();
         }
-
-        function setValue(cat, item, val) {
-            const old = data[cat][item];
-            data[cat][item] = Math.max(0, parseInt(val)||0);
-            history.unshift({ time: new Date().toLocaleString('ru-RU'), user:currentUser, item, old, new:data[cat][item], act:'ввод' });
-            if(history.length>100) history=history.slice(0,100);
+        function setValue(cat,item,val) {
+            const old=data[cat][item]; data[cat][item]=Math.max(0,parseInt(val)||0);
+            history.unshift({time:new Date().toLocaleString('ru-RU'),user:currentUser,item,old,new:data[cat][item],act:'ввод'});
+            if(history.length>150) history=history.slice(0,150);
+            const today=new Date().toLocaleDateString('ru-RU');
+            if(!shippedHistory[today]) shippedHistory[today]={black:data.assembly['Отдано черные']||0,white:data.assembly['Отдано белые']||0};
             render(); checkAlerts(); save(); pushToCloud();
         }
-
         function checkAlerts() {
-            // Группируем критические запасы по отделам
-            const bySection = {};
-            
-            for(let c in data) {
-                for(let i in data[c]) {
-                    const v = data[c][i];
-                    const min = limits[i] ?? 0;
-                    if(v <= min) {
-                        if(!bySection[c]) bySection[c] = [];
-                        bySection[c].push({i, v, min});
-                    }
-                }
-            }
-            
-            const d = document.getElementById('alerts');
-            const totalCritical = Object.values(bySection).reduce((sum, arr) => sum + arr.length, 0);
-            
-            if(totalCritical > 0) {
-                let html = `<div class="alert-box">
-                    <div class="alert-header" onclick="toggleAlerts()">
-                        <h3>⚠️ Критические запасы (${totalCritical})</h3>
-                        <span id="alertsArrow">${alertsOpen ? '▼' : '▶'}</span>
-                    </div>
-                    <div class="alert-body ${alertsOpen ? '' : 'hidden'}">`;
-                
-                // Для каждого отдела
-                for(let section in bySection) {
-                    const sectionName = sectionNames[section] || section;
-                    html += `<div class="alert-section-title">${sectionName}:</div>`;
-                    bySection[section].forEach(x => {
-                        html += `<div class="alert-item">🔴 ${x.i}: ${x.v} ед. (мин: ${x.min})</div>`;
-                    });
-                }
-                
-                html += `</div></div>`;
-                d.innerHTML = html;
-            } else {
-                d.innerHTML = '';
-            }
+            const bs={};
+            for(let c in data) for(let i in data[c]) { const v=data[c][i],min=limits[i]??0; if(v<=min){ if(!bs[c])bs[c]=[]; bs[c].push({i,v,min}); } }
+            const d=document.getElementById('alerts'), tc=Object.values(bs).reduce((s,a)=>s+a.length,0);
+            if(tc>0){
+                let h=`<div class="alert-box"><div class="alert-header" onclick="toggleAlerts()"><h3>⚠️ Критические запасы (${tc})</h3><span id="alertsArrow">${alertsOpen?'▼':'▶'}</span></div><div class="alert-body ${alertsOpen?'':'hidden'}">`;
+                for(let s in bs){ h+=`<div class="alert-section-title">${sectionNames[s]||s}:</div>`; bs[s].forEach(x=>h+=`<div class="alert-item">🔴 ${x.i}: ${x.v} ед. (мин: ${x.min})</div>`); }
+                h+=`</div></div>`; d.innerHTML=h;
+            } else d.innerHTML='';
         }
-
         function toggleAlerts() {
-            alertsOpen = !alertsOpen;
-            const body = document.querySelector('.alert-body');
-            if(body) body.classList.toggle('hidden', !alertsOpen);
-            const arrow = document.getElementById('alertsArrow');
-            if(arrow) arrow.textContent = alertsOpen ? '▼' : '▶';
+            alertsOpen=!alertsOpen; const b=document.querySelector('.alert-body'); if(b)b.classList.toggle('hidden',!alertsOpen);
+            const a=document.getElementById('alertsArrow'); if(a)a.textContent=alertsOpen?'▼':'▶';
         }
-
-        function createItem(cat, item, val, sub) {
+        function createItem(cat,item,val,sub) {
             const min=limits[item]??0, crit=val<=min;
             return `<div class="${sub?'sub-item':'item'}"><div class="item-name"><span>${item} <span class="min-badge" onclick="quickEditLimit('${item}')">мин:${min}</span></span><span class="item-value ${crit?'critical-low':''}">${val}</span></div><div class="item-controls"><button class="btn btn-m10" onclick="updateValue('${cat}','${item}',-10)">-10</button><button class="btn btn-m1" onclick="updateValue('${cat}','${item}',-1)">-1</button><input type="number" class="qty-input" value="${val}" min="0" onchange="setValue('${cat}','${item}',this.value)"><button class="btn btn-p1" onclick="updateValue('${cat}','${item}',1)">+1</button><button class="btn btn-p10" onclick="updateValue('${cat}','${item}',10)">+10</button></div></div>`;
         }
-
         function render() {
             let s='<h3 class="subsection-title">Скотч</h3>';
             s+=createItem('supplies','Скотч желтый',data.supplies['Скотч желтый'],true);
@@ -907,20 +1025,27 @@
             a+=createItem('assembly','Отдано белые',data.assembly['Отдано белые'],true);
             document.getElementById('assembly').innerHTML=a;
             checkAlerts();
-            document.getElementById('historyList').innerHTML=history.length===0?'<p style="color:var(--text-secondary)">Пусто</p>':history.map(r=>`<div class="history-item"><span style="color:${USER_COLORS[r.user]||'#636e72'};font-weight:600">${r.user||'?'}</span> <strong>${r.time}</strong> - "${r.item}": ${r.old} → ${r.new} (${r.act})</div>`).join('');
+            // Рендер истории с поддержкой summary
+            const hDiv=document.getElementById('historyList');
+            hDiv.innerHTML=history.length===0?'<p style="color:var(--text-secondary)">Пусто</p>':
+                history.map(r=>{
+                    if(r.type==='summary'){
+                        let html = `<div class="history-summary added"><strong>📅 ИТОГ ДНЯ</strong></div>`;
+                        if(r.addedHtml) html += r.addedHtml;
+                        if(r.removedHtml) html += r.removedHtml;
+                        return html;
+                    }
+                    return `<div class="history-item"><span style="color:${USER_COLORS[r.user]||'#636e72'};font-weight:600">${r.user||'?'}</span> <strong>${r.time}</strong> - "${r.item}": ${r.old} → ${r.new} (${r.act})</div>`;
+                }).join('');
         }
-
-        function clearHistory() { if(confirm('Очистить историю?')) { history=[]; save(); render(); pushToCloud(); } }
-
+        function clearHistory() { if(confirm('Очистить историю?')){history=[];save();render();pushToCloud();} }
         function updateStats() {
             const shipped=(data.assembly['Отдано черные']||0)+(data.assembly['Отдано белые']||0);
-            let crit=0;
-            for(let c in data) for(let i in data[c]) if(data[c][i]<=(limits[i]??0)) crit++;
+            let crit=0; for(let c in data) for(let i in data[c]) if(data[c][i]<=(limits[i]??0)) crit++;
             document.getElementById('statsGrid').innerHTML=`
                 <div class="stat-card"><h4>Синхронизация</h4><div class="stat-value" style="font-size:24px">${isOnline?'🟢':'🟡'}</div></div>
                 <div class="stat-card"><h4>Отгружено всего</h4><div class="stat-value">${shipped}</div></div>
-                <div class="stat-card"><h4>Критических запасов</h4><div class="stat-value" style="color:var(--danger-red)">${crit}</div></div>
-            `;
+                <div class="stat-card"><h4>Критических запасов</h4><div class="stat-value" style="color:var(--danger-red)">${crit}</div></div>`;
         }
 
         initAuth();
