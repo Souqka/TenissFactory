@@ -240,7 +240,7 @@
             background: var(--bg-primary); color: var(--text-primary);
         }
 
-        /* ========== PINBOARD ========== */
+        /* PINBOARD */
         .pinboard {
             background: var(--card-bg); border-radius: 15px; padding: 20px;
             border: 2px solid #74b9ff; box-shadow: var(--shadow);
@@ -352,7 +352,6 @@
         <div id="tab-inventory" class="tab-content active">
             <div id="alerts"></div>
             
-            <!-- PINBOARD -->
             <div class="pinboard" id="pinboard">
                 <div class="pinboard-header" onclick="togglePinboard()">
                     <h2>📌 Записки <span id="noteCount">[0]</span></h2>
@@ -369,7 +368,6 @@
                     </div>
                 </div>
             </div>
-            <!-- /PINBOARD -->
 
             <div class="sections-container">
                 <div class="section">
@@ -403,7 +401,6 @@
                 <div class="stats-grid" id="statsGrid"></div>
             </div>
             
-            <!-- Выполненные записки -->
             <div class="panel" style="margin-top:20px">
                 <h2 class="section-title" style="color:#74b9ff">✅ Выполненные записки</h2>
                 <div id="doneNotesList"></div>
@@ -415,7 +412,7 @@
 
     <script>
         // ============ КОНФИГУРАЦИЯ ============
-        const SYNC_URL = 'https://script.google.com/macros/s/AKfycbzOLHQ2L9qQocsJ1iBVTYVXbQRxId8Ox77_s4AZVUNs3CQlZAnYfJDBgJeEuvxx4Kr-lg/exec';
+        const SYNC_URL = 'https://script.google.com/macros/s/AKfycbzTeiQslDVeA9Zcyr9HodMjda76w5RA6LM0h8_NV2Y7T-0hyHAU1KZVH545ZsuD7CV1iw/exec';
         const SYNC_INTERVAL = 15000;
         const PASS = '0000';
         const USERS = ['Илья', 'Глеб', 'Артур', 'Наём. Раб.'];
@@ -699,7 +696,7 @@
             if(name === 'stats') { updateStats(); renderNotes(); }
         }
 
-        // ============ ОСТАЛЬНОЕ (без изменений) ============
+        // ============ ОСТАЛЬНОЕ ============
         function toggleLimits() {
             showLimits = !showLimits;
             const p = document.getElementById('limitsPanel'), b = document.getElementById('limitsBtn');
