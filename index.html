@@ -203,6 +203,7 @@
             padding: 8px 16px; border: 2px solid var(--border-color);
             border-radius: 8px; background: var(--card-bg);
             color: var(--text-primary); cursor: pointer; font-size: 14px;
+            transition: all 0.3s ease; white-space: nowrap;
         }
         .tab.active { background: var(--accent-green); color: white; border-color: var(--accent-green); }
         .tab:hover { background: var(--hover-bg); }
@@ -298,18 +299,6 @@
         }
 
         /* GOALS */
-        .goals-panel {
-            background: var(--card-bg); border-radius: 15px; padding: 15px;
-            border: 2px solid #ffd93d; box-shadow: var(--shadow);
-            margin-bottom: 15px;
-        }
-        .goals-header {
-            display: flex; justify-content: space-between; align-items: center;
-            cursor: pointer; user-select: none;
-        }
-        .goals-header h2 { color: #ffd93d; font-size: 18px; margin: 0; }
-        .goals-body { margin-top: 12px; }
-        .goals-body.hidden { display: none; }
         .goal-item {
             display: flex; align-items: center; gap: 10px;
             padding: 10px; background: var(--bg-secondary);
@@ -347,7 +336,7 @@
             .header h1 { font-size: 18px; }
             .btn-sm { padding: 6px 10px; font-size: 11px; }
             .tabs { gap: 5px; }
-            .tab { padding: 6px 12px; font-size: 12px; }
+            .tab { padding: 6px 10px; font-size: 12px; }
             .limits-grid { grid-template-columns: 1fr; }
             .add-note-form { flex-direction: column; }
             .section { padding: 15px; }
@@ -361,6 +350,7 @@
             .btn-sm { padding: 5px 8px; font-size: 10px; }
             .stats-grid { grid-template-columns: 1fr; }
             .goal-item { flex-direction: column; align-items: flex-start; }
+            .tab { padding: 5px 8px; font-size: 11px; }
         }
     </style>
 </head>
@@ -393,22 +383,12 @@
             <button class="tab active" onclick="switchTab('inventory')">📦 Производство</button>
             <button class="tab" onclick="switchTab('history')">📋 История</button>
             <button class="tab" onclick="switchTab('stats')">📊 Статистика</button>
+            <button class="tab" onclick="switchTab('goals')">🎯 Цели</button>
         </div>
 
         <div id="tab-inventory" class="tab-content active">
             <div id="alerts"></div>
             
-            <!-- Цели на день -->
-            <div class="goals-panel" id="goalsPanel">
-                <div class="goals-header" onclick="toggleGoals()">
-                    <h2>🎯 Цели на день</h2>
-                    <span id="goalsArrow">▼</span>
-                </div>
-                <div class="goals-body" id="goalsBody">
-                    <div id="goalsContent"></div>
-                </div>
-            </div>
-
             <!-- PinBoard -->
             <div class="pinboard" id="pinboard">
                 <div class="pinboard-header" onclick="togglePinboard()">
@@ -464,6 +444,13 @@
                 <div id="doneNotesList"></div>
             </div>
         </div>
+
+        <div id="tab-goals" class="tab-content">
+            <div class="panel">
+                <h2 class="section-title">🎯 Цели на день</h2>
+                <div id="goalsContent"></div>
+            </div>
+        </div>
     </div>
 
     <div class="toast" id="toast">✓ Сохранено</div>
@@ -511,7 +498,6 @@
         let currentUser = localStorage.getItem('user') || null;
         let showLimits = false;
         let pinboardOpen = true;
-        let goalsOpen = true;
         let alertsOpen = true;
         let syncTimer = null;
         let isFirstSync = true;
@@ -579,12 +565,6 @@
         }
 
         // ============ ЦЕЛИ ============
-        function toggleGoals() {
-            goalsOpen = !goalsOpen;
-            document.getElementById('goalsBody').classList.toggle('hidden', !goalsOpen);
-            document.getElementById('goalsArrow').textContent = goalsOpen ? '▼' : '▶';
-        }
-
         function renderGoals() {
             const total = goals.total || 100;
             const shipped = (data.assembly['Отдано черные'] || 0) + (data.assembly['Отдано белые'] || 0);
@@ -603,8 +583,8 @@
                     <span style="font-size:14px">рамок</span>
                     <span class="goal-progress ${done ? 'goal-done' : 'goal-pending'}">${percent}%</span>
                 </div>
-                ${done ? '<p style="color:var(--accent-green);text-align:center;font-weight:bold">🎉 План выполнен!</p>' : 
-                `<p style="color:var(--text-secondary);text-align:center">Осталось: ${total - shipped} рамок</p>`}
+                ${done ? '<p style="color:var(--accent-green);text-align:center;font-weight:bold;margin-top:10px">🎉 План выполнен!</p>' : 
+                `<p style="color:var(--text-secondary);text-align:center;margin-top:10px">Осталось: ${total - shipped} рамок</p>`}
             `;
         }
 
@@ -787,6 +767,7 @@
             event.target.classList.add('active');
             document.getElementById('tab-' + name).classList.add('active');
             if(name === 'stats') { updateStats(); renderNotes(); }
+            if(name === 'goals') renderGoals();
         }
 
         // ============ ОСТАЛЬНОЕ ============
@@ -836,11 +817,15 @@
 
         function checkAlerts() {
             const critical = [];
-            for(let c in data) for(let i in data[c]) {
-                const v=data[c][i], min=limits[i]??0;
-                if(v<=min) critical.push({i,v,min});
+            // Проверяем ТОЛЬКО существующие в data позиции, без лишних
+            for(let c in data) {
+                for(let i in data[c]) {
+                    const v = data[c][i];
+                    const min = limits[i] ?? 0;
+                    if(v <= min) critical.push({i, v, min});
+                }
             }
-            const d=document.getElementById('alerts');
+            const d = document.getElementById('alerts');
             if(critical.length) {
                 d.innerHTML = `<div class="alert-box">
                     <div class="alert-header" onclick="toggleAlerts()">
@@ -848,16 +833,20 @@
                         <span id="alertsArrow">${alertsOpen ? '▼' : '▶'}</span>
                     </div>
                     <div class="alert-body ${alertsOpen ? '' : 'hidden'}">
-                        ${critical.map(x=>`<div class="alert-item">🔴 ${x.i}: ${x.v} ед. (мин: ${x.min})</div>`).join('')}
+                        ${critical.map(x => `<div class="alert-item">🔴 ${x.i}: ${x.v} ед. (мин: ${x.min})</div>`).join('')}
                     </div>
                 </div>`;
-            } else d.innerHTML = '';
+            } else {
+                d.innerHTML = '';
+            }
         }
 
         function toggleAlerts() {
             alertsOpen = !alertsOpen;
-            document.querySelector('.alert-body')?.classList.toggle('hidden', !alertsOpen);
-            document.getElementById('alertsArrow').textContent = alertsOpen ? '▼' : '▶';
+            const body = document.querySelector('.alert-body');
+            if(body) body.classList.toggle('hidden', !alertsOpen);
+            const arrow = document.getElementById('alertsArrow');
+            if(arrow) arrow.textContent = alertsOpen ? '▼' : '▶';
         }
 
         function createItem(cat, item, val, sub) {
@@ -893,7 +882,7 @@
             a+=createItem('assembly','Отдано черные',data.assembly['Отдано черные'],true);
             a+=createItem('assembly','Отдано белые',data.assembly['Отдано белые'],true);
             document.getElementById('assembly').innerHTML=a;
-            checkAlerts(); renderGoals();
+            checkAlerts();
             document.getElementById('historyList').innerHTML=history.length===0?'<p style="color:var(--text-secondary)">Пусто</p>':history.map(r=>`<div class="history-item"><span style="color:${USER_COLORS[r.user]||'#636e72'};font-weight:600">${r.user||'?'}</span> <strong>${r.time}</strong> - "${r.item}": ${r.old} → ${r.new} (${r.act})</div>`).join('');
         }
 
@@ -901,7 +890,8 @@
 
         function updateStats() {
             const shipped=(data.assembly['Отдано черные']||0)+(data.assembly['Отдано белые']||0);
-            let crit=0; for(let c in data) for(let i in data[c]) if(data[c][i]<=(limits[i]??0)) crit++;
+            let crit=0;
+            for(let c in data) for(let i in data[c]) if(data[c][i]<=(limits[i]??0)) crit++;
             document.getElementById('statsGrid').innerHTML=`
                 <div class="stat-card"><h4>Синхронизация</h4><div class="stat-value" style="font-size:24px">${isOnline?'🟢':'🟡'}</div></div>
                 <div class="stat-card"><h4>Отгружено всего</h4><div class="stat-value">${shipped}</div></div>
