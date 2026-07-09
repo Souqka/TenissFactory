@@ -6,152 +6,288 @@
     <title>Управление производством</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏭</text></svg>">
     <style>
+        /* ===== CSS ПЕРЕМЕННЫЕ ===== */
         :root {
             --bg: #fff; --bg2: #f8faf8; --txt: #2d3436; --txt2: #636e72;
-            --brd: #a8e6cf; --brd2: #dcedc1; --grn: #4caf50; --red: #ff6b6b;
-            --shd: 0 2px 8px rgba(0,0,0,.1); --card: #fff; --hvr: #f0f7f0;
-            --blue: #74b9ff; --yel: #ffd93d; --grid: #e0e0e0;
+            --brd: #a8e6cf; --brd2: #dcedc1; --green: #4caf50; --red: #ff6b6b;
+            --shadow: 0 2px 8px rgba(0,0,0,.1); --card: #fff; --hover: #f0f7f0;
+            --blue: #74b9ff; --yellow: #ffd93d; --grid: #e0e0e0;
         }
+        /* ===== ТЁМНАЯ ТЕМА ===== */
         [data-theme="dark"] {
             --bg: #1a1a2e; --bg2: #16213e; --txt: #e0e0e0; --txt2: #a0a0a0;
-            --brd: #2d5a3d; --brd2: #1e3a2f; --grn: #66bb6a; --red: #ef5350;
-            --shd: 0 2px 8px rgba(0,0,0,.4); --card: #222831; --hvr: #2d3a2d;
+            --brd: #2d5a3d; --brd2: #1e3a2f; --green: #66bb6a; --red: #ef5350;
+            --shadow: 0 2px 8px rgba(0,0,0,.4); --card: #222831; --hover: #2d3a2d;
             --grid: #3a3a4a;
         }
-        *{margin:0;padding:0;box-sizing:border-box}
-        body{
-            font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--txt);
-            transition:all .3s;touch-action:manipulation;-webkit-user-select:none;user-select:none;
-            -webkit-tap-highlight-color:transparent;
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--txt);
+            transition: all .3s; touch-action: manipulation; -webkit-user-select: none; user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
-        .auth-overlay{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;justify-content:center;align-items:center}
-        .auth-overlay.hidden{display:none}
-        .auth-card{background:var(--card);border-radius:20px;padding:40px;border:2px solid var(--brd);box-shadow:var(--shd);text-align:center;max-width:400px;width:90%}
-        .auth-card h2{color:var(--grn);margin-bottom:20px}
-        .auth-input{width:100%;padding:12px;margin:10px 0;border:2px solid var(--brd);border-radius:10px;font-size:24px;text-align:center;letter-spacing:10px;background:var(--bg);color:var(--txt)}
-        .auth-input:focus{outline:none;border-color:var(--grn)}
-        .user-list{display:flex;flex-direction:column;gap:8px;margin:15px 0}
-        .user-btn{padding:12px;border:2px solid var(--brd);border-radius:10px;background:var(--card);color:var(--txt);cursor:pointer;font-size:16px;transition:all .3s;text-align:left}
-        .user-btn:hover{background:var(--grn);color:#fff;border-color:var(--grn)}
-        .custom-user-btn{font-style:italic}
-        .app-container{max-width:1400px;margin:0 auto;padding:20px}
-        .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding:15px;background:var(--card);border-radius:15px;border:2px solid var(--brd);box-shadow:var(--shd);flex-wrap:wrap;gap:10px}
-        .header h1{color:var(--grn);font-size:clamp(18px,4vw,24px)}
-        .header-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-        .badge{padding:6px 12px;border-radius:20px;font-size:13px;font-weight:600;white-space:nowrap;background:var(--hvr);color:var(--txt);cursor:pointer;border:2px solid var(--brd)}
-        .badge:hover{background:var(--grn);color:#fff}
-        .sync{padding:6px 12px;border-radius:20px;font-size:13px;font-weight:600;white-space:nowrap}
-        .sync-on{background:#d4edda;color:#155724}.sync-off{background:#fff3cd;color:#856404}
-        .sync-err{background:#f8d7da;color:#721c24}.sync-load{background:#cce5ff;color:#004085}
-        [data-theme="dark"] .sync-on{background:#1e3a2f;color:#66bb6a}
-        [data-theme="dark"] .sync-off{background:#3d3520;color:#ffd54f}
-        [data-theme="dark"] .sync-err{background:#3d2020;color:#ef5350}
-        [data-theme="dark"] .sync-load{background:#1a2a3d;color:#66b0ff}
-        .btn-sm{padding:8px 14px;border:2px solid var(--brd);border-radius:8px;background:var(--card);color:var(--txt);cursor:pointer;transition:all .3s;font-size:13px;white-space:nowrap}
-        .btn-sm:hover{background:var(--hvr)}.btn-sm.act{background:var(--grn);color:#fff;border-color:var(--grn)}
-        .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,350px),1fr));gap:20px;margin-bottom:25px}
-        .box{background:var(--card);border-radius:15px;padding:20px;border:2px solid var(--brd);box-shadow:var(--shd)}
-        .box-title{color:var(--grn);font-size:clamp(16px,3vw,20px);margin-bottom:15px;padding-bottom:10px;border-bottom:2px solid var(--brd2)}
-        .sub-title{color:var(--txt);font-size:14px;margin:12px 0 8px;font-weight:600}
-        .item{margin-bottom:12px;padding:12px;background:var(--bg2);border-radius:10px;border:1px solid var(--brd2)}
-        .item.sub{margin-left:15px;padding:8px;background:var(--bg)}
-        .item-name{font-weight:600;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;font-size:clamp(12px,2.5vw,14px)}
-        .item-val{font-size:clamp(14px,3vw,18px);font-weight:bold}
-        .crit{color:var(--red);animation:pulse 2s infinite}
-        @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
-        .min-badge{font-size:11px;padding:2px 6px;border-radius:10px;background:var(--brd2);color:var(--txt2);cursor:pointer}
-        .min-badge:hover{background:var(--grn);color:#fff}
-        .controls{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
-        .qty-input{width:60px;padding:6px;border:2px solid var(--brd);border-radius:6px;text-align:center;font-size:14px;background:var(--bg);color:var(--txt)}
-        .qty-input:focus{outline:none;border-color:var(--grn)}
-        .btn{padding:6px 10px;border:none;border-radius:6px;cursor:pointer;font-size:12px;font-weight:bold;transition:all .3s;color:#fff;min-width:35px}
-        .btn-m10{background:#e74c3c}.btn-m1{background:#ff7675}
-        .btn-p1{background:#55efc4;color:#2d3436}.btn-p10{background:#00b894}
-        .btn:hover{transform:scale(1.05);opacity:.9}.btn:active{transform:scale(.95)}
-        .panel{background:var(--card);border-radius:15px;padding:20px;border:2px solid var(--brd);box-shadow:var(--shd);margin-bottom:25px}
-        .hist-list{max-height:350px;overflow-y:auto}
-        .hist-item{padding:10px;border-bottom:1px solid var(--brd2);font-size:13px;color:var(--txt2)}
-        .hist-item:last-child{border-bottom:none}
-        .hist-sum{padding:10px;border-radius:8px;margin:5px 0;font-weight:bold;font-size:14px}
-        .hist-sum.add{background:#d4edda;color:#155724}.hist-sum.rem{background:#f8d7da;color:#721c24}
-        [data-theme="dark"] .hist-sum.add{background:#1e3a2f;color:#66bb6a}
-        [data-theme="dark"] .hist-sum.rem{background:#3d2020;color:#ef5350}
-        .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:15px;margin-top:15px}
-        .stat-card{background:var(--bg2);padding:15px;border-radius:10px;border:1px solid var(--brd2);text-align:center}
-        .stat-card h4{color:var(--txt2);margin-bottom:8px;font-size:13px}
-        .stat-val{font-size:clamp(24px,5vw,32px);font-weight:bold;color:var(--grn)}
-        .tabs{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
-        .tab{padding:8px 16px;border:2px solid var(--brd);border-radius:8px;background:var(--card);color:var(--txt);cursor:pointer;font-size:14px;transition:all .3s;white-space:nowrap}
-        .tab.act{background:var(--grn);color:#fff;border-color:var(--grn)}
-        .tab:hover{background:var(--hvr)}.tab.act:hover{background:var(--grn)}
-        .tab-content{display:none}.tab-content.act{display:block}
-        .alert-box{background:#fff3f3;border:2px solid var(--red);border-radius:10px;padding:12px;margin-bottom:15px}
-        [data-theme="dark"] .alert-box{background:#3d2020}
-        .alert-hdr{display:flex;justify-content:space-between;align-items:center;cursor:pointer}
-        .alert-hdr h3{color:var(--red);margin:0;font-size:16px}
-        .alert-body{margin-top:10px}.alert-body.hidden{display:none}
-        .alert-item{color:var(--red);padding:4px 0;font-size:13px}
-        .alert-sec{color:var(--red);font-weight:600;margin:8px 0 4px;font-size:14px}
-        .limits-panel{background:var(--card);border-radius:15px;padding:20px;border:2px solid var(--yel);box-shadow:var(--shd);margin-bottom:25px;display:none}
-        .limits-panel.show{display:block}
-        .limits-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin-top:15px}
-        .lim-item{display:flex;justify-content:space-between;align-items:center;padding:10px;background:var(--bg2);border-radius:8px;border:1px solid var(--brd2);font-size:13px}
-        .lim-name{font-weight:600;flex:1}
-        .lim-ctrl{display:flex;align-items:center;gap:6px}
-        .lim-input{width:60px;padding:5px;border:2px solid var(--brd);border-radius:6px;text-align:center;font-size:13px;background:var(--bg);color:var(--txt)}
-        .pinboard{background:var(--card);border-radius:15px;padding:15px;border:2px solid var(--blue);box-shadow:var(--shd);margin-bottom:15px}
-        .pin-hdr{display:flex;justify-content:space-between;align-items:center;cursor:pointer}
-        .pin-hdr h2{color:var(--blue);font-size:18px;margin:0}
-        .pin-body{margin-top:12px}.pin-body.hidden{display:none}
-        .note-card{background:var(--bg2);border-radius:10px;padding:12px;margin-bottom:8px;border:1px solid var(--brd2);font-size:13px}
-        .note-card.done{opacity:.6;border-left:4px solid var(--grn)}
-        .note-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;flex-wrap:wrap;gap:5px}
-        .note-txt{font-size:14px;margin-bottom:6px;word-break:break-word}
-        .note-meta{display:flex;gap:10px;font-size:11px;color:var(--txt2);flex-wrap:wrap}
-        .note-act{display:flex;gap:4px;margin-top:6px}
-        .note-btn{padding:3px 8px;border:1px solid var(--brd);border-radius:4px;background:var(--card);color:var(--txt);cursor:pointer;font-size:11px}
-        .note-btn.done-btn{color:var(--grn);border-color:var(--grn)}
-        .note-btn.del-btn{color:var(--red);border-color:var(--red)}
-        .note-btn.edit-btn{color:var(--blue);border-color:var(--blue)}
-        .add-form{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;padding:12px;background:var(--bg2);border-radius:10px;border:1px dashed var(--brd)}
-        .add-form input,.add-form select{padding:8px;border:2px solid var(--brd);border-radius:8px;font-size:13px;background:var(--bg);color:var(--txt);flex:1;min-width:120px}
-        .goal-item{display:flex;align-items:center;gap:10px;padding:10px;background:var(--bg2);border-radius:8px;margin-bottom:8px;flex-wrap:wrap}
-        .goal-label{font-weight:600;min-width:80px;font-size:14px}
-        .goal-input{width:70px;padding:6px;border:2px solid var(--brd);border-radius:6px;text-align:center;font-size:14px;background:var(--bg);color:var(--txt)}
-        .goal-prog{font-size:14px;font-weight:bold;padding:4px 10px;border-radius:10px}
-        .goal-done{background:#d4edda;color:#155724}.goal-pend{background:#fff3cd;color:#856404}
-        .chart-wrap{position:relative;width:100%;max-width:800px;margin:20px auto;background:var(--bg2);border-radius:15px;padding:20px}
-        canvas{display:block;width:100%;cursor:crosshair}
-        .chart-ctrl{display:flex;gap:8px;justify-content:center;margin-bottom:15px;flex-wrap:wrap}
-        .chart-tip{position:absolute;background:var(--card);color:var(--txt);padding:6px 10px;border-radius:6px;font-size:12px;pointer-events:none;display:none;z-index:10;border:1px solid var(--brd);box-shadow:var(--shd)}
-        .toast{position:fixed;bottom:20px;right:20px;background:var(--grn);color:#fff;padding:10px 20px;border-radius:20px;box-shadow:var(--shd);display:none;z-index:999}
-        ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg2)}
-        ::-webkit-scrollbar-thumb{background:var(--brd);border-radius:3px}
-        @media(max-width:768px){
-            .app-container{padding:10px}.grid2{grid-template-columns:1fr;gap:15px}
-            .stats-grid{grid-template-columns:repeat(2,1fr);gap:10px}
-            .header{padding:12px;gap:8px}.header h1{font-size:18px}
-            .btn-sm{padding:6px 10px;font-size:11px}.tabs{gap:5px}
-            .tab{padding:6px 10px;font-size:12px}.limits-grid{grid-template-columns:1fr}
-            .add-form{flex-direction:column}.box{padding:15px}
-            .item{padding:10px}.btn{padding:5px 8px;font-size:11px;min-width:30px}
-            .qty-input{width:50px;padding:5px;font-size:12px}.chart-wrap{padding:10px}
+        .auth-overlay { position: fixed; inset: 0; background: var(--bg); z-index: 9999; display: flex; justify-content: center; align-items: center; }
+        .auth-overlay.hidden { display: none; }
+        .auth-card { background: var(--card); border-radius: 20px; padding: 40px; border: 2px solid var(--brd); box-shadow: var(--shadow); text-align: center; max-width: 400px; width: 90%; }
+        .auth-card h2 { color: var(--green); margin-bottom: 20px; }
+        .auth-input { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid var(--brd); border-radius: 10px; font-size: 24px; text-align: center; letter-spacing: 10px; background: var(--bg); color: var(--txt); }
+        .auth-input:focus { outline: none; border-color: var(--green); }
+        .user-list { display: flex; flex-direction: column; gap: 8px; margin: 15px 0; }
+        .user-btn { padding: 12px; border: 2px solid var(--brd); border-radius: 10px; background: var(--card); color: var(--txt); cursor: pointer; font-size: 16px; transition: all .3s; text-align: left; }
+        .user-btn:hover { background: var(--green); color: #fff; border-color: var(--green); }
+        .custom-user-btn { font-style: italic; }
+        .app-container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 15px; background: var(--card); border-radius: 15px; border: 2px solid var(--brd); box-shadow: var(--shadow); flex-wrap: wrap; gap: 10px; }
+        .header h1 { color: var(--green); font-size: clamp(18px, 4vw, 24px); }
+        .header-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .badge { padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; white-space: nowrap; background: var(--hover); color: var(--txt); cursor: pointer; border: 2px solid var(--brd); }
+        .badge:hover { background: var(--green); color: #fff; }
+        .sync { padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; white-space: nowrap; }
+        .sync-online { background: #d4edda; color: #155724; }
+        .sync-offline { background: #fff3cd; color: #856404; }
+        .sync-error { background: #f8d7da; color: #721c24; }
+        .sync-loading { background: #cce5ff; color: #004085; }
+        [data-theme="dark"] .sync-online { background: #1e3a2f; color: #66bb6a; }
+        [data-theme="dark"] .sync-offline { background: #3d3520; color: #ffd54f; }
+        [data-theme="dark"] .sync-error { background: #3d2020; color: #ef5350; }
+        [data-theme="dark"] .sync-loading { background: #1a2a3d; color: #66b0ff; }
+        .btn-sm { padding: 8px 14px; border: 2px solid var(--brd); border-radius: 8px; background: var(--card); color: var(--txt); cursor: pointer; transition: all .3s; font-size: 13px; white-space: nowrap; }
+        .btn-sm:hover { background: var(--hover); }
+        .btn-sm.active { background: var(--green); color: #fff; border-color: var(--green); }
+        .sections-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 350px), 1fr)); gap: 20px; margin-bottom: 25px; }
+        .section-box { background: var(--card); border-radius: 15px; padding: 20px; border: 2px solid var(--brd); box-shadow: var(--shadow); }
+        .section-title { color: var(--green); font-size: clamp(16px, 3vw, 20px); margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid var(--brd2); }
+        .subsection-title { color: var(--txt); font-size: 14px; margin: 12px 0 8px; font-weight: 600; }
+        .inventory-item { margin-bottom: 12px; padding: 12px; background: var(--bg2); border-radius: 10px; border: 1px solid var(--brd2); }
+        .inventory-item.sub { margin-left: 15px; padding: 8px; background: var(--bg); }
+        .item-name { font-weight: 600; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; font-size: clamp(12px, 2.5vw, 14px); }
+        .item-value { font-size: clamp(14px, 3vw, 18px); font-weight: bold; }
+        .critical { color: var(--red); animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
+        .min-badge { font-size: 11px; padding: 2px 6px; border-radius: 10px; background: var(--brd2); color: var(--txt2); cursor: pointer; }
+        .min-badge:hover { background: var(--green); color: #fff; }
+        .item-controls { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+        .qty-input { width: 60px; padding: 6px; border: 2px solid var(--brd); border-radius: 6px; text-align: center; font-size: 14px; background: var(--bg); color: var(--txt); }
+        .qty-input:focus { outline: none; border-color: var(--green); }
+        .btn { padding: 6px 10px; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold; transition: all .3s; color: #fff; min-width: 35px; }
+        .btn-minus10 { background: #e74c3c; }
+        .btn-minus1 { background: #ff7675; }
+        .btn-plus1 { background: #55efc4; color: #2d3436; }
+        .btn-plus10 { background: #00b894; }
+        .btn:hover { transform: scale(1.05); opacity: .9; }
+        .btn:active { transform: scale(.95); }
+        .panel { background: var(--card); border-radius: 15px; padding: 20px; border: 2px solid var(--brd); box-shadow: var(--shadow); margin-bottom: 25px; }
+        .history-list { max-height: 350px; overflow-y: auto; }
+        .history-item { padding: 10px; border-bottom: 1px solid var(--brd2); font-size: 13px; color: var(--txt2); }
+        .history-item:last-child { border-bottom: none; }
+        .history-summary { padding: 10px; border-radius: 8px; margin: 5px 0; font-weight: bold; font-size: 14px; }
+        .history-summary.added { background: #d4edda; color: #155724; }
+        .history-summary.removed { background: #f8d7da; color: #721c24; }
+        [data-theme="dark"] .history-summary.added { background: #1e3a2f; color: #66bb6a; }
+        [data-theme="dark"] .history-summary.removed { background: #3d2020; color: #ef5350; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-top: 15px; }
+        .stat-card { background: var(--bg2); padding: 15px; border-radius: 10px; border: 1px solid var(--brd2); text-align: center; }
+        .stat-card h4 { color: var(--txt2); margin-bottom: 8px; font-size: 13px; }
+        .stat-value { font-size: clamp(24px, 5vw, 32px); font-weight: bold; color: var(--green); }
+        .tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+        .tab { padding: 8px 16px; border: 2px solid var(--brd); border-radius: 8px; background: var(--card); color: var(--txt); cursor: pointer; font-size: 14px; transition: all .3s; white-space: nowrap; }
+        .tab.active { background: var(--green); color: #fff; border-color: var(--green); }
+        .tab:hover { background: var(--hover); }
+        .tab.active:hover { background: var(--green); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .alert-box { background: #fff3f3; border: 2px solid var(--red); border-radius: 10px; padding: 12px; margin-bottom: 15px; }
+        [data-theme="dark"] .alert-box { background: #3d2020; }
+        .alert-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        .alert-header h3 { color: var(--red); margin: 0; font-size: 16px; }
+        .alert-body { margin-top: 10px; }
+        .alert-body.hidden { display: none; }
+        .alert-item { color: var(--red); padding: 4px 0; font-size: 13px; }
+        .alert-section { color: var(--red); font-weight: 600; margin: 8px 0 4px; font-size: 14px; }
+        .limits-panel { background: var(--card); border-radius: 15px; padding: 20px; border: 2px solid var(--yellow); box-shadow: var(--shadow); margin-bottom: 25px; display: none; }
+        .limits-panel.show { display: block; }
+        .limits-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; margin-top: 15px; }
+        .limit-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; background: var(--bg2); border-radius: 8px; border: 1px solid var(--brd2); font-size: 13px; }
+        .limit-name { font-weight: 600; flex: 1; }
+        .limit-controls { display: flex; align-items: center; gap: 6px; }
+        .limit-input { width: 60px; padding: 5px; border: 2px solid var(--brd); border-radius: 6px; text-align: center; font-size: 13px; background: var(--bg); color: var(--txt); }
+        .pinboard { background: var(--card); border-radius: 15px; padding: 15px; border: 2px solid var(--blue); box-shadow: var(--shadow); margin-bottom: 15px; }
+        .pinboard-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        .pinboard-header h2 { color: var(--blue); font-size: 18px; margin: 0; }
+        .pinboard-body { margin-top: 12px; }
+        .pinboard-body.hidden { display: none; }
+        .note-card { background: var(--bg2); border-radius: 10px; padding: 12px; margin-bottom: 8px; border: 1px solid var(--brd2); font-size: 13px; }
+        .note-card.done { opacity: .6; border-left: 4px solid var(--green); }
+        .note-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 5px; }
+        .note-text { font-size: 14px; margin-bottom: 6px; word-break: break-word; }
+        .note-meta { display: flex; gap: 10px; font-size: 11px; color: var(--txt2); flex-wrap: wrap; }
+        .note-actions { display: flex; gap: 4px; margin-top: 6px; }
+        .note-btn { padding: 3px 8px; border: 1px solid var(--brd); border-radius: 4px; background: var(--card); color: var(--txt); cursor: pointer; font-size: 11px; }
+        .note-btn.done-btn { color: var(--green); border-color: var(--green); }
+        .note-btn.delete-btn { color: var(--red); border-color: var(--red); }
+        .note-btn.edit-btn { color: var(--blue); border-color: var(--blue); }
+        .add-note-form { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; padding: 12px; background: var(--bg2); border-radius: 10px; border: 1px dashed var(--brd); }
+        .add-note-form input, .add-note-form select { padding: 8px; border: 2px solid var(--brd); border-radius: 8px; font-size: 13px; background: var(--bg); color: var(--txt); flex: 1; min-width: 120px; }
+        .goal-item { display: flex; align-items: center; gap: 10px; padding: 10px; background: var(--bg2); border-radius: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+        .goal-label { font-weight: 600; min-width: 80px; font-size: 14px; }
+        .goal-input { width: 70px; padding: 6px; border: 2px solid var(--brd); border-radius: 6px; text-align: center; font-size: 14px; background: var(--bg); color: var(--txt); }
+        .goal-progress { font-size: 14px; font-weight: bold; padding: 4px 10px; border-radius: 10px; }
+        .goal-done { background: #d4edda; color: #155724; }
+        .goal-pending { background: #fff3cd; color: #856404; }
+        .chart-wrapper { position: relative; width: 100%; max-width: 800px; margin: 20px auto; background: var(--bg2); border-radius: 15px; padding: 20px; }
+        canvas { display: block; width: 100%; cursor: crosshair; }
+        .chart-controls { display: flex; gap: 8px; justify-content: center; margin-bottom: 15px; flex-wrap: wrap; }
+        .chart-tooltip { position: absolute; background: var(--card); color: var(--txt); padding: 6px 10px; border-radius: 6px; font-size: 12px; pointer-events: none; display: none; z-index: 10; border: 1px solid var(--brd); box-shadow: var(--shadow); }
+        .toast { position: fixed; bottom: 20px; right: 20px; background: var(--green); color: #fff; padding: 10px 20px; border-radius: 20px; box-shadow: var(--shadow); display: none; z-index: 999; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg2); }
+        ::-webkit-scrollbar-thumb { background: var(--brd); border-radius: 3px; }
+        @media (max-width: 768px) {
+            .app-container { padding: 10px; }
+            .sections-grid { grid-template-columns: 1fr; gap: 15px; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+            .header { padding: 12px; gap: 8px; }
+            .header h1 { font-size: 18px; }
+            .btn-sm { padding: 6px 10px; font-size: 11px; }
+            .tabs { gap: 5px; }
+            .tab { padding: 6px 10px; font-size: 12px; }
+            .limits-grid { grid-template-columns: 1fr; }
+            .add-note-form { flex-direction: column; }
+            .section-box { padding: 15px; }
+            .inventory-item { padding: 10px; }
+            .btn { padding: 5px 8px; font-size: 11px; min-width: 30px; }
+            .qty-input { width: 50px; padding: 5px; font-size: 12px; }
+            .chart-wrapper { padding: 10px; }
         }
-        @media(max-width:400px){
-            .header-controls{gap:4px}.btn-sm{padding:5px 8px;font-size:10px}
-            .stats-grid{grid-template-columns:1fr}.goal-item{flex-direction:column;align-items:flex-start}
-            .tab{padding:5px 8px;font-size:11px}
+        @media (max-width: 400px) {
+            .header-controls { gap: 4px; }
+            .btn-sm { padding: 5px 8px; font-size: 10px; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .goal-item { flex-direction: column; align-items: flex-start; }
+            .tab { padding: 5px 8px; font-size: 11px; }
         }
     </style>
 </head>
 <body>
+    <!--
+    ===== ДОКУМЕНТАЦИЯ =====
+    
+    НАЗВАНИЕ: Система управления производством
+    ВЕРСИЯ: 2.0
+    АВТОР: Команда разработки
+    ДАТА: 2026-07-09
+    
+    ===== ОПИСАНИЕ =====
+    Одностраничное веб-приложение (SPA) для управления производственными запасами,
+    сборкой рамок и отслеживания производственных процессов.
+    Работает в браузере, не требует установки.
+    
+    ===== ОСНОВНЫЕ ФУНКЦИИ =====
+    
+    1. АВТОРИЗАЦИЯ
+       - Пароль: 0000
+       - Пользователи: Илья, Глеб, Артур, Наём. Раб.
+       - При повторном входе пароль не запрашивается
+       - У каждого пользователя свой цвет в истории
+    
+    2. ОТДЕЛ 1: ЗАПАСЫ РАСХОДНИКОВ
+       - Скотч (желтый, прозрачный)
+       - Крючки (черные, белые)
+       - Прочее (Стрэйтч, Пластик белый, Коробки, Грунт, Пупырка)
+       - Рамки (черные, белые)
+       - Оргстекло, Доски
+    
+    3. ОТДЕЛ 2: ПРОИЗВОДСТВО
+       - Пластик нарезанный
+       - Сушка грунта
+       - Сушка полей (клей)
+       - Готовые рамки
+       - Кривые (под давлением)
+    
+    4. ОТДЕЛ 3: СБОРКА
+       - Непроверенные (черные/белые)
+       - Проверенные (черные/белые)
+       - Упакованные (черные/белые)
+       - Отдано (черные/белые)
+    
+    5. КРИТИЧЕСКИЕ ЗАПАСЫ
+       - Подсветка красным при значении <= минимального лимита
+       - Если минимальный лимит = 0, позиция НЕ показывается в критических
+       - Сворачивание/разворачивание блока
+       - Группировка по отделам
+    
+    6. МИНИМАЛЬНЫЕ ЗАПАСЫ
+       - Настройка через кнопку "⚙️" в шапке
+       - Можно установить 0 (отключить отслеживание)
+    
+    7. PINBOARD (ДОСКА ЗАПИСОК)
+       - Добавление, редактирование, удаление записок
+       - Назначение исполнителя
+       - Отметка о выполнении
+       - Сворачивание блока
+    
+    8. ИСТОРИЯ ИЗМЕНЕНИЙ
+       - Запись всех изменений с именем пользователя
+       - Итоги дня (автоматические и ручные)
+       - Цветовое выделение пользователей
+    
+    9. СТАТИСТИКА
+       - Статус синхронизации
+       - Всего отгружено
+       - Количество критических позиций
+    
+    10. ГРАФИК ОТДАННЫХ РАМОК (Canvas)
+        - Две линии: черные и белые рамки
+        - Периоды: 7 дней, 30 дней, всё время
+        - Всплывающая подсказка при наведении
+        - Анимация отрисовки
+    
+    11. ЦЕЛИ НА ДЕНЬ
+        - План/Факт по упакованным рамкам
+        - Процент выполнения
+    
+    12. СИНХРОНИЗАЦИЯ
+        - Автоматическая синхронизация каждые 15 секунд
+        - Ручная синхронизация по кнопке
+        - Сохранение в localStorage при оффлайне
+        - Отправка в Google Sheets через Apps Script
+    
+    13. ТЁМНАЯ ТЕМА
+        - Переключение по кнопке в шапке
+    
+    14. АДАПТАЦИЯ ПОД ТЕЛЕФОНЫ
+        - Медиа-запросы для экранов < 768px и < 400px
+    
+    ===== ТЕХНИЧЕСКАЯ ИНФОРМАЦИЯ =====
+    
+    ХРАНЕНИЕ ДАННЫХ:
+    - localStorage: productionData, minLimits, changeHistory, notes, dailyGoals, shippedHistory, darkMode, currentUser
+    - Google Sheets: через Apps Script (POST/GET)
+    
+    КЛЮЧИ СИНХРОНИЗАЦИИ:
+    - d: productionData (данные производства)
+    - l: minLimits (минимальные лимиты)
+    - h: changeHistory (история изменений)
+    - n: notes (записки)
+    - g: dailyGoals (цели на день)
+    - t: timestamp (время последнего изменения)
+    
+    GOOGLE APPS SCRIPT URL:
+    https://script.google.com/macros/s/AKfycbzTeiQslDVeA9Zcyr9HodMjda76w5RA6LM0h8_NV2Y7T-0hyHAU1KZVH545ZsuD7CV1iw/exec
+    
+    ===== ИЗМЕНЕНИЕ МИНИМАЛЬНЫХ ЛИМИТОВ =====
+    Чтобы отключить отслеживание критических запасов для позиции,
+    установите её минимальный лимит = 0.
+    Позиция с лимитом 0 не будет показываться в блоке критических запасов.
+    -->
+
     <div class="auth-overlay" id="authOverlay"><div class="auth-card" id="authCard"></div></div>
-    <div class="app-container" id="app" style="display:none">
+    <div class="app-container" id="appContainer" style="display:none">
         <header class="header">
             <h1>🏭 Производство</h1>
             <div class="header-controls">
                 <span class="badge" onclick="switchUser()" id="userBadge">👤</span>
-                <span class="sync sync-load" id="syncStatus">🔄</span>
+                <span class="sync sync-loading" id="syncStatus">🔄</span>
                 <button class="btn-sm" onclick="syncNow()">🔄</button>
                 <button class="btn-sm" onclick="dailySummary()">📅 Итог</button>
                 <button class="btn-sm" onclick="toggleLimits()" id="limitsBtn">⚙️</button>
@@ -159,262 +295,1134 @@
             </div>
         </header>
         <div class="limits-panel" id="limitsPanel">
-            <h2 class="box-title">⚙️ Минимальные запасы</h2>
+            <h2 class="section-title">⚙️ Минимальные запасы</h2>
+            <p style="color:var(--txt2);margin-bottom:10px;font-size:13px">Установите 0 чтобы отключить отслеживание критических запасов для позиции.</p>
             <div class="limits-grid" id="limitsGrid"></div>
-            <div style="margin-top:15px;text-align:right"><button class="btn btn-p10" onclick="saveLimits()">💾 Сохранить</button></div>
+            <div style="margin-top:15px;text-align:right"><button class="btn btn-plus10" onclick="saveLimits()">💾 Сохранить</button></div>
         </div>
         <div class="tabs">
-            <button class="tab act" onclick="switchTab('inventory')">📦 Производство</button>
+            <button class="tab active" onclick="switchTab('inventory')">📦 Производство</button>
             <button class="tab" onclick="switchTab('history')">📋 История</button>
             <button class="tab" onclick="switchTab('stats')">📊 Статистика</button>
             <button class="tab" onclick="switchTab('chart')">📈 График</button>
             <button class="tab" onclick="switchTab('goals')">🎯 Цели</button>
         </div>
-        <div id="tab-inventory" class="tab-content act">
+        <div id="tab-inventory" class="tab-content active">
             <div id="alerts"></div>
             <div class="pinboard" id="pinboard">
-                <div class="pin-hdr" onclick="togglePinboard()"><h2>📌 Записки <span id="noteCount">[0]</span></h2><span id="pinArrow">▼</span></div>
-                <div class="pin-body" id="pinBody">
+                <div class="pinboard-header" onclick="togglePinboard()">
+                    <h2>📌 Записки <span id="noteCount">[0]</span></h2>
+                    <span id="pinboardArrow">▼</span>
+                </div>
+                <div class="pinboard-body" id="pinboardBody">
                     <div id="notesList"></div>
-                    <div class="add-form">
+                    <div class="add-note-form">
                         <input type="text" id="newNoteText" placeholder="Текст записки..." maxlength="200">
                         <select id="newNoteAssignee"><option value="">Исполнитель...</option></select>
-                        <button class="btn btn-p10" onclick="addNote()">+</button>
+                        <button class="btn btn-plus10" onclick="addNote()">+</button>
                     </div>
                 </div>
             </div>
-            <div class="grid2">
-                <div class="box"><h2 class="box-title">📦 Отдел 1: Запасы</h2><div id="supplies"></div></div>
-                <div class="box"><h2 class="box-title">⚙️ Отдел 2: Производство</h2><div id="production"></div></div>
-                <div class="box"><h2 class="box-title">🔧 Отдел 3: Сборка</h2><div id="assembly"></div></div>
+            <div class="sections-grid">
+                <div class="section-box"><h2 class="section-title">📦 Отдел 1: Запасы</h2><div id="supplies"></div></div>
+                <div class="section-box"><h2 class="section-title">⚙️ Отдел 2: Производство</h2><div id="production"></div></div>
+                <div class="section-box"><h2 class="section-title">🔧 Отдел 3: Сборка</h2><div id="assembly"></div></div>
             </div>
         </div>
         <div id="tab-history" class="tab-content">
             <div class="panel">
-                <h2 class="box-title">📋 История изменений</h2>
+                <h2 class="section-title">📋 История изменений</h2>
                 <div style="margin-bottom:15px;display:flex;gap:10px">
-                    <button class="btn btn-m10" onclick="clearHistory()">🗑️ Очистить</button>
-                    <button class="btn btn-p10" onclick="dailySummary()">📅 Итог дня</button>
+                    <button class="btn btn-minus10" onclick="clearHistory()">🗑️ Очистить</button>
+                    <button class="btn btn-plus10" onclick="dailySummary()">📅 Итог дня</button>
                 </div>
-                <div class="hist-list" id="historyList"></div>
+                <div class="history-list" id="historyList"></div>
             </div>
         </div>
         <div id="tab-stats" class="tab-content">
-            <div class="panel"><h2 class="box-title">📊 Статистика</h2><div class="stats-grid" id="statsGrid"></div></div>
-            <div class="panel" style="margin-top:15px"><h2 class="box-title" style="color:var(--blue)">✅ Выполненные записки</h2><div id="doneNotesList"></div></div>
+            <div class="panel"><h2 class="section-title">📊 Статистика</h2><div class="stats-grid" id="statsGrid"></div></div>
+            <div class="panel" style="margin-top:15px"><h2 class="section-title" style="color:var(--blue)">✅ Выполненные записки</h2><div id="doneNotesList"></div></div>
         </div>
         <div id="tab-chart" class="tab-content">
             <div class="panel">
-                <h2 class="box-title">📈 График отданных рамок</h2>
-                <div class="chart-ctrl">
-                    <button class="btn-sm act period-btn" onclick="changePeriod(7,this)">7 дней</button>
-                    <button class="btn-sm period-btn" onclick="changePeriod(30,this)">30 дней</button>
-                    <button class="btn-sm period-btn" onclick="changePeriod(0,this)">Всё время</button>
+                <h2 class="section-title">📈 График отданных рамок</h2>
+                <div class="chart-controls">
+                    <button class="btn-sm active period-btn" onclick="changeChartPeriod(7, this)">7 дней</button>
+                    <button class="btn-sm period-btn" onclick="changeChartPeriod(30, this)">30 дней</button>
+                    <button class="btn-sm period-btn" onclick="changeChartPeriod(0, this)">Всё время</button>
                 </div>
-                <div class="chart-wrap" id="chartContainer"><canvas id="chartCanvas"></canvas><div class="chart-tip" id="chartTip"></div></div>
+                <div class="chart-wrapper" id="chartContainer">
+                    <canvas id="chartCanvas"></canvas>
+                    <div class="chart-tooltip" id="chartTooltip"></div>
+                </div>
             </div>
         </div>
         <div id="tab-goals" class="tab-content">
-            <div class="panel"><h2 class="box-title">🎯 Цели на день</h2><div id="goalsContent"></div></div>
+            <div class="panel"><h2 class="section-title">🎯 Цели на день</h2><div id="goalsContent"></div></div>
         </div>
     </div>
     <div class="toast" id="toast">✓ Сохранено</div>
 
     <script>
-    // ===== КОНФИГ =====
-    const URL='https://script.google.com/macros/s/AKfycbzTeiQslDVeA9Zcyr9HodMjda76w5RA6LM0h8_NV2Y7T-0hyHAU1KZVH545ZsuD7CV1iw/exec';
-    const INT=15000,PASS='0000';
-    const USERS=['Илья','Глеб','Артур','Наём. Раб.'];
-    const COLORS={'Илья':'#3498db','Глеб':'#e67e22','Артур':'#9b59b6','Наём. Раб.':'#95a5a6'};
-    const SECS={supplies:'📦 Запасы',production:'⚙️ Производство',assembly:'🔧 Сборка'};
+    /*
+    ===== ДОКУМЕНТАЦИЯ JavaScript API =====
+    
+    === КОНФИГУРАЦИЯ ===
+    SYNC_URL        - URL Google Apps Script для синхронизации
+    SYNC_INTERVAL   - Интервал автосинхронизации (мс)
+    PASSWORD        - Пароль для входа
+    USER_LIST       - Список пользователей
+    USER_COLORS     - Цвета пользователей для истории
+    
+    === ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ===
+    productionData  - Объект с данными производства (запасы, производство, сборка)
+    minLimits       - Объект с минимальными лимитами для каждой позиции
+    changeHistory   - Массив записей истории изменений
+    notes           - Массив записок PinBoard
+    dailyGoals      - Объект с целями на день { total: число }
+    shippedHistory  - Объект с историей отгрузок по датам
+    darkMode        - Флаг тёмной темы
+    currentUser     - Имя текущего пользователя
+    
+    === ОСНОВНЫЕ ФУНКЦИИ ===
+    init()              - Инициализация приложения
+    saveAllData()       - Сохранение всех данных в localStorage
+    renderAll()         - Полная отрисовка интерфейса
+    changeItemValue()   - Изменение значения позиции
+    checkAlerts()       - Проверка критических запасов
+    pushToCloud()       - Отправка данных в Google Sheets
+    loadFromCloud()     - Загрузка данных из Google Sheets
+    
+    === ПРАВИЛА КРИТИЧЕСКИХ ЗАПАСОВ ===
+    - Позиция показывается в критических если: значение <= минимальный лимит
+    - Если минимальный лимит = 0, позиция НЕ показывается (отключено)
+    - Позиция "Крючки" (без цвета) игнорируется (есть "Крючки черные" и "Крючки белые")
+    */
 
-    // ===== ДАННЫЕ =====
-    const DEF={
-        supplies:{'Скотч желтый':1,'Скотч прозрачный':1,'Стрэйтч':1,'Крючки черные':1,'Крючки белые':1,'Пластик белый':1,'Коробки':1,'Грунт':1,'Пупырка':1,'Рамки черные':1,'Рамки белые':1,'Оргстекло':1,'Доски':1},
-        production:{'Пластик нарезанный':1,'Сушка грунта':1,'Сушка полей':1,'Готовые рамки':1,'Кривые':1},
-        assembly:{'Непроверенные черные':1,'Непроверенные белые':1,'Проверенные черные':1,'Проверенные белые':1,'Упакованные черные':1,'Упакованные белые':1,'Отдано черные':1,'Отдано белые':1}
+    // ===== КОНФИГУРАЦИЯ =====
+    var SYNC_URL = 'https://script.google.com/macros/s/AKfycbzTeiQslDVeA9Zcyr9HodMjda76w5RA6LM0h8_NV2Y7T-0hyHAU1KZVH545ZsuD7CV1iw/exec';
+    var SYNC_INTERVAL = 15000;
+    var PASSWORD = '0000';
+    var USER_LIST = ['Илья', 'Глеб', 'Артур', 'Наём. Раб.'];
+    var USER_COLORS = {
+        'Илья': '#3498db',
+        'Глеб': '#e67e22',
+        'Артур': '#9b59b6',
+        'Наём. Раб.': '#95a5a6'
     };
-    const DEFL={}; for(let c in DEF) for(let i in DEF[c]) DEFL[i]=1;
+    var SECTION_NAMES = {
+        supplies: '📦 Запасы',
+        production: '⚙️ Производство',
+        assembly: '🔧 Сборка'
+    };
+    var SUPPLIES_ORDER = ['Стрэйтч', 'Пластик белый', 'Коробки', 'Грунт', 'Пупырка'];
 
-    let D=JSON.parse(localStorage.getItem('pd')||JSON.stringify(DEF));
-    let L=JSON.parse(localStorage.getItem('pl')||JSON.stringify(DEFL));
-    let H=JSON.parse(localStorage.getItem('ph')||'[]');
-    let N=JSON.parse(localStorage.getItem('pn')||'[]');
-    let G=JSON.parse(localStorage.getItem('pg')||'{"total":100}');
-    let SH=JSON.parse(localStorage.getItem('sh')||'{}');
-    let dark=JSON.parse(localStorage.getItem('dm')||'false');
-    let user=localStorage.getItem('user')||null;
-    let showLim=!1,pinOpen=!0,alertOpen=!0,firstSync=!0,period=7,timer=null,anim=null;
-    let online=navigator.onLine;
+    // ===== НАЧАЛЬНЫЕ ДАННЫЕ =====
+    var DEFAULT_PRODUCTION_DATA = {
+        supplies: {
+            'Скотч желтый': 1,
+            'Скотч прозрачный': 1,
+            'Стрэйтч': 1,
+            'Крючки черные': 1,
+            'Крючки белые': 1,
+            'Пластик белый': 1,
+            'Коробки': 1,
+            'Грунт': 1,
+            'Пупырка': 1,
+            'Рамки черные': 1,
+            'Рамки белые': 1,
+            'Оргстекло': 1,
+            'Доски': 1
+        },
+        production: {
+            'Пластик нарезанный': 1,
+            'Сушка грунта': 1,
+            'Сушка полей': 1,
+            'Готовые рамки': 1,
+            'Кривые': 1
+        },
+        assembly: {
+            'Непроверенные черные': 1,
+            'Непроверенные белые': 1,
+            'Проверенные черные': 1,
+            'Проверенные белые': 1,
+            'Упакованные черные': 1,
+            'Упакованные белые': 1,
+            'Отдано черные': 1,
+            'Отдано белые': 1
+        }
+    };
+
+    // Создаём начальные лимиты (все по 1)
+    var DEFAULT_LIMITS = {};
+    for (var category in DEFAULT_PRODUCTION_DATA) {
+        for (var item in DEFAULT_PRODUCTION_DATA[category]) {
+            DEFAULT_LIMITS[item] = 1;
+        }
+    }
+
+    // ===== СОСТОЯНИЕ ПРИЛОЖЕНИЯ =====
+    var productionData = JSON.parse(localStorage.getItem('productionData') || JSON.stringify(DEFAULT_PRODUCTION_DATA));
+    var minLimits = JSON.parse(localStorage.getItem('minLimits') || JSON.stringify(DEFAULT_LIMITS));
+    var changeHistory = JSON.parse(localStorage.getItem('changeHistory') || '[]');
+    var notes = JSON.parse(localStorage.getItem('notes') || '[]');
+    var dailyGoals = JSON.parse(localStorage.getItem('dailyGoals') || '{"total": 100}');
+    var shippedHistory = JSON.parse(localStorage.getItem('shippedHistory') || '{}');
+    var darkMode = JSON.parse(localStorage.getItem('darkMode') || 'false');
+    var currentUser = localStorage.getItem('currentUser') || null;
+
+    var showLimitsPanel = false;
+    var pinboardOpen = true;
+    var alertsOpen = true;
+    var isFirstSync = true;
+    var chartPeriod = 7;
+    var syncTimer = null;
+    var chartAnimation = null;
+    var isOnline = navigator.onLine;
 
     // ===== СОХРАНЕНИЕ =====
-    function save(){
-        localStorage.setItem('pd',JSON.stringify(D));localStorage.setItem('pl',JSON.stringify(L));
-        localStorage.setItem('ph',JSON.stringify(H));localStorage.setItem('pn',JSON.stringify(N));
-        localStorage.setItem('pg',JSON.stringify(G));localStorage.setItem('sh',JSON.stringify(SH));
-        localStorage.setItem('dm',JSON.stringify(dark));toast('✓ Сохранено');
-    }
-    function toast(m){const t=document.getElementById('toast');t.textContent=m;t.style.display='block';setTimeout(()=>t.style.display='none',1500);}
-    function updSync(c,m){const e=document.getElementById('syncStatus');e.className='sync '+c;e.innerHTML=m;}
-
-    // ===== ИЗМЕНЕНИЯ =====
-    function change(cat,item,val,act){
-        const old=D[cat][item];
-        if(typeof val==='string'){D[cat][item]=Math.max(0,parseInt(val)||0);act='ввод';}
-        else{D[cat][item]=Math.max(0,old+val);act=val>0?'+'+val:''+val;}
-        H.unshift({time:new Date().toLocaleString('ru-RU'),user,item,old,new:D[cat][item],act});
-        if(H.length>150) H=H.slice(0,150);
-        const today=new Date().toLocaleDateString('ru-RU');
-        if(!SH[today]) SH[today]={black:D.assembly['Отдано черные']||0,white:D.assembly['Отдано белые']||0};
-        render();checkAlerts();save();push();
+    function saveAllData() {
+        localStorage.setItem('productionData', JSON.stringify(productionData));
+        localStorage.setItem('minLimits', JSON.stringify(minLimits));
+        localStorage.setItem('changeHistory', JSON.stringify(changeHistory));
+        localStorage.setItem('notes', JSON.stringify(notes));
+        localStorage.setItem('dailyGoals', JSON.stringify(dailyGoals));
+        localStorage.setItem('shippedHistory', JSON.stringify(shippedHistory));
+        localStorage.setItem('darkMode', JSON.stringify(darkMode));
+        showToast('✓ Сохранено');
     }
 
-    // ===== РЕНДЕР =====
-    function createItem(cat,item,val,sub){
-        const min=L[item]??0,crit=val<=min;
-        return `<div class="item${sub?' sub':''}"><div class="item-name"><span>${item} <span class="min-badge" onclick="quickLimit('${item}')">мин:${min}</span></span><span class="item-val${crit?' crit':''}">${val}</span></div><div class="controls"><button class="btn btn-m10" onclick="change('${cat}','${item}',-10)">-10</button><button class="btn btn-m1" onclick="change('${cat}','${item}',-1)">-1</button><input type="number" class="qty-input" value="${val}" min="0" onchange="change('${cat}','${item}',this.value)"><button class="btn btn-p1" onclick="change('${cat}','${item}',1)">+1</button><button class="btn btn-p10" onclick="change('${cat}','${item}',10)">+10</button></div></div>`;
+    function showToast(message) {
+        var toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.style.display = 'block';
+        setTimeout(function() { toast.style.display = 'none'; }, 1500);
     }
-    function render(){
-        let s='<h3 class="sub-title">Скотч</h3>'+createItem('supplies','Скотч желтый',D.supplies['Скотч желтый'],1)+createItem('supplies','Скотч прозрачный',D.supplies['Скотч прозрачный'],1);
-        s+='<h3 class="sub-title">Крючки</h3>'+createItem('supplies','Крючки черные',D.supplies['Крючки черные'],1)+createItem('supplies','Крючки белые',D.supplies['Крючки белые'],1);
-        s+='<h3 class="sub-title">Прочее</h3>';['Стрэйтч','Пластик белый','Коробки','Грунт','Пупырка'].forEach(i=>s+=createItem('supplies',i,D.supplies[i]));
-        s+='<h3 class="sub-title">Рамки</h3>'+createItem('supplies','Рамки черные',D.supplies['Рамки черные'],1)+createItem('supplies','Рамки белые',D.supplies['Рамки белые'],1);
-        ['Оргстекло','Доски'].forEach(i=>s+=createItem('supplies',i,D.supplies[i]));
-        document.getElementById('supplies').innerHTML=s;
-        document.getElementById('production').innerHTML=Object.keys(D.production).map(i=>createItem('production',i,D.production[i])).join('');
-        let a='<h3 class="sub-title">Непроверенные</h3>'+createItem('assembly','Непроверенные черные',D.assembly['Непроверенные черные'],1)+createItem('assembly','Непроверенные белые',D.assembly['Непроверенные белые'],1);
-        a+='<h3 class="sub-title">Проверенные</h3>'+createItem('assembly','Проверенные черные',D.assembly['Проверенные черные'],1)+createItem('assembly','Проверенные белые',D.assembly['Проверенные белые'],1);
-        a+='<h3 class="sub-title">Упакованные</h3>'+createItem('assembly','Упакованные черные',D.assembly['Упакованные черные'],1)+createItem('assembly','Упакованные белые',D.assembly['Упакованные белые'],1);
-        a+='<h3 class="sub-title">Отдано</h3>'+createItem('assembly','Отдано черные',D.assembly['Отдано черные'],1)+createItem('assembly','Отдано белые',D.assembly['Отдано белые'],1);
-        document.getElementById('assembly').innerHTML=a;
+
+    function updateSyncStatus(className, message) {
+        var element = document.getElementById('syncStatus');
+        element.className = 'sync ' + className;
+        element.innerHTML = message;
+    }
+
+    // ===== ИЗМЕНЕНИЕ ЗНАЧЕНИЙ =====
+    function changeItemValue(category, item, delta) {
+        var oldValue = productionData[category][item];
+
+        if (typeof delta === 'string') {
+            // Прямой ввод числа в поле
+            productionData[category][item] = Math.max(0, parseInt(delta) || 0);
+            var action = 'ввод';
+        } else {
+            // Кнопки +/- 
+            productionData[category][item] = Math.max(0, oldValue + delta);
+            var action = delta > 0 ? '+' + delta : '' + delta;
+        }
+
+        // Добавляем запись в историю
+        changeHistory.unshift({
+            time: new Date().toLocaleString('ru-RU'),
+            user: currentUser,
+            item: item,
+            old: oldValue,
+            new: productionData[category][item],
+            act: action
+        });
+
+        // Ограничиваем историю 150 записями
+        if (changeHistory.length > 150) {
+            changeHistory = changeHistory.slice(0, 150);
+        }
+
+        // Обновляем историю отгрузок для графика
+        var today = new Date().toLocaleDateString('ru-RU');
+        if (!shippedHistory[today]) {
+            shippedHistory[today] = {
+                black: productionData.assembly['Отдано черные'] || 0,
+                white: productionData.assembly['Отдано белые'] || 0
+            };
+        }
+
+        renderAll();
         checkAlerts();
-        document.getElementById('historyList').innerHTML=H.length===0?'<p style="color:var(--txt2)">Пусто</p>':H.map(r=>{
-            if(r.type==='summary'){let h=`<div class="hist-sum add"><strong>📅 ИТОГ ДНЯ</strong></div>`;if(r.added)h+=r.added;if(r.removed)h+=r.removed;return h;}
-            return `<div class="hist-item"><span style="color:${COLORS[r.user]||'#636e72'};font-weight:600">${r.user||'?'}</span> <strong>${r.time}</strong> - "${r.item}": ${r.old} → ${r.new} (${r.act})</div>`;
+        saveAllData();
+        pushToCloud();
+    }
+
+    // ===== ОТРИСОВКА =====
+    function createItemHTML(category, item, value, isSubItem) {
+        var minLimit = minLimits[item] || 0;
+        var isCritical = minLimit > 0 && value <= minLimit;  // Критично только если лимит > 0
+
+        return '<div class="inventory-item' + (isSubItem ? ' sub' : '') + '">' +
+            '<div class="item-name">' +
+                '<span>' + item + ' <span class="min-badge" onclick="quickEditLimit(\'' + item + '\')">мин:' + minLimit + '</span></span>' +
+                '<span class="item-value' + (isCritical ? ' critical' : '') + '">' + value + '</span>' +
+            '</div>' +
+            '<div class="item-controls">' +
+                '<button class="btn btn-minus10" onclick="changeItemValue(\'' + category + '\',\'' + item + '\',-10)">-10</button>' +
+                '<button class="btn btn-minus1" onclick="changeItemValue(\'' + category + '\',\'' + item + '\',-1)">-1</button>' +
+                '<input type="number" class="qty-input" value="' + value + '" min="0" onchange="changeItemValue(\'' + category + '\',\'' + item + '\',this.value)">' +
+                '<button class="btn btn-plus1" onclick="changeItemValue(\'' + category + '\',\'' + item + '\',1)">+1</button>' +
+                '<button class="btn btn-plus10" onclick="changeItemValue(\'' + category + '\',\'' + item + '\',10)">+10</button>' +
+            '</div>' +
+        '</div>';
+    }
+
+    function renderAll() {
+        // ===== ОТДЕЛ 1: ЗАПАСЫ =====
+        var suppliesHTML = '<h3 class="subsection-title">Скотч</h3>';
+        suppliesHTML += createItemHTML('supplies', 'Скотч желтый', productionData.supplies['Скотч желтый'], true);
+        suppliesHTML += createItemHTML('supplies', 'Скотч прозрачный', productionData.supplies['Скотч прозрачный'], true);
+
+        suppliesHTML += '<h3 class="subsection-title">Крючки</h3>';
+        suppliesHTML += createItemHTML('supplies', 'Крючки черные', productionData.supplies['Крючки черные'], true);
+        suppliesHTML += createItemHTML('supplies', 'Крючки белые', productionData.supplies['Крючки белые'], true);
+
+        suppliesHTML += '<h3 class="subsection-title">Прочее</h3>';
+        SUPPLIES_ORDER.forEach(function(item) {
+            suppliesHTML += createItemHTML('supplies', item, productionData.supplies[item]);
+        });
+
+        suppliesHTML += '<h3 class="subsection-title">Рамки</h3>';
+        suppliesHTML += createItemHTML('supplies', 'Рамки черные', productionData.supplies['Рамки черные'], true);
+        suppliesHTML += createItemHTML('supplies', 'Рамки белые', productionData.supplies['Рамки белые'], true);
+
+        var remainingSupplies = ['Оргстекло', 'Доски'];
+        remainingSupplies.forEach(function(item) {
+            suppliesHTML += createItemHTML('supplies', item, productionData.supplies[item]);
+        });
+        document.getElementById('supplies').innerHTML = suppliesHTML;
+
+        // ===== ОТДЕЛ 2: ПРОИЗВОДСТВО =====
+        var productionHTML = '';
+        for (var item in productionData.production) {
+            productionHTML += createItemHTML('production', item, productionData.production[item]);
+        }
+        document.getElementById('production').innerHTML = productionHTML;
+
+        // ===== ОТДЕЛ 3: СБОРКА =====
+        var assemblyHTML = '<h3 class="subsection-title">Непроверенные</h3>';
+        assemblyHTML += createItemHTML('assembly', 'Непроверенные черные', productionData.assembly['Непроверенные черные'], true);
+        assemblyHTML += createItemHTML('assembly', 'Непроверенные белые', productionData.assembly['Непроверенные белые'], true);
+
+        assemblyHTML += '<h3 class="subsection-title">Проверенные</h3>';
+        assemblyHTML += createItemHTML('assembly', 'Проверенные черные', productionData.assembly['Проверенные черные'], true);
+        assemblyHTML += createItemHTML('assembly', 'Проверенные белые', productionData.assembly['Проверенные белые'], true);
+
+        assemblyHTML += '<h3 class="subsection-title">Упакованные</h3>';
+        assemblyHTML += createItemHTML('assembly', 'Упакованные черные', productionData.assembly['Упакованные черные'], true);
+        assemblyHTML += createItemHTML('assembly', 'Упакованные белые', productionData.assembly['Упакованные белые'], true);
+
+        assemblyHTML += '<h3 class="subsection-title">Отдано</h3>';
+        assemblyHTML += createItemHTML('assembly', 'Отдано черные', productionData.assembly['Отдано черные'], true);
+        assemblyHTML += createItemHTML('assembly', 'Отдано белые', productionData.assembly['Отдано белые'], true);
+        document.getElementById('assembly').innerHTML = assemblyHTML;
+
+        checkAlerts();
+
+        // ===== ИСТОРИЯ =====
+        var historyDiv = document.getElementById('historyList');
+        if (changeHistory.length === 0) {
+            historyDiv.innerHTML = '<p style="color:var(--txt2)">Пусто</p>';
+        } else {
+            historyDiv.innerHTML = changeHistory.map(function(record) {
+                if (record.type === 'summary') {
+                    var html = '<div class="history-summary added"><strong>📅 ИТОГ ДНЯ</strong></div>';
+                    if (record.added) html += record.added;
+                    if (record.removed) html += record.removed;
+                    return html;
+                }
+                var userColor = USER_COLORS[record.user] || '#636e72';
+                return '<div class="history-item">' +
+                    '<span style="color:' + userColor + ';font-weight:600">' + (record.user || '?') + '</span> ' +
+                    '<strong>' + record.time + '</strong> - "' + record.item + '": ' +
+                    record.old + ' → ' + record.new + ' (' + record.act + ')' +
+                '</div>';
+            }).join('');
+        }
+    }
+
+    // ===== КРИТИЧЕСКИЕ ЗАПАСЫ =====
+    /*
+    ПРАВИЛА ОТОБРАЖЕНИЯ:
+    1. Позиция показывается если: значение <= минимальный лимит
+    2. Если минимальный лимит = 0, позиция НЕ показывается (отключено)
+    3. Позиция "Крючки" (без цвета) игнорируется
+    */
+    function checkAlerts() {
+        var criticalBySection = {};
+
+        for (var category in productionData) {
+            for (var item in productionData[category]) {
+                // Пропускаем дубликат "Крючки" (есть "Крючки черные" и "Крючки белые")
+                if (item === 'Крючки') continue;
+
+                var value = productionData[category][item];
+                var minLimit = minLimits[item] || 0;
+
+                // Показываем только если лимит > 0 и значение <= лимита
+                if (minLimit > 0 && value <= minLimit) {
+                    if (!criticalBySection[category]) criticalBySection[category] = [];
+                    criticalBySection[category].push({
+                        name: item,
+                        value: value,
+                        min: minLimit
+                    });
+                }
+            }
+        }
+
+        var totalCritical = 0;
+        for (var section in criticalBySection) {
+            totalCritical += criticalBySection[section].length;
+        }
+
+        var alertsDiv = document.getElementById('alerts');
+
+        if (totalCritical > 0) {
+            var html = '<div class="alert-box">' +
+                '<div class="alert-header" onclick="toggleAlerts()">' +
+                    '<h3>⚠️ Критические запасы (' + totalCritical + ')</h3>' +
+                    '<span id="alertsArrow">' + (alertsOpen ? '▼' : '▶') + '</span>' +
+                '</div>' +
+                '<div class="alert-body' + (alertsOpen ? '' : ' hidden') + '">';
+
+            for (var section in criticalBySection) {
+                var sectionName = SECTION_NAMES[section] || section;
+                html += '<div class="alert-section">' + sectionName + ':</div>';
+                criticalBySection[section].forEach(function(item) {
+                    html += '<div class="alert-item">🔴 ' + item.name + ': ' + item.value + ' ед. (мин: ' + item.min + ')</div>';
+                });
+            }
+
+            html += '</div></div>';
+            alertsDiv.innerHTML = html;
+        } else {
+            alertsDiv.innerHTML = '';
+        }
+    }
+
+    function toggleAlerts() {
+        alertsOpen = !alertsOpen;
+        var body = document.querySelector('.alert-body');
+        if (body) body.classList.toggle('hidden', !alertsOpen);
+        var arrow = document.getElementById('alertsArrow');
+        if (arrow) arrow.textContent = alertsOpen ? '▼' : '▶';
+    }
+
+    // ===== ЛИМИТЫ =====
+    function toggleLimits() {
+        showLimitsPanel = !showLimitsPanel;
+        var panel = document.getElementById('limitsPanel');
+        var button = document.getElementById('limitsBtn');
+        if (showLimitsPanel) {
+            panel.classList.add('show');
+            button.classList.add('active');
+            renderLimitsPanel();
+        } else {
+            panel.classList.remove('show');
+            button.classList.remove('active');
+        }
+    }
+
+    function renderLimitsPanel() {
+        var grid = document.getElementById('limitsGrid');
+        var items = {};
+        for (var category in productionData) {
+            for (var item in productionData[category]) {
+                if (item !== 'Крючки') {
+                    items[item] = minLimits[item] || 0;
+                }
+            }
+        }
+
+        grid.innerHTML = Object.keys(items).sort().map(function(item) {
+            return '<div class="limit-item">' +
+                '<span class="limit-name">' + item + '</span>' +
+                '<div class="limit-controls">' +
+                    '<span style="font-size:11px">Мин:</span>' +
+                    '<input type="number" class="limit-input" value="' + items[item] + '" min="0" onchange="minLimits[\'' + item + '\']=Math.max(0,parseInt(this.value)||0);saveAllData();renderAll();checkAlerts()">' +
+                '</div>' +
+            '</div>';
         }).join('');
     }
 
-    // ===== АЛЕРТЫ =====
-    function checkAlerts(){
-        const bs={};
-        // Проверяем ТОЛЬКО существующие в data позиции, исключая дубликаты ключей
-        for(let c in D){
-            for(let i in D[c]){
-                // Пропускаем если это дубликат "Крючки" (без цвета)
-                if(i==='Крючки') continue;
-                const v=D[c][i],min=L[i]??0;
-                if(v<=min){if(!bs[c])bs[c]=[];bs[c].push({i,v,min});}
-            }
-        }
-        const d=document.getElementById('alerts'),tc=Object.values(bs).reduce((s,a)=>s+a.length,0);
-        if(tc>0){let h=`<div class="alert-box"><div class="alert-hdr" onclick="toggleAlerts()"><h3>⚠️ Критические запасы (${tc})</h3><span id="alertsArrow">${alertOpen?'▼':'▶'}</span></div><div class="alert-body${alertOpen?'':' hidden'}">`;
-        for(let s in bs){h+=`<div class="alert-sec">${SECS[s]||s}:</div>`;bs[s].forEach(x=>h+=`<div class="alert-item">🔴 ${x.i}: ${x.v} ед. (мин: ${x.min})</div>`);}
-        h+=`</div></div>`;d.innerHTML=h;}else d.innerHTML='';
+    function saveLimits() {
+        var inputs = document.querySelectorAll('.limit-input');
+        inputs.forEach(function(input) {
+            var itemName = input.closest('.limit-item').querySelector('.limit-name').textContent;
+            minLimits[itemName] = Math.max(0, parseInt(input.value) || 0);
+        });
+        saveAllData();
+        renderAll();
+        checkAlerts();
+        pushToCloud();
+        showToast('✅ Лимиты сохранены');
     }
-    function toggleAlerts(){alertOpen=!alertOpen;const b=document.querySelector('.alert-body');if(b)b.classList.toggle('hidden',!alertOpen);const a=document.getElementById('alertsArrow');if(a)a.textContent=alertOpen?'▼':'▶';}
 
-    // ===== ЛИМИТЫ =====
-    function toggleLimits(){showLim=!showLim;const p=document.getElementById('limitsPanel'),b=document.getElementById('limitsBtn');showLim?(p.classList.add('show'),b.classList.add('act'),renderLimits()):(p.classList.remove('show'),b.classList.remove('act'));}
-    function renderLimits(){const g=document.getElementById('limitsGrid');let it={};for(let c in D) for(let i in D[c]) if(i!=='Крючки') it[i]=L[i]??0;g.innerHTML=Object.keys(it).sort().map(i=>`<div class="lim-item"><span class="lim-name">${i}</span><div class="lim-ctrl"><span style="font-size:11px">Мин:</span><input type="number" class="lim-input" value="${it[i]}" min="0" onchange="L['${i}']=Math.max(0,parseInt(this.value)||0);save();render();checkAlerts()"></div></div>`).join('');}
-    function saveLimits(){document.querySelectorAll('.lim-input').forEach(i=>{L[i.closest('.lim-item').querySelector('.lim-name').textContent]=Math.max(0,parseInt(i.value)||0);});save();render();checkAlerts();push();toast('✅ Лимиты сохранены');}
-    function quickLimit(item){const v=prompt(`Мин. запас для "${item}":`,L[item]??0);if(v!==null){L[item]=Math.max(0,parseInt(v)||0);save();render();checkAlerts();if(showLim)renderLimits();}}
+    function quickEditLimit(item) {
+        var newValue = prompt('Мин. запас для "' + item + '":\n(0 = отключить отслеживание)', minLimits[item] || 0);
+        if (newValue !== null) {
+            minLimits[item] = Math.max(0, parseInt(newValue) || 0);
+            saveAllData();
+            renderAll();
+            checkAlerts();
+            if (showLimitsPanel) renderLimitsPanel();
+        }
+    }
 
     // ===== PINBOARD =====
-    function togglePinboard(){pinOpen=!pinOpen;document.getElementById('pinBody').classList.toggle('hidden',!pinOpen);document.getElementById('pinArrow').textContent=pinOpen?'▼':'▶';}
-    function addNote(){const t=document.getElementById('newNoteText').value.trim(),a=document.getElementById('newNoteAssignee').value;if(!t)return toast('Введите текст');N.unshift({id:Date.now(),text:t,assignee:a,author:user,done:!1,created:new Date().toLocaleString('ru-RU')});document.getElementById('newNoteText').value='';document.getElementById('newNoteAssignee').value='';renderNotes();save();push();}
-    function toggleDone(id){const n=N.find(n=>n.id===id);if(n){n.done=!n.done;renderNotes();save();push();}}
-    function editNote(id){const n=N.find(n=>n.id===id);if(!n)return;const t=prompt('Редактировать:',n.text);if(t?.trim()){n.text=t.trim();renderNotes();save();push();}}
-    function deleteNote(id){if(confirm('Удалить?')){N=N.filter(n=>n.id!==id);renderNotes();save();push();}}
-    function renderNotes(){const a=N.filter(n=>!n.done),d=N.filter(n=>n.done);document.getElementById('noteCount').textContent=`[${a.length}]`;document.getElementById('notesList').innerHTML=a.length===0?'<p style="color:var(--txt2);padding:10px">Нет активных</p>':a.map(n=>noteCard(n)).join('');document.getElementById('doneNotesList').innerHTML=d.length===0?'<p style="color:var(--txt2);padding:10px">Нет выполненных</p>':d.map(n=>noteCard(n)).join('');}
-    function noteCard(n){return `<div class="note-card${n.done?' done':''}"><div class="note-hdr"><strong style="color:${COLORS[n.author]||'#636e72'}">${n.author||'?'}</strong><span style="font-size:11px;color:var(--txt2)">${n.created}</span></div><div class="note-txt">${n.text}</div><div class="note-meta">${n.assignee?`<span>👤 ${n.assignee}</span>`:'<span>👤 Без исполнителя</span>'}</div><div class="note-act"><button class="note-btn done-btn" onclick="toggleDone(${n.id})">${n.done?'↩':'✓'}</button>${!n.done?`<button class="note-btn edit-btn" onclick="editNote(${n.id})">✏️</button>`:''}<button class="note-btn del-btn" onclick="deleteNote(${n.id})">🗑️</button></div></div>`;}
+    function togglePinboard() {
+        pinboardOpen = !pinboardOpen;
+        document.getElementById('pinboardBody').classList.toggle('hidden', !pinboardOpen);
+        document.getElementById('pinboardArrow').textContent = pinboardOpen ? '▼' : '▶';
+    }
+
+    function addNote() {
+        var text = document.getElementById('newNoteText').value.trim();
+        var assignee = document.getElementById('newNoteAssignee').value;
+        if (!text) return showToast('Введите текст записки');
+
+        notes.unshift({
+            id: Date.now(),
+            text: text,
+            assignee: assignee,
+            author: currentUser,
+            done: false,
+            created: new Date().toLocaleString('ru-RU')
+        });
+
+        document.getElementById('newNoteText').value = '';
+        document.getElementById('newNoteAssignee').value = '';
+        renderNotes();
+        saveAllData();
+        pushToCloud();
+    }
+
+    function toggleNoteDone(noteId) {
+        var note = notes.find(function(n) { return n.id === noteId; });
+        if (note) {
+            note.done = !note.done;
+            renderNotes();
+            saveAllData();
+            pushToCloud();
+        }
+    }
+
+    function editNote(noteId) {
+        var note = notes.find(function(n) { return n.id === noteId; });
+        if (!note) return;
+        var newText = prompt('Редактировать записку:', note.text);
+        if (newText && newText.trim()) {
+            note.text = newText.trim();
+            renderNotes();
+            saveAllData();
+            pushToCloud();
+        }
+    }
+
+    function deleteNote(noteId) {
+        if (confirm('Удалить записку?')) {
+            notes = notes.filter(function(n) { return n.id !== noteId; });
+            renderNotes();
+            saveAllData();
+            pushToCloud();
+        }
+    }
+
+    function renderNotes() {
+        var activeNotes = notes.filter(function(n) { return !n.done; });
+        var doneNotes = notes.filter(function(n) { return n.done; });
+
+        document.getElementById('noteCount').textContent = '[' + activeNotes.length + ']';
+
+        document.getElementById('notesList').innerHTML = activeNotes.length === 0
+            ? '<p style="color:var(--txt2);padding:10px">Нет активных записок</p>'
+            : activeNotes.map(createNoteCard).join('');
+
+        document.getElementById('doneNotesList').innerHTML = doneNotes.length === 0
+            ? '<p style="color:var(--txt2);padding:10px">Нет выполненных записок</p>'
+            : doneNotes.map(createNoteCard).join('');
+    }
+
+    function createNoteCard(note) {
+        var authorColor = USER_COLORS[note.author] || '#636e72';
+        return '<div class="note-card' + (note.done ? ' done' : '') + '">' +
+            '<div class="note-header">' +
+                '<strong style="color:' + authorColor + '">' + (note.author || '?') + '</strong>' +
+                '<span style="font-size:11px;color:var(--txt2)">' + note.created + '</span>' +
+            '</div>' +
+            '<div class="note-text">' + note.text + '</div>' +
+            '<div class="note-meta">' + (note.assignee ? '<span>👤 ' + note.assignee + '</span>' : '<span>👤 Без исполнителя</span>') + '</div>' +
+            '<div class="note-actions">' +
+                '<button class="note-btn done-btn" onclick="toggleNoteDone(' + note.id + ')">' + (note.done ? '↩' : '✓') + '</button>' +
+                (!note.done ? '<button class="note-btn edit-btn" onclick="editNote(' + note.id + ')">✏️</button>' : '') +
+                '<button class="note-btn delete-btn" onclick="deleteNote(' + note.id + ')">🗑️</button>' +
+            '</div>' +
+        '</div>';
+    }
 
     // ===== ИТОГИ ДНЯ =====
-    function dailySummary(){
-        const today=new Date().toLocaleDateString('ru-RU');
-        const th=H.filter(h=>h.time&&h.time.split(',')[0]===today);
-        if(!th.length){toast('📅 Нет изменений за сегодня');return;}
-        const sum={};th.forEach(h=>{if(!sum[h.item])sum[h.item]={add:0,rem:0,start:h.old,end:h.new};const d=h.new-h.old;d>0?sum[h.item].add+=d:sum[h.item].rem+=Math.abs(d);sum[h.item].start=Math.min(sum[h.item].start,h.old);sum[h.item].end=h.new;});
-        let ah='',rh='';for(let i in sum){const s=sum[i];if(s.add>0)ah+=`<div class="hist-item">🟢 <strong>${i}</strong>: +${s.add} (${s.start} → ${s.end})</div>`;if(s.rem>0)rh+=`<div class="hist-item">🔴 <strong>${i}</strong>: -${s.rem} (${s.start} → ${s.end})</div>`;}
-        H.unshift({time:`📅 ${today}`,type:'summary',added:ah,removed:rh});if(H.length>150)H=H.slice(0,150);save();render();push();toast('✅ Итог дня добавлен');
-    }
-    function autoSummary(){const ls=localStorage.getItem('lastSummary'),today=new Date().toLocaleDateString('ru-RU');if(ls!==today){localStorage.setItem('lastSummary',today);const y=new Date(Date.now()-864e5).toLocaleDateString('ru-RU');if(H.some(h=>h.time&&h.time.includes(y))&&H.length>0)dailySummary();}}
+    function dailySummary() {
+        var today = new Date().toLocaleDateString('ru-RU');
+        var todayHistory = changeHistory.filter(function(h) {
+            return h.time && h.time.split(',')[0] === today;
+        });
 
-    // ===== ГРАФИК =====
-    function changePeriod(d,btn){period=d;document.querySelectorAll('.period-btn').forEach(b=>b.classList.remove('act'));if(btn)btn.classList.add('act');drawChart();}
-    function getShipped(){
-        const today=new Date().toLocaleDateString('ru-RU');if(!SH[today])SH[today]={black:D.assembly['Отдано черные']||0,white:D.assembly['Отдано белые']||0};
-        const dates=Object.keys(SH).sort(),filt=period>0?dates.slice(-period):dates;
-        return{labels:filt,black:filt.map(d=>SH[d].black),white:filt.map(d=>SH[d].white)};
-    }
-    function drawChart(){
-        const c=document.getElementById('chartCanvas');if(!c)return;
-        const wrap=document.getElementById('chartContainer');c.width=wrap.offsetWidth-40;c.height=300;
-        const ctx=c.getContext('2d'),cd=getShipped();
-        if(!cd.labels.length){ctx.fillStyle=getComputedStyle(document.body).getPropertyValue('--txt2');ctx.font='14px Segoe UI';ctx.textAlign='center';ctx.fillText('Нет данных',c.width/2,c.height/2);return;}
-        const pad={top:20,right:30,bottom:50,left:60},w=c.width-pad.left-pad.right,h=c.height-pad.top-pad.bottom;
-        let max=Math.max(...cd.black,...cd.white,1);max=Math.ceil(max*1.1);
-        ctx.strokeStyle=getComputedStyle(document.body).getPropertyValue('--grid');ctx.lineWidth=1;
-        for(let i=0;i<=5;i++){const y=pad.top+(h/5)*i;ctx.beginPath();ctx.moveTo(pad.left,y);ctx.lineTo(pad.left+w,y);ctx.stroke();ctx.fillStyle=getComputedStyle(document.body).getPropertyValue('--txt2');ctx.font='11px Segoe UI';ctx.textAlign='right';ctx.fillText(Math.round(max-(max/5)*i),pad.left-8,y+4);}
-        ctx.fillStyle=getComputedStyle(document.body).getPropertyValue('--txt2');ctx.font='10px Segoe UI';ctx.textAlign='center';
-        const step=Math.max(1,Math.floor(cd.labels.length/7));cd.labels.forEach((l,i)=>{if(i%step===0||i===cd.labels.length-1){const x=pad.left+(w/(cd.labels.length-1||1))*i;ctx.fillText(l.split('.').slice(0,2).join('.'),x,pad.top+h+18);}});
-        const drawLine=(data,color,prog)=>{ctx.strokeStyle=color;ctx.lineWidth=2.5;ctx.beginPath();const pts=data.length-1,end=Math.floor(pts*prog);data.forEach((v,i)=>{const x=pad.left+(w/(pts||1))*i,y=pad.top+h-(v/max)*h;i===0?ctx.moveTo(x,y):i<=end&&ctx.lineTo(x,y);});ctx.stroke();data.forEach((v,i)=>{if(i<=end){const x=pad.left+(w/(pts||1))*i,y=pad.top+h-(v/max)*h;ctx.fillStyle=color;ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);ctx.fill();}});};
-        if(anim)cancelAnimationFrame(anim);let prog=0;const animLoop=()=>{ctx.clearRect(0,0,c.width,c.height);ctx.strokeStyle=getComputedStyle(document.body).getPropertyValue('--grid');ctx.lineWidth=1;for(let i=0;i<=5;i++){const y=pad.top+(h/5)*i;ctx.beginPath();ctx.moveTo(pad.left,y);ctx.lineTo(pad.left+w,y);ctx.stroke();ctx.fillText(Math.round(max-(max/5)*i),pad.left-8,y+4);}
-        cd.labels.forEach((l,i)=>{if(i%step===0||i===cd.labels.length-1){const x=pad.left+(w/(cd.labels.length-1||1))*i;ctx.fillText(l.split('.').slice(0,2).join('.'),x,pad.top+h+18);}});
-        drawLine(cd.black,'#2d3436',prog);drawLine(cd.white,'#b2bec3',prog);
-        ctx.fillStyle='#2d3436';ctx.fillRect(pad.left,pad.top-12,12,12);ctx.fillStyle=getComputedStyle(document.body).getPropertyValue('--txt');ctx.textAlign='left';ctx.fillText('Черные',pad.left+18,pad.top);
-        ctx.fillStyle='#b2bec3';ctx.fillRect(pad.left+80,pad.top-12,12,12);ctx.fillText('Белые',pad.left+98,pad.top);
-        prog+=.05;if(prog<=1)anim=requestAnimationFrame(animLoop);};animLoop();
-        c._cd=cd;c._pad=pad;c._max=max;
-    }
-    document.addEventListener('mousemove',e=>{const c=document.getElementById('chartCanvas');if(!c||!c._cd)return;const tip=document.getElementById('chartTip'),r=c.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top,cd=c._cd,pad=c._pad,w=c.width-pad.left-pad.right,pts=cd.labels.length-1;if(pts<=0)return;const idx=Math.round((x-pad.left)/(w/pts));if(idx>=0&&idx<cd.labels.length&&x>=pad.left&&x<=pad.left+w&&y>=pad.top&&y<=pad.top+(c.height-pad.top-pad.bottom)){tip.style.display='block';tip.style.left=(x+15)+'px';tip.style.top=(y-30)+'px';tip.innerHTML=`📅 ${cd.labels[idx]}<br>⚫ Черные: <strong>${cd.black[idx]}</strong><br>⚪ Белые: <strong>${cd.white[idx]}</strong>`;}else tip.style.display='none';});
+        if (todayHistory.length === 0) {
+            showToast('📅 Нет изменений за сегодня');
+            return;
+        }
 
-    // ===== ЦЕЛИ (синхронизируются через G) =====
-    function renderGoals(){const t=G.total||100,p=(D.assembly['Упакованные черные']||0)+(D.assembly['Упакованные белые']||0),pc=t>0?Math.round((p/t)*100):0,dn=p>=t;document.getElementById('goalsContent').innerHTML=`<div class="goal-item"><span class="goal-label">🎯 План:</span><input type="number" class="goal-input" value="${t}" min="1" onchange="G.total=Math.max(1,parseInt(this.value)||100);save();renderGoals();push()"><span style="font-size:14px">упакованных рамок</span></div><div class="goal-item"><span class="goal-label">✅ Факт:</span><span style="font-size:18px;font-weight:bold">${p}</span><span style="font-size:14px">упаковано</span><span class="goal-prog${dn?' goal-done':' goal-pend'}">${pc}%</span></div>${dn?'<p style="color:var(--grn);text-align:center;font-weight:bold;margin-top:10px">🎉 План выполнен!</p>':'<p style="color:var(--txt2);text-align:center;margin-top:10px">Осталось упаковать: '+(t-p)+' рамок</p>'}`;}
+        var summary = {};
+        todayHistory.forEach(function(h) {
+            if (!summary[h.item]) {
+                summary[h.item] = { added: 0, removed: 0, start: h.old, end: h.new };
+            }
+            var diff = h.new - h.old;
+            if (diff > 0) summary[h.item].added += diff;
+            else summary[h.item].removed += Math.abs(diff);
+            summary[h.item].start = Math.min(summary[h.item].start, h.old);
+            summary[h.item].end = h.new;
+        });
 
-    // ===== СИНХРОНИЗАЦИЯ (цели включены) =====
-    function startSync(){stopSync();timer=setInterval(syncData,INT);}
-    function stopSync(){if(timer){clearInterval(timer);timer=null;}}
-    async function loadCloud(){
-        if(!online)return;
-        try{updSync('sync-load','🔄 Загрузка...');const r=await fetch(URL+'?t='+Date.now()),c=JSON.parse(await r.text()),lt=parseInt(localStorage.getItem('lt')||'0'),ct=c.t||0;
-        if(c.d&&(firstSync||ct>lt)){D=c.d;if(c.l)L=c.l;if(c.h)H=c.h;if(c.n)N=c.n;if(c.g)G=c.g;localStorage.setItem('lt',ct);render();updateStats();renderNotes();renderGoals();updSync('sync-on','🟢 Загружено');}
-        else if(ct<lt)await push();else updSync('sync-on','🟢 OK');firstSync=!1;}catch(e){updSync('sync-err','🔴 Ошибка');}}
-    async function push(){
-        if(!online){save();return;}const ts=Date.now(),p=JSON.stringify({d:D,l:L,h:H.slice(0,30),n:N,g:G,t:ts});
-        try{updSync('sync-load','🔄 Отправка...');await fetch(URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:p});localStorage.setItem('lt',ts);updSync('sync-on','🟢 OK');}catch(e){updSync('sync-err','🔴 Ошибка');save();}}
-    async function syncData(){
-        if(!online)return;
-        try{const r=await fetch(URL+'?t='+Date.now()),c=JSON.parse(await r.text()),lt=parseInt(localStorage.getItem('lt')||'0'),ct=c.t||0;
-        if(c.d&&ct>lt){D=c.d;if(c.l)L=c.l;if(c.h)H=c.h;if(c.n)N=c.n;if(c.g)G=c.g;localStorage.setItem('lt',ct);render();updateStats();renderNotes();renderGoals();updSync('sync-on','🟢 Обновлено');}
-        else if(ct<lt)await push();else updSync('sync-on','🟢 OK');}catch(e){updSync('sync-err','🔴 Ошибка');}}
-    function syncNow(){if(!online){toast('❌ Нет интернета');return;}push().then(()=>toast('✅')).catch(()=>toast('❌'));}
+        var addedHTML = '', removedHTML = '';
+        for (var item in summary) {
+            var s = summary[item];
+            if (s.added > 0) addedHTML += '<div class="history-item">🟢 <strong>' + item + '</strong>: +' + s.added + ' (' + s.start + ' → ' + s.end + ')</div>';
+            if (s.removed > 0) removedHTML += '<div class="history-item">🔴 <strong>' + item + '</strong>: -' + s.removed + ' (' + s.start + ' → ' + s.end + ')</div>';
+        }
+
+        changeHistory.unshift({
+            time: '📅 ' + today,
+            type: 'summary',
+            added: addedHTML,
+            removed: removedHTML
+        });
+
+        if (changeHistory.length > 150) changeHistory = changeHistory.slice(0, 150);
+        saveAllData();
+        renderAll();
+        pushToCloud();
+        showToast('✅ Итог дня добавлен в историю');
+    }
+
+    function autoDailySummary() {
+        var lastSummaryDate = localStorage.getItem('lastSummaryDate');
+        var today = new Date().toLocaleDateString('ru-RU');
+        if (lastSummaryDate !== today) {
+            localStorage.setItem('lastSummaryDate', today);
+            var yesterday = new Date(Date.now() - 86400000).toLocaleDateString('ru-RU');
+            var hasYesterdayChanges = changeHistory.some(function(h) {
+                return h.time && h.time.includes(yesterday);
+            });
+            if (hasYesterdayChanges && changeHistory.length > 0) {
+                dailySummary();
+            }
+        }
+    }
+
+    // ===== ГРАФИК (Canvas) =====
+    function changeChartPeriod(days, button) {
+        chartPeriod = days;
+        document.querySelectorAll('.period-btn').forEach(function(b) { b.classList.remove('active'); });
+        if (button) button.classList.add('active');
+        drawChart();
+    }
+
+    function getShippedData() {
+        var today = new Date().toLocaleDateString('ru-RU');
+        if (!shippedHistory[today]) {
+            shippedHistory[today] = {
+                black: productionData.assembly['Отдано черные'] || 0,
+                white: productionData.assembly['Отдано белые'] || 0
+            };
+        }
+
+        var dates = Object.keys(shippedHistory).sort();
+        var filteredDates = chartPeriod > 0 ? dates.slice(-chartPeriod) : dates;
+
+        return {
+            labels: filteredDates,
+            black: filteredDates.map(function(d) { return shippedHistory[d].black; }),
+            white: filteredDates.map(function(d) { return shippedHistory[d].white; })
+        };
+    }
+
+    function drawChart() {
+        var canvas = document.getElementById('chartCanvas');
+        if (!canvas) return;
+
+        var container = document.getElementById('chartContainer');
+        canvas.width = container.offsetWidth - 40;
+        canvas.height = 300;
+
+        var ctx = canvas.getContext('2d');
+        var chartData = getShippedData();
+
+        if (chartData.labels.length === 0) {
+            ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--txt2');
+            ctx.font = '14px Segoe UI';
+            ctx.textAlign = 'center';
+            ctx.fillText('Нет данных для отображения', canvas.width / 2, canvas.height / 2);
+            return;
+        }
+
+        var padding = { top: 20, right: 30, bottom: 50, left: 60 };
+        var chartWidth = canvas.width - padding.left - padding.right;
+        var chartHeight = canvas.height - padding.top - padding.bottom;
+
+        var maxValue = Math.max.apply(null, chartData.black.concat(chartData.white).concat([1]));
+        maxValue = Math.ceil(maxValue * 1.1);
+
+        // Сетка
+        ctx.strokeStyle = getComputedStyle(document.body).getPropertyValue('--grid');
+        ctx.lineWidth = 1;
+        for (var i = 0; i <= 5; i++) {
+            var y = padding.top + (chartHeight / 5) * i;
+            ctx.beginPath();
+            ctx.moveTo(padding.left, y);
+            ctx.lineTo(padding.left + chartWidth, y);
+            ctx.stroke();
+
+            ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--txt2');
+            ctx.font = '11px Segoe UI';
+            ctx.textAlign = 'right';
+            ctx.fillText(Math.round(maxValue - (maxValue / 5) * i), padding.left - 8, y + 4);
+        }
+
+        // Подписи оси X
+        ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--txt2');
+        ctx.font = '10px Segoe UI';
+        ctx.textAlign = 'center';
+        var step = Math.max(1, Math.floor(chartData.labels.length / 7));
+        chartData.labels.forEach(function(label, i) {
+            if (i % step === 0 || i === chartData.labels.length - 1) {
+                var x = padding.left + (chartWidth / (chartData.labels.length - 1 || 1)) * i;
+                ctx.fillText(label.split('.').slice(0, 2).join('.'), x, padding.top + chartHeight + 18);
+            }
+        });
+
+        function drawLine(data, color, progress) {
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+
+            var points = data.length - 1;
+            var endIndex = Math.floor(points * progress);
+
+            data.forEach(function(value, i) {
+                var x = padding.left + (chartWidth / (points || 1)) * i;
+                var y = padding.top + chartHeight - (value / maxValue) * chartHeight;
+                if (i === 0) ctx.moveTo(x, y);
+                else if (i <= endIndex) ctx.lineTo(x, y);
+            });
+            ctx.stroke();
+
+            data.forEach(function(value, i) {
+                if (i <= endIndex) {
+                    var x = padding.left + (chartWidth / (points || 1)) * i;
+                    var y = padding.top + chartHeight - (value / maxValue) * chartHeight;
+                    ctx.fillStyle = color;
+                    ctx.beginPath();
+                    ctx.arc(x, y, 4, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            });
+        }
+
+        if (chartAnimation) cancelAnimationFrame(chartAnimation);
+        var progress = 0;
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            ctx.strokeStyle = getComputedStyle(document.body).getPropertyValue('--grid');
+            ctx.lineWidth = 1;
+            for (var i = 0; i <= 5; i++) {
+                var y = padding.top + (chartHeight / 5) * i;
+                ctx.beginPath();
+                ctx.moveTo(padding.left, y);
+                ctx.lineTo(padding.left + chartWidth, y);
+                ctx.stroke();
+                ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--txt2');
+                ctx.fillText(Math.round(maxValue - (maxValue / 5) * i), padding.left - 8, y + 4);
+            }
+
+            chartData.labels.forEach(function(label, i) {
+                if (i % step === 0 || i === chartData.labels.length - 1) {
+                    var x = padding.left + (chartWidth / (chartData.labels.length - 1 || 1)) * i;
+                    ctx.fillText(label.split('.').slice(0, 2).join('.'), x, padding.top + chartHeight + 18);
+                }
+            });
+
+            drawLine(chartData.black, '#2d3436', progress);
+            drawLine(chartData.white, '#b2bec3', progress);
+
+            ctx.fillStyle = '#2d3436';
+            ctx.fillRect(padding.left, padding.top - 12, 12, 12);
+            ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--txt');
+            ctx.textAlign = 'left';
+            ctx.fillText('Черные', padding.left + 18, padding.top);
+
+            ctx.fillStyle = '#b2bec3';
+            ctx.fillRect(padding.left + 80, padding.top - 12, 12, 12);
+            ctx.fillText('Белые', padding.left + 98, padding.top);
+
+            progress += 0.05;
+            if (progress <= 1) {
+                chartAnimation = requestAnimationFrame(animate);
+            }
+        }
+
+        animate();
+
+        canvas._chartData = chartData;
+        canvas._padding = padding;
+        canvas._maxValue = maxValue;
+    }
+
+    document.addEventListener('mousemove', function(e) {
+        var canvas = document.getElementById('chartCanvas');
+        if (!canvas || !canvas._chartData) return;
+
+        var tooltip = document.getElementById('chartTooltip');
+        var rect = canvas.getBoundingClientRect();
+        var mouseX = e.clientX - rect.left;
+        var mouseY = e.clientY - rect.top;
+
+        var chartData = canvas._chartData;
+        var padding = canvas._padding;
+        var chartWidth = canvas.width - padding.left - padding.right;
+
+        var points = chartData.labels.length - 1;
+        if (points <= 0) return;
+
+        var stepX = chartWidth / points;
+        var dataIndex = Math.round((mouseX - padding.left) / stepX);
+
+        if (dataIndex >= 0 && dataIndex < chartData.labels.length &&
+            mouseX >= padding.left && mouseX <= padding.left + chartWidth &&
+            mouseY >= padding.top && mouseY <= padding.top + (canvas.height - padding.top - padding.bottom)) {
+
+            tooltip.style.display = 'block';
+            tooltip.style.left = (mouseX + 15) + 'px';
+            tooltip.style.top = (mouseY - 30) + 'px';
+            tooltip.innerHTML =
+                '📅 ' + chartData.labels[dataIndex] + '<br>' +
+                '⚫ Черные: <strong>' + chartData.black[dataIndex] + '</strong><br>' +
+                '⚪ Белые: <strong>' + chartData.white[dataIndex] + '</strong>';
+        } else {
+            tooltip.style.display = 'none';
+        }
+    });
+
+    // ===== ЦЕЛИ НА ДЕНЬ =====
+    function renderGoals() {
+        var planTotal = dailyGoals.total || 100;
+        var packedTotal = (productionData.assembly['Упакованные черные'] || 0) + (productionData.assembly['Упакованные белые'] || 0);
+        var percent = planTotal > 0 ? Math.round((packedTotal / planTotal) * 100) : 0;
+        var isDone = packedTotal >= planTotal;
+
+        document.getElementById('goalsContent').innerHTML =
+            '<div class="goal-item">' +
+                '<span class="goal-label">🎯 План:</span>' +
+                '<input type="number" class="goal-input" value="' + planTotal + '" min="1" onchange="updateDailyGoal(this.value)">' +
+                '<span style="font-size:14px">упакованных рамок</span>' +
+            '</div>' +
+            '<div class="goal-item">' +
+                '<span class="goal-label">✅ Факт:</span>' +
+                '<span style="font-size:18px;font-weight:bold">' + packedTotal + '</span>' +
+                '<span style="font-size:14px">упаковано</span>' +
+                '<span class="goal-progress' + (isDone ? ' goal-done' : ' goal-pending') + '">' + percent + '%</span>' +
+            '</div>' +
+            (isDone
+                ? '<p style="color:var(--green);text-align:center;font-weight:bold;margin-top:10px">🎉 План выполнен!</p>'
+                : '<p style="color:var(--txt2);text-align:center;margin-top:10px">Осталось упаковать: ' + (planTotal - packedTotal) + ' рамок</p>'
+            );
+    }
+
+    function updateDailyGoal(value) {
+        dailyGoals.total = Math.max(1, parseInt(value) || 100);
+        saveAllData();
+        renderGoals();
+        pushToCloud();
+    }
+
+    // ===== СИНХРОНИЗАЦИЯ =====
+    function startAutoSync() {
+        stopAutoSync();
+        syncTimer = setInterval(syncData, SYNC_INTERVAL);
+    }
+
+    function stopAutoSync() {
+        if (syncTimer) {
+            clearInterval(syncTimer);
+            syncTimer = null;
+        }
+    }
+
+    async function loadFromCloud() {
+        if (!isOnline) return;
+        try {
+            updateSyncStatus('sync-loading', '🔄 Загрузка данных...');
+            var response = await fetch(SYNC_URL + '?t=' + Date.now());
+            var cloudData = JSON.parse(await response.text());
+            var localTime = parseInt(localStorage.getItem('lastUpdateTime') || '0');
+            var cloudTime = cloudData.t || 0;
+
+            if (cloudData.d && (isFirstSync || cloudTime > localTime)) {
+                productionData = cloudData.d;
+                if (cloudData.l) minLimits = cloudData.l;
+                if (cloudData.h) changeHistory = cloudData.h;
+                if (cloudData.n) notes = cloudData.n;
+                if (cloudData.g) dailyGoals = cloudData.g;
+                localStorage.setItem('lastUpdateTime', cloudTime);
+                renderAll();
+                updateStats();
+                renderNotes();
+                renderGoals();
+                updateSyncStatus('sync-online', '🟢 Данные загружены');
+            } else if (cloudTime < localTime) {
+                await pushToCloud();
+            } else {
+                updateSyncStatus('sync-online', '🟢 Синхронизировано');
+            }
+            isFirstSync = false;
+        } catch (e) {
+            updateSyncStatus('sync-error', '🔴 Ошибка загрузки');
+        }
+    }
+
+    async function pushToCloud() {
+        if (!isOnline) {
+            saveAllData();
+            return;
+        }
+        var timestamp = Date.now();
+        var payload = JSON.stringify({
+            d: productionData,
+            l: minLimits,
+            h: changeHistory.slice(0, 30),
+            n: notes,
+            g: dailyGoals,
+            t: timestamp
+        });
+        try {
+            updateSyncStatus('sync-loading', '🔄 Отправка...');
+            await fetch(SYNC_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: payload
+            });
+            localStorage.setItem('lastUpdateTime', timestamp);
+            updateSyncStatus('sync-online', '🟢 Синхронизировано');
+        } catch (e) {
+            updateSyncStatus('sync-error', '🔴 Ошибка отправки');
+            saveAllData();
+        }
+    }
+
+    async function syncData() {
+        if (!isOnline) return;
+        try {
+            var response = await fetch(SYNC_URL + '?t=' + Date.now());
+            var cloudData = JSON.parse(await response.text());
+            var localTime = parseInt(localStorage.getItem('lastUpdateTime') || '0');
+            var cloudTime = cloudData.t || 0;
+
+            if (cloudData.d && cloudTime > localTime) {
+                productionData = cloudData.d;
+                if (cloudData.l) minLimits = cloudData.l;
+                if (cloudData.h) changeHistory = cloudData.h;
+                if (cloudData.n) notes = cloudData.n;
+                if (cloudData.g) dailyGoals = cloudData.g;
+                localStorage.setItem('lastUpdateTime', cloudTime);
+                renderAll();
+                updateStats();
+                renderNotes();
+                renderGoals();
+                updateSyncStatus('sync-online', '🟢 Данные обновлены');
+            } else if (cloudTime < localTime) {
+                await pushToCloud();
+            } else {
+                updateSyncStatus('sync-online', '🟢 Синхронизировано');
+            }
+        } catch (e) {
+            updateSyncStatus('sync-error', '🔴 Ошибка синхронизации');
+        }
+    }
+
+    function syncNow() {
+        if (!isOnline) {
+            showToast('❌ Нет интернета');
+            return;
+        }
+        pushToCloud().then(function() {
+            showToast('✅ Синхронизировано');
+        }).catch(function() {
+            showToast('❌ Ошибка синхронизации');
+        });
+    }
 
     // ===== ИНИЦИАЛИЗАЦИЯ =====
-    async function init(){
-        if(dark)document.body.setAttribute('data-theme','dark');
-        render();updateStats();renderLimits();renderNotes();renderGoals();
-        if(online){await loadCloud();startSync();}else updSync('sync-off','🟡 Оффлайн');
-        autoSummary();setTimeout(()=>{if(document.getElementById('chartCanvas'))drawChart();},500);
+    async function init() {
+        if (darkMode) document.body.setAttribute('data-theme', 'dark');
+        renderAll();
+        updateStats();
+        renderLimitsPanel();
+        renderNotes();
+        renderGoals();
+        if (isOnline) {
+            await loadFromCloud();
+            startAutoSync();
+        } else {
+            updateSyncStatus('sync-offline', '🟡 Оффлайн');
+        }
+        autoDailySummary();
+        setTimeout(function() {
+            if (document.getElementById('chartCanvas')) drawChart();
+        }, 500);
     }
-    function updateStats(){const sh=(D.assembly['Отдано черные']||0)+(D.assembly['Отдано белые']||0);let cr=0;for(let c in D)for(let i in D[c]){if(i==='Крючки')continue;if(D[c][i]<=(L[i]??0))cr++;}document.getElementById('statsGrid').innerHTML=`<div class="stat-card"><h4>Синхронизация</h4><div class="stat-val" style="font-size:24px">${online?'🟢':'🟡'}</div></div><div class="stat-card"><h4>Отгружено всего</h4><div class="stat-val">${sh}</div></div><div class="stat-card"><h4>Критических запасов</h4><div class="stat-val" style="color:var(--red)">${cr}</div></div>`;}
+
+    function updateStats() {
+        var shippedTotal = (productionData.assembly['Отдано черные'] || 0) + (productionData.assembly['Отдано белые'] || 0);
+        var criticalCount = 0;
+        for (var category in productionData) {
+            for (var item in productionData[category]) {
+                if (item === 'Крючки') continue;
+                var minLimit = minLimits[item] || 0;
+                // Считаем только если лимит > 0
+                if (minLimit > 0 && productionData[category][item] <= minLimit) criticalCount++;
+            }
+        }
+        document.getElementById('statsGrid').innerHTML =
+            '<div class="stat-card"><h4>Синхронизация</h4><div class="stat-value" style="font-size:24px">' + (isOnline ? '🟢' : '🟡') + '</div></div>' +
+            '<div class="stat-card"><h4>Отгружено всего</h4><div class="stat-value">' + shippedTotal + '</div></div>' +
+            '<div class="stat-card"><h4>Критических запасов</h4><div class="stat-value" style="color:var(--red)">' + criticalCount + '</div></div>';
+    }
 
     // ===== UI =====
-    function toggleTheme(){dark=!dark;dark?document.body.setAttribute('data-theme','dark'):document.body.removeAttribute('data-theme');save();}
-    function switchTab(name){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('act'));document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('act'));event.target.classList.add('act');document.getElementById('tab-'+name).classList.add('act');if(name==='stats'){updateStats();renderNotes();}if(name==='goals')renderGoals();if(name==='chart')setTimeout(drawChart,100);}
-    function clearHistory(){if(confirm('Очистить историю?')){H=[];save();render();push();}}
+    function toggleTheme() {
+        darkMode = !darkMode;
+        if (darkMode) {
+            document.body.setAttribute('data-theme', 'dark');
+        } else {
+            document.body.removeAttribute('data-theme');
+        }
+        saveAllData();
+    }
+
+    function switchTab(name) {
+        document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+        document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
+        event.target.classList.add('active');
+        document.getElementById('tab-' + name).classList.add('active');
+        if (name === 'stats') { updateStats(); renderNotes(); }
+        if (name === 'goals') renderGoals();
+        if (name === 'chart') setTimeout(drawChart, 100);
+    }
+
+    function clearHistory() {
+        if (confirm('Очистить историю?')) {
+            changeHistory = [];
+            saveAllData();
+            renderAll();
+            pushToCloud();
+        }
+    }
 
     // ===== АВТОРИЗАЦИЯ =====
-    window.addEventListener('online',()=>{online=!0;updSync('sync-on','🟢 Онлайн');syncNow();});
-    window.addEventListener('offline',()=>{online=!1;updSync('sync-off','🟡 Оффлайн');});
-    function initAuth(){user?showApp():showPass();}
-    function showPass(){document.getElementById('authOverlay').classList.remove('hidden');document.getElementById('app').style.display='none';document.getElementById('authCard').innerHTML=`<h2>🏭 Вход</h2><input type="password" class="auth-input" id="passInput" placeholder="0000" maxlength="4" autofocus><p style="color:var(--red);display:none" id="passErr">Неверный пароль</p><button class="btn btn-p10" onclick="checkPass()" style="width:100%;margin-top:10px;padding:12px;font-size:16px">Войти</button>`;document.getElementById('passInput').addEventListener('keypress',e=>{if(e.key==='Enter')checkPass();});setTimeout(()=>document.getElementById('passInput')?.focus(),100);}
-    function checkPass(){document.getElementById('passInput').value===PASS?showUsers():document.getElementById('passErr').style.display='block';}
-    function showUsers(){let h='<h2>👤 Кто вы?</h2><div class="user-list">';USERS.forEach(u=>h+=`<button class="user-btn" style="border-left:4px solid ${COLORS[u]}" onclick="login('${u}')">${u}</button>`);h+=`<button class="user-btn custom-user-btn" onclick="loginCustom()">✏️ Другое имя...</button></div>`;document.getElementById('authCard').innerHTML=h;}
-    function login(u){user=u;localStorage.setItem('user',u);showApp();}
-    function loginCustom(){const n=prompt('Введите ваше имя:');if(n?.trim()){user=n.trim();localStorage.setItem('user',user);showApp();}}
-    function switchUser(){if(confirm('Сменить пользователя?')){user=null;localStorage.removeItem('user');document.getElementById('authOverlay').classList.remove('hidden');document.getElementById('app').style.display='none';showPass();}}
-    function showApp(){document.getElementById('authOverlay').classList.add('hidden');document.getElementById('app').style.display='block';document.getElementById('userBadge').textContent='👤 '+user;document.getElementById('userBadge').style.borderLeft='4px solid '+(COLORS[user]||'#636e72');document.getElementById('newNoteAssignee').innerHTML='<option value="">Исполнитель...</option>'+USERS.map(u=>`<option value="${u}">${u}</option>`).join('');init();}
+    window.addEventListener('online', function() {
+        isOnline = true;
+        updateSyncStatus('sync-online', '🟢 Онлайн');
+        syncNow();
+    });
+    window.addEventListener('offline', function() {
+        isOnline = false;
+        updateSyncStatus('sync-offline', '🟡 Оффлайн');
+    });
 
+    function initAuth() {
+        if (currentUser) {
+            showApp();
+        } else {
+            showPasswordScreen();
+        }
+    }
+
+    function showPasswordScreen() {
+        document.getElementById('authOverlay').classList.remove('hidden');
+        document.getElementById('appContainer').style.display = 'none';
+        document.getElementById('authCard').innerHTML =
+            '<h2>🏭 Вход</h2>' +
+            '<input type="password" class="auth-input" id="passInput" placeholder="0000" maxlength="4" autofocus>' +
+            '<p style="color:var(--red);display:none" id="passError">Неверный пароль</p>' +
+            '<button class="btn btn-plus10" onclick="checkPassword()" style="width:100%;margin-top:10px;padding:12px;font-size:16px">Войти</button>';
+        document.getElementById('passInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') checkPassword();
+        });
+        setTimeout(function() {
+            var input = document.getElementById('passInput');
+            if (input) input.focus();
+        }, 100);
+    }
+
+    function checkPassword() {
+        if (document.getElementById('passInput').value === PASSWORD) {
+            showUserSelect();
+        } else {
+            document.getElementById('passError').style.display = 'block';
+            document.getElementById('passInput').value = '';
+        }
+    }
+
+    function showUserSelect() {
+        var html = '<h2>👤 Кто вы?</h2><div class="user-list">';
+        USER_LIST.forEach(function(user) {
+            html += '<button class="user-btn" style="border-left:4px solid ' + USER_COLORS[user] + '" onclick="login(\'' + user + '\')">' + user + '</button>';
+        });
+        html += '<button class="user-btn custom-user-btn" onclick="loginCustom()">✏️ Другое имя...</button></div>';
+        document.getElementById('authCard').innerHTML = html;
+    }
+
+    function login(userName) {
+        currentUser = userName;
+        localStorage.setItem('currentUser', userName);
+        showApp();
+    }
+
+    function loginCustom() {
+        var name = prompt('Введите ваше имя:');
+        if (name && name.trim()) {
+            currentUser = name.trim();
+            localStorage.setItem('currentUser', currentUser);
+            showApp();
+        }
+    }
+
+    function switchUser() {
+        if (confirm('Сменить пользователя?')) {
+            currentUser = null;
+            localStorage.removeItem('currentUser');
+            document.getElementById('authOverlay').classList.remove('hidden');
+            document.getElementById('appContainer').style.display = 'none';
+            showPasswordScreen();
+        }
+    }
+
+    function showApp() {
+        document.getElementById('authOverlay').classList.add('hidden');
+        document.getElementById('appContainer').style.display = 'block';
+        document.getElementById('userBadge').textContent = '👤 ' + currentUser;
+        document.getElementById('userBadge').style.borderLeft = '4px solid ' + (USER_COLORS[currentUser] || '#636e72');
+        document.getElementById('newNoteAssignee').innerHTML = '<option value="">Исполнитель...</option>' +
+            USER_LIST.map(function(u) { return '<option value="' + u + '">' + u + '</option>'; }).join('');
+        init();
+    }
+
+    // Запуск приложения
     initAuth();
     </script>
 </body>
