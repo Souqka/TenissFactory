@@ -297,7 +297,15 @@
     // ===== АЛЕРТЫ =====
     function checkAlerts(){
         const bs={};
-        for(let c in D) for(let i in D[c]){const v=D[c][i],min=L[i]??0;if(v<=min){if(!bs[c])bs[c]=[];bs[c].push({i,v,min});}}
+        // Проверяем ТОЛЬКО существующие в data позиции, исключая дубликаты ключей
+        for(let c in D){
+            for(let i in D[c]){
+                // Пропускаем если это дубликат "Крючки" (без цвета)
+                if(i==='Крючки') continue;
+                const v=D[c][i],min=L[i]??0;
+                if(v<=min){if(!bs[c])bs[c]=[];bs[c].push({i,v,min});}
+            }
+        }
         const d=document.getElementById('alerts'),tc=Object.values(bs).reduce((s,a)=>s+a.length,0);
         if(tc>0){let h=`<div class="alert-box"><div class="alert-hdr" onclick="toggleAlerts()"><h3>⚠️ Критические запасы (${tc})</h3><span id="alertsArrow">${alertOpen?'▼':'▶'}</span></div><div class="alert-body${alertOpen?'':' hidden'}">`;
         for(let s in bs){h+=`<div class="alert-sec">${SECS[s]||s}:</div>`;bs[s].forEach(x=>h+=`<div class="alert-item">🔴 ${x.i}: ${x.v} ед. (мин: ${x.min})</div>`);}
@@ -307,7 +315,7 @@
 
     // ===== ЛИМИТЫ =====
     function toggleLimits(){showLim=!showLim;const p=document.getElementById('limitsPanel'),b=document.getElementById('limitsBtn');showLim?(p.classList.add('show'),b.classList.add('act'),renderLimits()):(p.classList.remove('show'),b.classList.remove('act'));}
-    function renderLimits(){const g=document.getElementById('limitsGrid');let it={};for(let c in D) for(let i in D[c]) it[i]=L[i]??0;g.innerHTML=Object.keys(it).sort().map(i=>`<div class="lim-item"><span class="lim-name">${i}</span><div class="lim-ctrl"><span style="font-size:11px">Мин:</span><input type="number" class="lim-input" value="${it[i]}" min="0" onchange="L['${i}']=Math.max(0,parseInt(this.value)||0);save();render();checkAlerts()"></div></div>`).join('');}
+    function renderLimits(){const g=document.getElementById('limitsGrid');let it={};for(let c in D) for(let i in D[c]) if(i!=='Крючки') it[i]=L[i]??0;g.innerHTML=Object.keys(it).sort().map(i=>`<div class="lim-item"><span class="lim-name">${i}</span><div class="lim-ctrl"><span style="font-size:11px">Мин:</span><input type="number" class="lim-input" value="${it[i]}" min="0" onchange="L['${i}']=Math.max(0,parseInt(this.value)||0);save();render();checkAlerts()"></div></div>`).join('');}
     function saveLimits(){document.querySelectorAll('.lim-input').forEach(i=>{L[i.closest('.lim-item').querySelector('.lim-name').textContent]=Math.max(0,parseInt(i.value)||0);});save();render();checkAlerts();push();toast('✅ Лимиты сохранены');}
     function quickLimit(item){const v=prompt(`Мин. запас для "${item}":`,L[item]??0);if(v!==null){L[item]=Math.max(0,parseInt(v)||0);save();render();checkAlerts();if(showLim)renderLimits();}}
 
@@ -360,10 +368,10 @@
     }
     document.addEventListener('mousemove',e=>{const c=document.getElementById('chartCanvas');if(!c||!c._cd)return;const tip=document.getElementById('chartTip'),r=c.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top,cd=c._cd,pad=c._pad,w=c.width-pad.left-pad.right,pts=cd.labels.length-1;if(pts<=0)return;const idx=Math.round((x-pad.left)/(w/pts));if(idx>=0&&idx<cd.labels.length&&x>=pad.left&&x<=pad.left+w&&y>=pad.top&&y<=pad.top+(c.height-pad.top-pad.bottom)){tip.style.display='block';tip.style.left=(x+15)+'px';tip.style.top=(y-30)+'px';tip.innerHTML=`📅 ${cd.labels[idx]}<br>⚫ Черные: <strong>${cd.black[idx]}</strong><br>⚪ Белые: <strong>${cd.white[idx]}</strong>`;}else tip.style.display='none';});
 
-    // ===== ЦЕЛИ =====
+    // ===== ЦЕЛИ (синхронизируются через G) =====
     function renderGoals(){const t=G.total||100,p=(D.assembly['Упакованные черные']||0)+(D.assembly['Упакованные белые']||0),pc=t>0?Math.round((p/t)*100):0,dn=p>=t;document.getElementById('goalsContent').innerHTML=`<div class="goal-item"><span class="goal-label">🎯 План:</span><input type="number" class="goal-input" value="${t}" min="1" onchange="G.total=Math.max(1,parseInt(this.value)||100);save();renderGoals();push()"><span style="font-size:14px">упакованных рамок</span></div><div class="goal-item"><span class="goal-label">✅ Факт:</span><span style="font-size:18px;font-weight:bold">${p}</span><span style="font-size:14px">упаковано</span><span class="goal-prog${dn?' goal-done':' goal-pend'}">${pc}%</span></div>${dn?'<p style="color:var(--grn);text-align:center;font-weight:bold;margin-top:10px">🎉 План выполнен!</p>':'<p style="color:var(--txt2);text-align:center;margin-top:10px">Осталось упаковать: '+(t-p)+' рамок</p>'}`;}
 
-    // ===== СИНХРОНИЗАЦИЯ =====
+    // ===== СИНХРОНИЗАЦИЯ (цели включены) =====
     function startSync(){stopSync();timer=setInterval(syncData,INT);}
     function stopSync(){if(timer){clearInterval(timer);timer=null;}}
     async function loadCloud(){
@@ -388,7 +396,7 @@
         if(online){await loadCloud();startSync();}else updSync('sync-off','🟡 Оффлайн');
         autoSummary();setTimeout(()=>{if(document.getElementById('chartCanvas'))drawChart();},500);
     }
-    function updateStats(){const sh=(D.assembly['Отдано черные']||0)+(D.assembly['Отдано белые']||0);let cr=0;for(let c in D)for(let i in D[c])if(D[c][i]<=(L[i]??0))cr++;document.getElementById('statsGrid').innerHTML=`<div class="stat-card"><h4>Синхронизация</h4><div class="stat-val" style="font-size:24px">${online?'🟢':'🟡'}</div></div><div class="stat-card"><h4>Отгружено всего</h4><div class="stat-val">${sh}</div></div><div class="stat-card"><h4>Критических запасов</h4><div class="stat-val" style="color:var(--red)">${cr}</div></div>`;}
+    function updateStats(){const sh=(D.assembly['Отдано черные']||0)+(D.assembly['Отдано белые']||0);let cr=0;for(let c in D)for(let i in D[c]){if(i==='Крючки')continue;if(D[c][i]<=(L[i]??0))cr++;}document.getElementById('statsGrid').innerHTML=`<div class="stat-card"><h4>Синхронизация</h4><div class="stat-val" style="font-size:24px">${online?'🟢':'🟡'}</div></div><div class="stat-card"><h4>Отгружено всего</h4><div class="stat-val">${sh}</div></div><div class="stat-card"><h4>Критических запасов</h4><div class="stat-val" style="color:var(--red)">${cr}</div></div>`;}
 
     // ===== UI =====
     function toggleTheme(){dark=!dark;dark?document.body.setAttribute('data-theme','dark'):document.body.removeAttribute('data-theme');save();}
