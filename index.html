@@ -870,7 +870,12 @@
                 productionData = cloudData.d;
                 if (cloudData.l) minLimits = cloudData.l;
                 if (cloudData.h) changeHistory = cloudData.h;
-                if (cloudData.n) notes = cloudData.n;
+if (cloudData.n) {
+    // Фильтруем записки — убираем ISO-даты (дубликаты)
+    notes = cloudData.n.filter(function(n) {
+        return n.created && !n.created.includes('T');
+    });
+}
                 if (cloudData.g) dailyGoals = cloudData.g;
                 localStorage.setItem('lastUpdateTime', cloudTime);
                 renderAll();
@@ -910,7 +915,11 @@
                 productionData = cloudData.d;
                 if (cloudData.l) minLimits = cloudData.l;
                 if (cloudData.h) changeHistory = cloudData.h;
-                if (cloudData.n) notes = cloudData.n;
+if (cloudData.n) {
+    notes = cloudData.n.filter(function(n) {
+        return n.created && !n.created.includes('T');
+    });
+}
                 if (cloudData.g) dailyGoals = cloudData.g;
                 localStorage.setItem('lastUpdateTime', cloudTime);
                 renderAll();
