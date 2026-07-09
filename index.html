@@ -831,20 +831,29 @@
         }
     }
 
-    function renderNotes() {
-        var activeNotes = notes.filter(function(n) { return !n.done; });
-        var doneNotes = notes.filter(function(n) { return n.done; });
+function renderNotes() {
+    var activeNotes = notes.filter(function(n) { return !n.done; });
+    var doneNotes = notes.filter(function(n) { return n.done; });
 
-        document.getElementById('noteCount').textContent = '[' + activeNotes.length + ']';
+    // Счётчик в заголовке PinBoard
+    document.getElementById('noteCount').textContent = '[' + activeNotes.length + ']';
 
-        document.getElementById('notesList').innerHTML = activeNotes.length === 0
+    // Активные записки — ТОЛЬКО в блоке "📌 Записки"
+    var notesList = document.getElementById('notesList');
+    if (notesList) {
+        notesList.innerHTML = activeNotes.length === 0
             ? '<p style="color:var(--txt2);padding:10px">Нет активных записок</p>'
             : activeNotes.map(createNoteCard).join('');
+    }
 
-        document.getElementById('doneNotesList').innerHTML = doneNotes.length === 0
+    // Выполненные записки — ТОЛЬКО в блоке "✅ Выполненные записки" на вкладке Статистика
+    var doneNotesList = document.getElementById('doneNotesList');
+    if (doneNotesList) {
+        doneNotesList.innerHTML = doneNotes.length === 0
             ? '<p style="color:var(--txt2);padding:10px">Нет выполненных записок</p>'
             : doneNotes.map(createNoteCard).join('');
     }
+}
 
     function createNoteCard(note) {
         var authorColor = USER_COLORS[note.author] || '#636e72';
