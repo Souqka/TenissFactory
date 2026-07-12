@@ -137,8 +137,7 @@
         canvas { display: block; width: 100%; cursor: crosshair; }
         .chart-controls { display: flex; gap: 8px; justify-content: center; margin-bottom: 15px; flex-wrap: wrap; }
         .chart-tooltip { position: absolute; background: var(--card); color: var(--txt); padding: 6px 10px; border-radius: 6px; font-size: 12px; pointer-events: none; display: none; z-index: 10; border: 1px solid var(--brd); box-shadow: var(--shadow); }
-        
-        /* Админ-панель */
+
         .admin-panel { background: var(--card); border-radius: 15px; padding: 20px; border: 2px solid var(--admin); box-shadow: var(--shadow); margin-bottom: 25px; display: none; }
         .admin-panel.show { display: block; }
         .admin-section { margin-bottom: 20px; padding: 15px; background: var(--bg2); border-radius: 10px; border: 1px solid var(--brd2); }
@@ -146,11 +145,8 @@
         .admin-form { display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; align-items: flex-end; }
         .admin-form select, .admin-form input { padding: 8px 12px; border: 2px solid var(--brd); border-radius: 8px; font-size: 14px; background: var(--bg); color: var(--txt); }
         .admin-form select:focus, .admin-form input:focus { outline: none; border-color: var(--admin); }
-        .admin-form .inline-input { padding: 4px 8px; font-size: 12px; width: auto; min-width: 100px; }
-        
-        /* Drag-and-drop */
         .draggable-list { list-style: none; }
-        .draggable-item { 
+        .draggable-item {
             display: flex; align-items: center; gap: 8px; padding: 10px; margin: 4px 0;
             background: var(--card); border: 2px solid var(--brd); border-radius: 8px;
             cursor: grab; transition: all .2s; font-size: 13px;
@@ -160,14 +156,14 @@
         .draggable-item.drag-over { border-color: var(--admin); border-style: dashed; background: var(--drag); }
         .draggable-item .drag-handle { cursor: grab; color: var(--txt2); font-size: 16px; padding: 0 4px; }
         .draggable-item .item-text { flex: 1; }
-        .draggable-item.group-header { 
+        .draggable-item.group-header {
             background: var(--hover); font-weight: 700; cursor: default;
             border-color: var(--admin); font-size: 14px;
         }
         .admin-item-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 10px; }
         .admin-item-card { display: flex; justify-content: space-between; align-items: center; padding: 10px; background: var(--bg2); border-radius: 8px; border: 1px solid var(--brd2); font-size: 13px; }
         .admin-item-card .item-info { flex: 1; } .admin-item-card .item-info small { color: var(--txt2); display: block; }
-        
+
         .toast { position: fixed; bottom: 20px; right: 20px; background: var(--green); color: #fff; padding: 10px 20px; border-radius: 20px; box-shadow: var(--shadow); display: none; z-index: 999; }
         ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: var(--bg2); }
         ::-webkit-scrollbar-thumb { background: var(--brd); border-radius: 3px; }
@@ -198,14 +194,13 @@
                 <button class="btn-sm" onclick="toggleTheme()">🌙</button>
             </div>
         </header>
-        
+
         <!-- Админ-панель -->
         <div class="admin-panel" id="adminPanel">
             <h2 class="section-title" style="color:var(--admin)">🔧 Админ-панель</h2>
-            
-            <!-- Секция 1: Порядок элементов -->
+
             <div class="admin-section">
-                <h3>📋 Порядок элементов в отделах (Drag & Drop)</h3>
+                <h3>📋 Порядок элементов (Drag & Drop)</h3>
                 <div class="admin-form">
                     <select id="orderCategory" onchange="renderDraggableList()">
                         <option value="supplies">📦 Запасы</option>
@@ -216,8 +211,7 @@
                 </div>
                 <div class="draggable-list" id="draggableList"></div>
             </div>
-            
-            <!-- Секция 2: Переименование -->
+
             <div class="admin-section">
                 <h3>✏️ Переименовать элемент</h3>
                 <div class="admin-form">
@@ -231,8 +225,7 @@
                     <button class="btn btn-rename" onclick="adminRenameItem()">✏️ Переименовать</button>
                 </div>
             </div>
-            
-            <!-- Секция 3: Добавление -->
+
             <div class="admin-section">
                 <h3>➕ Добавить элемент</h3>
                 <div class="admin-form">
@@ -247,8 +240,7 @@
                     <button class="btn btn-plus10" onclick="adminAddItem()">➕ Добавить</button>
                 </div>
             </div>
-            
-            <!-- Секция 4: Добавить группу -->
+
             <div class="admin-section">
                 <h3>📁 Добавить группу</h3>
                 <div class="admin-form">
@@ -263,21 +255,20 @@
                     <button class="btn btn-plus10" onclick="adminAddGroup()">📁 Создать</button>
                 </div>
             </div>
-            
-            <!-- Секция 5: Удаление -->
+
             <div class="admin-section">
                 <h3>🗑️ Удалить элементы</h3>
                 <div class="admin-item-list" id="adminItemList"></div>
             </div>
         </div>
-        
+
         <div class="limits-panel" id="limitsPanel">
             <h2 class="section-title">⚙️ Минимальные запасы</h2>
             <p style="color:var(--txt2);margin-bottom:10px;font-size:13px">Установите 0 чтобы отключить отслеживание.</p>
             <div class="limits-grid" id="limitsGrid"></div>
             <div style="margin-top:15px;text-align:right"><button class="btn btn-plus10" onclick="saveLimits()">💾 Сохранить</button></div>
         </div>
-        
+
         <div class="tabs">
             <button class="tab active" onclick="switchTab('inventory')">📦 Производство</button>
             <button class="tab" onclick="switchTab('history')">📋 История</button>
@@ -285,7 +276,7 @@
             <button class="tab" onclick="switchTab('chart')">📈 График</button>
             <button class="tab" onclick="switchTab('goals')">🎯 Цели</button>
         </div>
-        
+
         <div id="tab-inventory" class="tab-content active">
             <div id="alerts"></div>
             <div class="pinboard" id="pinboard">
@@ -339,52 +330,25 @@
     var SYNC_INTERVAL = 15000;
     var PASSWORD = '0000';
     var USER_LIST = ['Админ', 'Илья', 'Глеб', 'Артур', 'Наём. Раб.'];
-    var USER_COLORS = {
-        'Админ': '#e74c3c', 'Илья': '#3498db', 'Глеб': '#e67e22',
-        'Артур': '#9b59b6', 'Наём. Раб.': '#95a5a6'
-    };
+    var USER_COLORS = { 'Админ': '#e74c3c', 'Илья': '#3498db', 'Глеб': '#e67e22', 'Артур': '#9b59b6', 'Наём. Раб.': '#95a5a6' };
     var SECTION_NAMES = { supplies: '📦 Запасы', production: '⚙️ Производство', assembly: '🔧 Сборка' };
 
-    // ===== СТРУКТУРА ДАННЫХ =====
+    // ===== СТРУКТУРА =====
     var CATEGORY_STRUCTURE = JSON.parse(localStorage.getItem('categoryStructure') || JSON.stringify({
-        supplies: {
-            groups: {
-                'Скотч': ['Скотч желтый', 'Скотч прозрачный'],
-                'Крючки': ['Крючки черные', 'Крючки белые'],
-                'Клей': ['Клей ПВА', 'Клей гель'],
-                'Рамки': ['Рамки черные', 'Рамки белые']
-            },
-            singles: ['Стрэйтч', 'Пластик белый', 'Коробки', 'Грунт', 'Пупырка', 'Оргстекло', 'Доски']
-        },
-        production: {
-            groups: {},
-            singles: ['Пластик нарезанный', 'Сушка грунта', 'Сушка полей', 'Готовые рамки', 'Кривые']
-        },
-        assembly: {
-            groups: {
-                'Непроверенные': ['Непроверенные черные', 'Непроверенные белые'],
-                'Проверенные': ['Проверенные черные', 'Проверенные белые'],
-                'Упакованные': ['Упакованные черные', 'Упакованные белые'],
-                'Отдано': ['Отдано черные', 'Отдано белые']
-            },
-            singles: []
-        }
+        supplies: { groups: { 'Скотч': ['Скотч желтый', 'Скотч прозрачный'], 'Крючки': ['Крючки черные', 'Крючки белые'], 'Клей': ['Клей ПВА', 'Клей гель'], 'Рамки': ['Рамки черные', 'Рамки белые'] }, singles: ['Стрэйтч', 'Пластик белый', 'Коробки', 'Грунт', 'Пупырка', 'Оргстекло', 'Доски'] },
+        production: { groups: {}, singles: ['Пластик нарезанный', 'Сушка грунта', 'Сушка полей', 'Готовые рамки', 'Кривые'] },
+        assembly: { groups: { 'Непроверенные': ['Непроверенные черные', 'Непроверенные белые'], 'Проверенные': ['Проверенные черные', 'Проверенные белые'], 'Упакованные': ['Упакованные черные', 'Упакованные белые'], 'Отдано': ['Отдано черные', 'Отдано белые'] }, singles: [] }
     }));
 
-    // Порядок групп (ключи groups) для каждого отдела
     var GROUP_ORDER = JSON.parse(localStorage.getItem('groupOrder') || JSON.stringify({
-        supplies: ['Скотч', 'Крючки', 'Клей', 'Рамки'],
-        production: [],
-        assembly: ['Непроверенные', 'Проверенные', 'Упакованные', 'Отдано']
+        supplies: ['Скотч', 'Крючки', 'Клей', 'Рамки'], production: [], assembly: ['Непроверенные', 'Проверенные', 'Упакованные', 'Отдано']
     }));
 
     function buildDefaultData() {
         var data = { supplies: {}, production: {}, assembly: {} };
         for (var cat in CATEGORY_STRUCTURE) {
             var struct = CATEGORY_STRUCTURE[cat];
-            for (var group in struct.groups) {
-                struct.groups[group].forEach(function(item) { data[cat][item] = 1; });
-            }
+            for (var group in struct.groups) { struct.groups[group].forEach(function(item) { data[cat][item] = 1; }); }
             struct.singles.forEach(function(item) { data[cat][item] = 1; });
         }
         return data;
@@ -417,6 +381,7 @@
             }
         }
         productionData = cleanData;
+        for (var cat in productionData) { for (var item in productionData[cat]) { if (minLimits[item] === undefined) minLimits[item] = 1; } }
         localStorage.setItem('productionData', JSON.stringify(productionData));
         localStorage.setItem('minLimits', JSON.stringify(minLimits));
         localStorage.setItem('changeHistory', JSON.stringify(changeHistory));
@@ -428,470 +393,99 @@
         localStorage.setItem('groupOrder', JSON.stringify(GROUP_ORDER));
         showToast('✓ Сохранено');
     }
-
     function showToast(m) { var t = document.getElementById('toast'); t.textContent = m; t.style.display = 'block'; setTimeout(function() { t.style.display = 'none'; }, 1500); }
     function updateSyncStatus(c, m) { var e = document.getElementById('syncStatus'); e.className = 'sync ' + c; e.innerHTML = m; }
 
     // ===== АДМИН: DRAG & DROP =====
     var draggedElement = null;
-    var draggedType = null; // 'group' или 'single'
-    var draggedGroupName = null;
-
     function renderDraggableList() {
         var category = document.getElementById('orderCategory').value;
-        var struct = CATEGORY_STRUCTURE[category];
-        if (!struct) return;
-        
+        var struct = CATEGORY_STRUCTURE[category]; if (!struct) return;
         var order = GROUP_ORDER[category] || [];
-        var list = document.getElementById('draggableList');
-        var html = '';
-        
-        // Группы в сохранённом порядке
-        var shownGroups = {};
-        order.forEach(function(groupName) {
-            if (struct.groups[groupName]) {
-                shownGroups[groupName] = true;
-                html += '<div class="draggable-item group-header" draggable="true" data-type="group" data-group="' + groupName + '" ondragstart="dragStart(event)" ondragend="dragEnd(event)" ondragover="dragOver(event)" ondrop="drop(event)">' +
-                    '<span class="drag-handle">☰</span> 📁 <span class="item-text">' + groupName + '</span>' +
-                    '<small style="color:var(--txt2)">(' + struct.groups[groupName].join(', ') + ')</small>' +
-                '</div>';
-                struct.groups[groupName].forEach(function(item) {
-                    html += '<div class="draggable-item sub-item" draggable="true" data-type="sub" data-group="' + groupName + '" data-item="' + item + '" ondragstart="dragStart(event)" ondragend="dragEnd(event)" ondragover="dragOver(event)" ondrop="drop(event)">' +
-                        '<span class="drag-handle">⋮</span> <span class="item-text">' + item + '</span>' +
-                    '</div>';
-                });
+        var list = document.getElementById('draggableList'), html = '', shownG = {};
+        order.forEach(function(gn) {
+            if (struct.groups[gn]) { shownG[gn] = true;
+                html += '<div class="draggable-item group-header" draggable="true" data-type="group" data-group="' + gn + '" ondragstart="dragStart(event)" ondragend="dragEnd(event)" ondragover="dragOver(event)" ondrop="drop(event)"><span class="drag-handle">☰</span> 📁 <span class="item-text">' + gn + '</span><small style="color:var(--txt2)">(' + struct.groups[gn].join(', ') + ')</small></div>';
+                struct.groups[gn].forEach(function(item) { html += '<div class="draggable-item sub-item" draggable="true" data-type="sub" data-group="' + gn + '" data-item="' + item + '" ondragstart="dragStart(event)" ondragend="dragEnd(event)" ondragover="dragOver(event)" ondrop="drop(event)"><span class="drag-handle">⋮</span> <span class="item-text">' + item + '</span></div>'; });
             }
         });
-        
-        // Оставшиеся группы (не в порядке)
-        for (var groupName in struct.groups) {
-            if (!shownGroups[groupName]) {
-                html += '<div class="draggable-item group-header" draggable="true" data-type="group" data-group="' + groupName + '" ondragstart="dragStart(event)" ondragend="dragEnd(event)" ondragover="dragOver(event)" ondrop="drop(event)">' +
-                    '<span class="drag-handle">☰</span> 📁 <span class="item-text">' + groupName + '</span>' +
-                    '<small style="color:var(--txt2)">(' + struct.groups[groupName].join(', ') + ')</small>' +
-                '</div>';
-                struct.groups[groupName].forEach(function(item) {
-                    html += '<div class="draggable-item sub-item" draggable="true" data-type="sub" data-group="' + groupName + '" data-item="' + item + '" ondragstart="dragStart(event)" ondragend="dragEnd(event)" ondragover="dragOver(event)" ondrop="drop(event)">' +
-                        '<span class="drag-handle">⋮</span> <span class="item-text">' + item + '</span>' +
-                    '</div>';
-                });
-            }
-        }
-        
-        // Одиночные
-        if (struct.singles.length > 0) {
-            html += '<div class="draggable-item group-header" style="cursor:default;border-color:var(--brd2)">📋 Одиночные элементы</div>';
-            struct.singles.forEach(function(item) {
-                html += '<div class="draggable-item" draggable="true" data-type="single" data-item="' + item + '" ondragstart="dragStart(event)" ondragend="dragEnd(event)" ondragover="dragOver(event)" ondrop="drop(event)">' +
-                    '<span class="drag-handle">⋮</span> <span class="item-text">' + item + '</span>' +
-                '</div>';
-            });
-        }
-        
+        for (var gn in struct.groups) { if (!shownG[gn]) {
+            html += '<div class="draggable-item group-header" draggable="true" data-type="group" data-group="' + gn + '" ondragstart="dragStart(event)" ondragend="dragEnd(event)" ondragover="dragOver(event)" ondrop="drop(event)"><span class="drag-handle">☰</span> 📁 <span class="item-text">' + gn + '</span><small style="color:var(--txt2)">(' + struct.groups[gn].join(', ') + ')</small></div>';
+            struct.groups[gn].forEach(function(item) { html += '<div class="draggable-item sub-item" draggable="true" data-type="sub" data-group="' + gn + '" data-item="' + item + '" ondragstart="dragStart(event)" ondragend="dragEnd(event)" ondragover="dragOver(event)" ondrop="drop(event)"><span class="drag-handle">⋮</span> <span class="item-text">' + item + '</span></div>'; });
+        }}
+        if (struct.singles.length > 0) { html += '<div class="draggable-item group-header" style="cursor:default;border-color:var(--brd2)">📋 Одиночные элементы</div>'; struct.singles.forEach(function(item) { html += '<div class="draggable-item" draggable="true" data-type="single" data-item="' + item + '" ondragstart="dragStart(event)" ondragend="dragEnd(event)" ondragover="dragOver(event)" ondrop="drop(event)"><span class="drag-handle">⋮</span> <span class="item-text">' + item + '</span></div>'; }); }
         if (!html) html = '<p style="color:var(--txt2)">Нет элементов</p>';
         list.innerHTML = html;
     }
-
-    function dragStart(e) {
-        draggedElement = e.target;
-        draggedType = e.target.dataset.type;
-        draggedGroupName = e.target.dataset.group;
-        e.target.classList.add('dragging');
-        e.dataTransfer.effectAllowed = 'move';
-        e.dataTransfer.setData('text/plain', '');
-    }
-
-    function dragEnd(e) {
-        e.target.classList.remove('dragging');
-        document.querySelectorAll('.drag-over').forEach(function(el) { el.classList.remove('drag-over'); });
-        draggedElement = null;
-    }
-
-    function dragOver(e) {
-        e.preventDefault();
-        e.dataTransfer.dropEffect = 'move';
-        if (e.target.closest('.draggable-item')) {
-            e.target.closest('.draggable-item').classList.add('drag-over');
-        }
-    }
-
-    function drop(e) {
-        e.preventDefault();
-        document.querySelectorAll('.drag-over').forEach(function(el) { el.classList.remove('drag-over'); });
-        
-        var targetEl = e.target.closest('.draggable-item');
-        if (!targetEl || !draggedElement || targetEl === draggedElement) return;
-        
-        var category = document.getElementById('orderCategory').value;
-        var struct = CATEGORY_STRUCTURE[category];
-        
-        // Перемещаем в DOM
-        var parent = targetEl.parentNode;
-        if (targetEl.nextSibling === draggedElement) {
-            parent.insertBefore(draggedElement, targetEl);
-        } else {
-            parent.insertBefore(draggedElement, targetEl.nextSibling);
-        }
-    }
-
+    function dragStart(e) { draggedElement = e.target; e.target.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', ''); }
+    function dragEnd(e) { e.target.classList.remove('dragging'); document.querySelectorAll('.drag-over').forEach(function(el) { el.classList.remove('drag-over'); }); draggedElement = null; }
+    function dragOver(e) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; if (e.target.closest('.draggable-item')) e.target.closest('.draggable-item').classList.add('drag-over'); }
+    function drop(e) { e.preventDefault(); document.querySelectorAll('.drag-over').forEach(function(el) { el.classList.remove('drag-over'); }); var targetEl = e.target.closest('.draggable-item'); if (!targetEl || !draggedElement || targetEl === draggedElement) return; var parent = targetEl.parentNode; parent.insertBefore(draggedElement, targetEl.nextSibling === draggedElement ? targetEl : targetEl.nextSibling); }
     function saveOrder() {
         var category = document.getElementById('orderCategory').value;
-        var items = document.querySelectorAll('#draggableList .draggable-item');
-        var newOrder = [];
-        var newSingles = [];
-        var seenSingles = {};
-        
-        items.forEach(function(el) {
-            var type = el.dataset.type;
-            if (type === 'group') {
-                var groupName = el.dataset.group;
-                if (groupName && newOrder.indexOf(groupName) === -1) newOrder.push(groupName);
-            } else if (type === 'single') {
-                var itemName = el.dataset.item;
-                if (itemName && !seenSingles[itemName]) {
-                    seenSingles[itemName] = true;
-                    newSingles.push(itemName);
-                }
-            }
-        });
-        
+        var items = document.querySelectorAll('#draggableList .draggable-item'), newOrder = [], newSingles = [], seenSingles = {};
+        items.forEach(function(el) { var type = el.dataset.type; if (type === 'group') { var gn = el.dataset.group; if (gn && newOrder.indexOf(gn) === -1) newOrder.push(gn); } else if (type === 'single') { var item = el.dataset.item; if (item && !seenSingles[item]) { seenSingles[item] = true; newSingles.push(item); } } });
         GROUP_ORDER[category] = newOrder;
-        // Обновляем порядок singles
-        if (newSingles.length > 0 && CATEGORY_STRUCTURE[category]) {
-            // Сохраняем только те singles, которые есть в структуре
-            var currentSingles = CATEGORY_STRUCTURE[category].singles;
-            // Добавляем новые элементы из drag (если были добавлены)
-            newSingles.forEach(function(item) {
-                if (currentSingles.indexOf(item) === -1) currentSingles.push(item);
-            });
-            // Удаляем те, которых нет в новом порядке (если они были удалены через drag)
-            var filtered = currentSingles.filter(function(item) { return newSingles.indexOf(item) !== -1; });
-            // Добавляем оставшиеся в конец
-            currentSingles.forEach(function(item) {
-                if (filtered.indexOf(item) === -1) filtered.push(item);
-            });
-            CATEGORY_STRUCTURE[category].singles = filtered;
-        }
-        
-        saveAllData();
-        renderAll();
-        renderDraggableList();
-        renderAdminItemList();
-        updateAdminGroupSelect();
-        pushToCloud();
-        showToast('✅ Порядок сохранён');
+        if (newSingles.length > 0 && CATEGORY_STRUCTURE[category]) { var cur = CATEGORY_STRUCTURE[category].singles; newSingles.forEach(function(item) { if (cur.indexOf(item) === -1) cur.push(item); }); var filt = cur.filter(function(item) { return newSingles.indexOf(item) !== -1; }); cur.forEach(function(item) { if (filt.indexOf(item) === -1) filt.push(item); }); CATEGORY_STRUCTURE[category].singles = filt; }
+        saveAllData(); renderAll(); renderDraggableList(); renderAdminItemList(); updateAdminGroupSelect(); pushToCloud(); showToast('✅ Порядок сохранён');
     }
 
     // ===== АДМИН: ПЕРЕИМЕНОВАНИЕ =====
-    function updateRenameSelects() {
-        var category = document.getElementById('renameCategory').value;
-        var select = document.getElementById('renameItem');
-        var struct = CATEGORY_STRUCTURE[category];
-        select.innerHTML = '<option value="">Выберите элемент...</option>';
-        if (!struct) return;
-        
-        for (var group in struct.groups) {
-            struct.groups[group].forEach(function(item) {
-                select.innerHTML += '<option value="' + item + '">' + item + ' [' + group + ']</option>';
-            });
-        }
-        struct.singles.forEach(function(item) {
-            select.innerHTML += '<option value="' + item + '">' + item + '</option>';
-        });
-    }
+    function updateRenameSelects() { var cat = document.getElementById('renameCategory').value, struct = CATEGORY_STRUCTURE[cat], sel = document.getElementById('renameItem'); sel.innerHTML = '<option value="">Выберите элемент...</option>'; if (!struct) return; for (var g in struct.groups) { struct.groups[g].forEach(function(item) { sel.innerHTML += '<option value="' + item + '">' + item + ' [' + g + ']</option>'; }); } struct.singles.forEach(function(item) { sel.innerHTML += '<option value="' + item + '">' + item + '</option>'; }); }
+    function adminRenameItem() { if (!isAdmin) return showToast('❌ Только для админа'); var cat = document.getElementById('renameCategory').value, oldName = document.getElementById('renameItem').value, newName = document.getElementById('renameNewName').value.trim(); if (!oldName) return showToast('Выберите элемент'); if (!newName) return showToast('Введите новое название'); if (oldName === newName) return showToast('Названия одинаковые'); var struct = CATEGORY_STRUCTURE[cat]; if (!struct) return; var found = false; for (var g in struct.groups) { var idx = struct.groups[g].indexOf(oldName); if (idx !== -1) { struct.groups[g][idx] = newName; found = true; break; } } if (!found) { var idx = struct.singles.indexOf(oldName); if (idx !== -1) { struct.singles[idx] = newName; found = true; } } if (!found) return showToast('Элемент не найден'); if (productionData[cat] && productionData[cat][oldName] !== undefined) { productionData[cat][newName] = productionData[cat][oldName]; delete productionData[cat][oldName]; } if (minLimits[oldName] !== undefined) { minLimits[newName] = minLimits[oldName]; delete minLimits[oldName]; } changeHistory.forEach(function(h) { if (h.item === oldName) h.item = newName; }); document.getElementById('renameNewName').value = ''; saveAllData(); renderAll(); renderAdminItemList(); updateRenameSelects(); updateAdminGroupSelect(); renderDraggableList(); checkAlerts(); pushToCloud(); showToast('✅ Переименовано: ' + oldName + ' → ' + newName); }
+    function quickRename(cat, oldName) { if (!isAdmin) return; var newName = prompt('Новое название для "' + oldName + '":', oldName); if (!newName || !newName.trim() || newName.trim() === oldName) return; newName = newName.trim(); var struct = CATEGORY_STRUCTURE[cat], found = false; for (var g in struct.groups) { var idx = struct.groups[g].indexOf(oldName); if (idx !== -1) { struct.groups[g][idx] = newName; found = true; break; } } if (!found) { var si = struct.singles.indexOf(oldName); if (si !== -1) { struct.singles[si] = newName; found = true; } } if (!found) return; if (productionData[cat] && productionData[cat][oldName] !== undefined) { productionData[cat][newName] = productionData[cat][oldName]; delete productionData[cat][oldName]; } if (minLimits[oldName] !== undefined) { minLimits[newName] = minLimits[oldName]; delete minLimits[oldName]; } changeHistory.forEach(function(h) { if (h.item === oldName) h.item = newName; }); saveAllData(); renderAll(); renderAdminItemList(); updateRenameSelects(); updateAdminGroupSelect(); renderDraggableList(); checkAlerts(); pushToCloud(); showToast('✅ Переименовано: ' + oldName + ' → ' + newName); }
 
-    function adminRenameItem() {
-        if (!isAdmin) return showToast('❌ Только для админа');
-        var category = document.getElementById('renameCategory').value;
-        var oldName = document.getElementById('renameItem').value;
-        var newName = document.getElementById('renameNewName').value.trim();
-        
-        if (!oldName) return showToast('Выберите элемент');
-        if (!newName) return showToast('Введите новое название');
-        if (oldName === newName) return showToast('Названия одинаковые');
-        
-        var struct = CATEGORY_STRUCTURE[category];
-        if (!struct) return;
-        
-        // Ищем в группах
-        var found = false;
-        for (var group in struct.groups) {
-            var idx = struct.groups[group].indexOf(oldName);
-            if (idx !== -1) {
-                struct.groups[group][idx] = newName;
-                found = true;
-                break;
-            }
-        }
-        
-        // Ищем в одиночных
-        if (!found) {
-            var idx = struct.singles.indexOf(oldName);
-            if (idx !== -1) {
-                struct.singles[idx] = newName;
-                found = true;
-            }
-        }
-        
-        if (!found) return showToast('Элемент не найден');
-        
-        // Обновляем данные
-        if (productionData[category] && productionData[category][oldName] !== undefined) {
-            productionData[category][newName] = productionData[category][oldName];
-            delete productionData[category][oldName];
-        }
-        if (minLimits[oldName] !== undefined) {
-            minLimits[newName] = minLimits[oldName];
-            delete minLimits[oldName];
-        }
-        
-        // Обновляем историю
-        changeHistory.forEach(function(h) {
-            if (h.item === oldName) h.item = newName;
-        });
-        
-        document.getElementById('renameNewName').value = '';
-        saveAllData();
-        renderAll();
-        renderAdminItemList();
-        updateRenameSelects();
-        updateAdminGroupSelect();
-        renderDraggableList();
-        checkAlerts();
-        pushToCloud();
-        showToast('✅ Переименовано: ' + oldName + ' → ' + newName);
-    }
+    // ===== АДМИН: ДОБАВЛЕНИЕ/УДАЛЕНИЕ =====
+    function updateAdminGroupSelect() { var cat = document.getElementById('adminCategory').value, sel = document.getElementById('adminGroup'); sel.innerHTML = '<option value="">Без группы (одиночный)</option>'; var struct = CATEGORY_STRUCTURE[cat]; if (struct && struct.groups) for (var g in struct.groups) sel.innerHTML += '<option value="' + g + '">' + g + '</option>'; }
+    function adminAddItem() { if (!isAdmin) return; var cat = document.getElementById('adminCategory').value, group = document.getElementById('adminGroup').value, name = document.getElementById('adminItemName').value.trim(), val = parseInt(document.getElementById('adminItemValue').value) || 1; if (!name) return showToast('Введите название'); var struct = CATEGORY_STRUCTURE[cat]; if (!struct) return; if (group) { if (!struct.groups[group]) struct.groups[group] = []; if (struct.groups[group].indexOf(name) === -1) struct.groups[group].push(name); if (GROUP_ORDER[cat] && GROUP_ORDER[cat].indexOf(group) === -1) GROUP_ORDER[cat].push(group); } else { if (struct.singles.indexOf(name) === -1) struct.singles.push(name); } if (!productionData[cat]) productionData[cat] = {}; productionData[cat][name] = val; minLimits[name] = 1; document.getElementById('adminItemName').value = ''; saveAllData(); renderAll(); renderAdminItemList(); updateAdminGroupSelect(); renderDraggableList(); checkAlerts(); pushToCloud(); showToast('✅ Добавлено: ' + name); }
+    function adminAddGroup() { if (!isAdmin) return; var cat = document.getElementById('adminGroupCategory').value, gn = document.getElementById('adminGroupName').value.trim(), s1 = document.getElementById('adminSubItem1').value.trim(), s2 = document.getElementById('adminSubItem2').value.trim(); if (!gn) return showToast('Введите название группы'); if (!s1 && !s2) return showToast('Добавьте хотя бы один элемент'); var struct = CATEGORY_STRUCTURE[cat]; if (!struct) return; if (!struct.groups[gn]) struct.groups[gn] = []; if (!productionData[cat]) productionData[cat] = {}; if (s1 && struct.groups[gn].indexOf(s1) === -1) { struct.groups[gn].push(s1); productionData[cat][s1] = 1; minLimits[s1] = 1; } if (s2 && struct.groups[gn].indexOf(s2) === -1) { struct.groups[gn].push(s2); productionData[cat][s2] = 1; minLimits[s2] = 1; } if (GROUP_ORDER[cat] && GROUP_ORDER[cat].indexOf(gn) === -1) GROUP_ORDER[cat].push(gn); document.getElementById('adminGroupName').value = ''; document.getElementById('adminSubItem1').value = ''; document.getElementById('adminSubItem2').value = ''; saveAllData(); renderAll(); renderAdminItemList(); updateAdminGroupSelect(); renderDraggableList(); checkAlerts(); pushToCloud(); showToast('✅ Группа создана: ' + gn); }
+    function adminDeleteItem(cat, item) { if (!isAdmin) return; if (!confirm('Удалить "' + item + '" из ' + SECTION_NAMES[cat] + '?')) return; var struct = CATEGORY_STRUCTURE[cat]; if (!struct) return; for (var g in struct.groups) { var idx = struct.groups[g].indexOf(item); if (idx !== -1) { struct.groups[g].splice(idx, 1); if (struct.groups[g].length === 0) delete struct.groups[g]; } } var si = struct.singles.indexOf(item); if (si !== -1) struct.singles.splice(si, 1); if (productionData[cat]) delete productionData[cat][item]; delete minLimits[item]; saveAllData(); renderAll(); renderAdminItemList(); updateAdminGroupSelect(); renderDraggableList(); checkAlerts(); pushToCloud(); showToast('🗑️ Удалено: ' + item); }
+    function renderAdminItemList() { var list = document.getElementById('adminItemList'), html = ''; for (var cat in CATEGORY_STRUCTURE) { var struct = CATEGORY_STRUCTURE[cat], cn = SECTION_NAMES[cat] || cat, order = GROUP_ORDER[cat] || [], shownG = {}; order.forEach(function(gn) { if (struct.groups[gn]) { shownG[gn] = true; html += '<div style="grid-column:1/-1;font-weight:600;color:var(--txt2);margin-top:10px">' + cn + ' → ' + gn + ':</div>'; struct.groups[gn].forEach(function(item) { html += '<div class="admin-item-card"><div class="item-info"><strong>' + item + '</strong> <small>' + cn + ' → ' + gn + '</small></div><button class="btn btn-delete" onclick="adminDeleteItem(\'' + cat + '\',\'' + item + '\')">✕</button></div>'; }); } }); for (var gn in struct.groups) { if (!shownG[gn]) { html += '<div style="grid-column:1/-1;font-weight:600;color:var(--txt2);margin-top:10px">' + cn + ' → ' + gn + ':</div>'; struct.groups[gn].forEach(function(item) { html += '<div class="admin-item-card"><div class="item-info"><strong>' + item + '</strong> <small>' + cn + ' → ' + gn + '</small></div><button class="btn btn-delete" onclick="adminDeleteItem(\'' + cat + '\',\'' + item + '\')">✕</button></div>'; }); } } if (struct.singles.length > 0) { html += '<div style="grid-column:1/-1;font-weight:600;color:var(--txt2);margin-top:10px">' + cn + ' (одиночные):</div>'; struct.singles.forEach(function(item) { html += '<div class="admin-item-card"><div class="item-info"><strong>' + item + '</strong> <small>' + cn + '</small></div><button class="btn btn-delete" onclick="adminDeleteItem(\'' + cat + '\',\'' + item + '\')">✕</button></div>'; }); } } if (!html) html = '<p style="color:var(--txt2)">Нет элементов</p>'; list.innerHTML = html; }
 
-    // ===== АДМИН: ДОБАВЛЕНИЕ И УДАЛЕНИЕ =====
-    function updateAdminGroupSelect() {
-        var cat = document.getElementById('adminCategory').value;
-        var sel = document.getElementById('adminGroup');
-        sel.innerHTML = '<option value="">Без группы (одиночный)</option>';
-        var struct = CATEGORY_STRUCTURE[cat];
-        if (struct && struct.groups) {
-            for (var g in struct.groups) sel.innerHTML += '<option value="' + g + '">' + g + '</option>';
-        }
-    }
-
-    function adminAddItem() {
-        if (!isAdmin) return showToast('❌ Только для админа');
-        var cat = document.getElementById('adminCategory').value;
-        var group = document.getElementById('adminGroup').value;
-        var name = document.getElementById('adminItemName').value.trim();
-        var val = parseInt(document.getElementById('adminItemValue').value) || 1;
-        if (!name) return showToast('Введите название');
-        var struct = CATEGORY_STRUCTURE[cat];
-        if (!struct) return;
-        if (group) {
-            if (!struct.groups[group]) struct.groups[group] = [];
-            if (struct.groups[group].indexOf(name) === -1) struct.groups[group].push(name);
-            if (GROUP_ORDER[cat] && GROUP_ORDER[cat].indexOf(group) === -1) GROUP_ORDER[cat].push(group);
-        } else {
-            if (struct.singles.indexOf(name) === -1) struct.singles.push(name);
-        }
-        productionData[cat][name] = val;
-        minLimits[name] = 1;
-        document.getElementById('adminItemName').value = '';
-        saveAllData(); renderAll(); renderAdminItemList(); updateAdminGroupSelect(); renderDraggableList(); checkAlerts(); pushToCloud();
-        showToast('✅ Добавлено: ' + name);
-    }
-
-    function adminAddGroup() {
-        if (!isAdmin) return showToast('❌ Только для админа');
-        var cat = document.getElementById('adminGroupCategory').value;
-        var gn = document.getElementById('adminGroupName').value.trim();
-        var s1 = document.getElementById('adminSubItem1').value.trim();
-        var s2 = document.getElementById('adminSubItem2').value.trim();
-        if (!gn) return showToast('Введите название группы');
-        if (!s1 && !s2) return showToast('Добавьте хотя бы один элемент');
-        var struct = CATEGORY_STRUCTURE[cat];
-        if (!struct) return;
-        if (!struct.groups[gn]) struct.groups[gn] = [];
-        if (s1 && struct.groups[gn].indexOf(s1) === -1) { struct.groups[gn].push(s1); productionData[cat][s1] = 1; minLimits[s1] = 1; }
-        if (s2 && struct.groups[gn].indexOf(s2) === -1) { struct.groups[gn].push(s2); productionData[cat][s2] = 1; minLimits[s2] = 1; }
-        if (GROUP_ORDER[cat] && GROUP_ORDER[cat].indexOf(gn) === -1) GROUP_ORDER[cat].push(gn);
-        document.getElementById('adminGroupName').value = ''; document.getElementById('adminSubItem1').value = ''; document.getElementById('adminSubItem2').value = '';
-        saveAllData(); renderAll(); renderAdminItemList(); updateAdminGroupSelect(); renderDraggableList(); checkAlerts(); pushToCloud();
-        showToast('✅ Группа создана: ' + gn);
-    }
-
-    function adminDeleteItem(cat, item) {
-        if (!isAdmin) return;
-        if (!confirm('Удалить "' + item + '" из ' + SECTION_NAMES[cat] + '?')) return;
-        var struct = CATEGORY_STRUCTURE[cat];
-        if (!struct) return;
-        for (var g in struct.groups) {
-            var idx = struct.groups[g].indexOf(item);
-            if (idx !== -1) { struct.groups[g].splice(idx, 1); if (struct.groups[g].length === 0) delete struct.groups[g]; }
-        }
-        var si = struct.singles.indexOf(item);
-        if (si !== -1) struct.singles.splice(si, 1);
-        if (productionData[cat]) delete productionData[cat][item];
-        delete minLimits[item];
-        saveAllData(); renderAll(); renderAdminItemList(); updateAdminGroupSelect(); renderDraggableList(); checkAlerts(); pushToCloud();
-        showToast('🗑️ Удалено: ' + item);
-    }
-
-    function renderAdminItemList() {
-        var list = document.getElementById('adminItemList');
-        var html = '';
-        for (var cat in CATEGORY_STRUCTURE) {
-            var struct = CATEGORY_STRUCTURE[cat];
-            var cn = SECTION_NAMES[cat] || cat;
-            var order = GROUP_ORDER[cat] || [];
-            
-            // Группы в порядке
-            var shownG = {};
-            order.forEach(function(gn) {
-                if (struct.groups[gn]) {
-                    shownG[gn] = true;
-                    html += '<div style="grid-column:1/-1;font-weight:600;color:var(--txt2);margin-top:10px">' + cn + ' → ' + gn + ':</div>';
-                    struct.groups[gn].forEach(function(item) {
-                        html += '<div class="admin-item-card"><div class="item-info"><strong>' + item + '</strong> <small>' + cn + ' → ' + gn + '</small></div>' +
-                            '<button class="btn btn-delete" onclick="adminDeleteItem(\'' + cat + '\',\'' + item + '\')">✕</button></div>';
-                    });
-                }
-            });
-            // Оставшиеся группы
-            for (var gn in struct.groups) {
-                if (!shownG[gn]) {
-                    html += '<div style="grid-column:1/-1;font-weight:600;color:var(--txt2);margin-top:10px">' + cn + ' → ' + gn + ':</div>';
-                    struct.groups[gn].forEach(function(item) {
-                        html += '<div class="admin-item-card"><div class="item-info"><strong>' + item + '</strong> <small>' + cn + ' → ' + gn + '</small></div>' +
-                            '<button class="btn btn-delete" onclick="adminDeleteItem(\'' + cat + '\',\'' + item + '\')">✕</button></div>';
-                    });
-                }
-            }
-            
-            if (struct.singles.length > 0) {
-                html += '<div style="grid-column:1/-1;font-weight:600;color:var(--txt2);margin-top:10px">' + cn + ' (одиночные):</div>';
-                struct.singles.forEach(function(item) {
-                    html += '<div class="admin-item-card"><div class="item-info"><strong>' + item + '</strong> <small>' + cn + '</small></div>' +
-                        '<button class="btn btn-delete" onclick="adminDeleteItem(\'' + cat + '\',\'' + item + '\')">✕</button></div>';
-                });
-            }
-        }
-        if (!html) html = '<p style="color:var(--txt2)">Нет элементов</p>';
-        list.innerHTML = html;
-    }
-
-    // ===== ИЗМЕНЕНИЕ ЗНАЧЕНИЙ =====
+    // ===== ИЗМЕНЕНИЕ ЗНАЧЕНИЙ (ИСПРАВЛЕНО) =====
     function changeItemValue(cat, item, delta) {
-        if (productionData[cat] === undefined || productionData[cat][item] === undefined) return;
+        if (!productionData[cat]) { console.error('Категория не найдена:', cat); return; }
+        if (productionData[cat][item] === undefined) { productionData[cat][item] = 1; minLimits[item] = minLimits[item] || 1; }
         var old = productionData[cat][item];
         if (typeof delta === 'string') { productionData[cat][item] = Math.max(0, parseInt(delta) || 0); var act = 'ввод'; }
         else { productionData[cat][item] = Math.max(0, old + delta); var act = delta > 0 ? '+' + delta : '' + delta; }
         changeHistory.unshift({ time: new Date().toLocaleString('ru-RU'), user: currentUser, item: item, old: old, new: productionData[cat][item], act: act });
         if (changeHistory.length > 150) changeHistory = changeHistory.slice(0, 150);
-        var today = new Date().toLocaleDateString('ru-RU');
-        if (!shippedHistory[today]) shippedHistory[today] = { black: (productionData.assembly && productionData.assembly['Отдано черные']) || 0, white: (productionData.assembly && productionData.assembly['Отдано белые']) || 0 };
+        var today = new Date().toLocaleDateString('ru-RU'); if (!shippedHistory[today]) shippedHistory[today] = { black: (productionData.assembly && productionData.assembly['Отдано черные']) || 0, white: (productionData.assembly && productionData.assembly['Отдано белые']) || 0 };
         renderAll(); checkAlerts(); saveAllData(); pushToCloud();
     }
 
-    // ===== ОТРИСОВКА =====
+    // ===== ОТРИСОВКА (ИСПРАВЛЕНО) =====
     function createItemHTML(cat, item, val, sub) {
         var ml = minLimits[item] || 0, crit = ml > 0 && val <= ml;
+        var safeCat = cat.replace(/'/g, "\\'"), safeItem = item.replace(/'/g, "\\'");
         return '<div class="inventory-item' + (sub ? ' sub' : '') + '">' +
-            '<div class="item-name"><span>' + item + (isAdmin ? ' <span class="rename-icon" onclick="quickRename(\'' + cat + '\',\'' + item + '\')" title="Переименовать">✏️</span>' : '') + ' <span class="min-badge" onclick="quickEditLimit(\'' + item + '\')">мин:' + ml + '</span></span>' +
+            '<div class="item-name"><span>' + item + (isAdmin ? ' <span class="rename-icon" onclick="quickRename(\'' + safeCat + '\',\'' + safeItem + '\')" title="Переименовать">✏️</span>' : '') + ' <span class="min-badge" onclick="quickEditLimit(\'' + safeItem + '\')">мин:' + ml + '</span></span>' +
             '<span class="item-value' + (crit ? ' critical' : '') + '">' + val + '</span></div>' +
-            '<div class="item-controls"><button class="btn btn-minus10" onclick="changeItemValue(\'' + cat + '\',\'' + item + '\',-10)">-10</button>' +
-            '<button class="btn btn-minus1" onclick="changeItemValue(\'' + cat + '\',\'' + item + '\',-1)">-1</button>' +
-            '<input type="number" class="qty-input" value="' + val + '" min="0" onchange="changeItemValue(\'' + cat + '\',\'' + item + '\',this.value)">' +
-            '<button class="btn btn-plus1" onclick="changeItemValue(\'' + cat + '\',\'' + item + '\',1)">+1</button>' +
-            '<button class="btn btn-plus10" onclick="changeItemValue(\'' + cat + '\',\'' + item + '\',10)">+10</button></div></div>';
-    }
-
-    function quickRename(cat, oldName) {
-        if (!isAdmin) return;
-        var newName = prompt('Новое название для "' + oldName + '":', oldName);
-        if (!newName || !newName.trim() || newName.trim() === oldName) return;
-        newName = newName.trim();
-        
-        var struct = CATEGORY_STRUCTURE[cat];
-        var found = false;
-        for (var g in struct.groups) {
-            var idx = struct.groups[g].indexOf(oldName);
-            if (idx !== -1) { struct.groups[g][idx] = newName; found = true; break; }
-        }
-        if (!found) { var si = struct.singles.indexOf(oldName); if (si !== -1) { struct.singles[si] = newName; found = true; } }
-        if (!found) return;
-        
-        if (productionData[cat] && productionData[cat][oldName] !== undefined) { productionData[cat][newName] = productionData[cat][oldName]; delete productionData[cat][oldName]; }
-        if (minLimits[oldName] !== undefined) { minLimits[newName] = minLimits[oldName]; delete minLimits[oldName]; }
-        changeHistory.forEach(function(h) { if (h.item === oldName) h.item = newName; });
-        saveAllData(); renderAll(); renderAdminItemList(); updateRenameSelects(); updateAdminGroupSelect(); renderDraggableList(); checkAlerts(); pushToCloud();
-        showToast('✅ Переименовано: ' + oldName + ' → ' + newName);
+            '<div class="item-controls"><button class="btn btn-minus10" onclick="changeItemValue(\'' + safeCat + '\',\'' + safeItem + '\',-10)">-10</button>' +
+            '<button class="btn btn-minus1" onclick="changeItemValue(\'' + safeCat + '\',\'' + safeItem + '\',-1)">-1</button>' +
+            '<input type="number" class="qty-input" value="' + val + '" min="0" onchange="changeItemValue(\'' + safeCat + '\',\'' + safeItem + '\',this.value)">' +
+            '<button class="btn btn-plus1" onclick="changeItemValue(\'' + safeCat + '\',\'' + safeItem + '\',1)">+1</button>' +
+            '<button class="btn btn-plus10" onclick="changeItemValue(\'' + safeCat + '\',\'' + safeItem + '\',10)">+10</button></div></div>';
     }
 
     function renderCategorySection(cat, contId) {
-        var struct = CATEGORY_STRUCTURE[cat];
-        if (!struct) return;
-        var order = GROUP_ORDER[cat] || [];
-        var html = '';
-        var shownG = {};
-        
-        order.forEach(function(gn) {
-            if (struct.groups[gn]) {
-                shownG[gn] = true;
-                html += '<h3 class="subsection-title">' + gn + '</h3>';
-                struct.groups[gn].forEach(function(item) {
-                    html += createItemHTML(cat, item, (productionData[cat] && productionData[cat][item] !== undefined) ? productionData[cat][item] : 1, true);
-                });
-            }
-        });
-        
-        for (var gn in struct.groups) {
-            if (!shownG[gn]) {
-                html += '<h3 class="subsection-title">' + gn + '</h3>';
-                struct.groups[gn].forEach(function(item) {
-                    html += createItemHTML(cat, item, (productionData[cat] && productionData[cat][item] !== undefined) ? productionData[cat][item] : 1, true);
-                });
-            }
-        }
-        
-        if (struct.singles.length > 0) {
-            html += '<h3 class="subsection-title">Прочее</h3>';
-            struct.singles.forEach(function(item) {
-                html += createItemHTML(cat, item, (productionData[cat] && productionData[cat][item] !== undefined) ? productionData[cat][item] : 1, false);
-            });
-        }
-        
+        var struct = CATEGORY_STRUCTURE[cat]; if (!struct) return;
+        var order = GROUP_ORDER[cat] || [], html = '', shownG = {};
+        order.forEach(function(gn) { if (struct.groups[gn]) { shownG[gn] = true; html += '<h3 class="subsection-title">' + gn + '</h3>'; struct.groups[gn].forEach(function(item) { var val = 1; if (productionData[cat] && productionData[cat][item] !== undefined) val = productionData[cat][item]; else { if (!productionData[cat]) productionData[cat] = {}; productionData[cat][item] = 1; if (minLimits[item] === undefined) minLimits[item] = 1; } html += createItemHTML(cat, item, val, true); }); } });
+        for (var gn in struct.groups) { if (!shownG[gn]) { html += '<h3 class="subsection-title">' + gn + '</h3>'; struct.groups[gn].forEach(function(item) { var val = 1; if (productionData[cat] && productionData[cat][item] !== undefined) val = productionData[cat][item]; else { if (!productionData[cat]) productionData[cat] = {}; productionData[cat][item] = 1; if (minLimits[item] === undefined) minLimits[item] = 1; } html += createItemHTML(cat, item, val, true); }); } }
+        if (struct.singles.length > 0) { html += '<h3 class="subsection-title">Прочее</h3>'; struct.singles.forEach(function(item) { var val = 1; if (productionData[cat] && productionData[cat][item] !== undefined) val = productionData[cat][item]; else { if (!productionData[cat]) productionData[cat] = {}; productionData[cat][item] = 1; if (minLimits[item] === undefined) minLimits[item] = 1; } html += createItemHTML(cat, item, val, false); }); }
         document.getElementById(contId).innerHTML = html;
     }
 
-    function renderAll() {
-        renderCategorySection('supplies', 'supplies');
-        renderCategorySection('production', 'production');
-        renderCategorySection('assembly', 'assembly');
-        checkAlerts();
-        var hd = document.getElementById('historyList');
-        hd.innerHTML = changeHistory.length === 0 ? '<p style="color:var(--txt2)">Пусто</p>' : changeHistory.map(function(r) {
-            if (r.type === 'summary') { var h = '<div class="history-summary added"><strong>📅 ИТОГ ДНЯ</strong></div>'; if (r.added) h += r.added; if (r.removed) h += r.removed; return h; }
-            return '<div class="history-item"><span style="color:' + (USER_COLORS[r.user] || '#636e72') + ';font-weight:600">' + (r.user || '?') + '</span> <strong>' + r.time + '</strong> - "' + r.item + '": ' + r.old + ' → ' + r.new + ' (' + r.act + ')</div>';
-        }).join('');
-    }
+    function renderAll() { renderCategorySection('supplies', 'supplies'); renderCategorySection('production', 'production'); renderCategorySection('assembly', 'assembly'); checkAlerts(); var hd = document.getElementById('historyList'); hd.innerHTML = changeHistory.length === 0 ? '<p style="color:var(--txt2)">Пусто</p>' : changeHistory.map(function(r) { if (r.type === 'summary') { var h = '<div class="history-summary added"><strong>📅 ИТОГ ДНЯ</strong></div>'; if (r.added) h += r.added; if (r.removed) h += r.removed; return h; } return '<div class="history-item"><span style="color:' + (USER_COLORS[r.user] || '#636e72') + ';font-weight:600">' + (r.user || '?') + '</span> <strong>' + r.time + '</strong> - "' + r.item + '": ' + r.old + ' → ' + r.new + ' (' + r.act + ')</div>'; }).join(''); }
 
-    function checkAlerts() {
-        var bs = {};
-        for (var c in productionData) for (var i in productionData[c]) {
-            if (i === 'Крючки') continue;
-            var v = productionData[c][i], ml = minLimits[i] || 0;
-            if (ml > 0 && v <= ml) { if (!bs[c]) bs[c] = []; bs[c].push({ name: i, value: v, min: ml }); }
-        }
-        var tc = 0; for (var s in bs) tc += bs[s].length;
-        var ad = document.getElementById('alerts');
-        if (tc > 0) {
-            var h = '<div class="alert-box"><div class="alert-header" onclick="toggleAlerts()"><h3>⚠️ Критические запасы (' + tc + ')</h3><span id="alertsArrow">' + (alertsOpen ? '▼' : '▶') + '</span></div><div class="alert-body' + (alertsOpen ? '' : ' hidden') + '">';
-            for (var s in bs) { h += '<div class="alert-section">' + (SECTION_NAMES[s] || s) + ':</div>'; bs[s].forEach(function(x) { h += '<div class="alert-item">🔴 ' + x.name + ': ' + x.value + ' ед. (мин: ' + x.min + ')</div>'; }); }
-            h += '</div></div>'; ad.innerHTML = h;
-        } else ad.innerHTML = '';
-    }
-
+    function checkAlerts() { var bs = {}; for (var c in productionData) for (var i in productionData[c]) { var v = productionData[c][i], ml = minLimits[i] || 0; if (ml > 0 && v <= ml) { if (!bs[c]) bs[c] = []; bs[c].push({ name: i, value: v, min: ml }); } } var tc = 0; for (var s in bs) tc += bs[s].length; var ad = document.getElementById('alerts'); if (tc > 0) { var h = '<div class="alert-box"><div class="alert-header" onclick="toggleAlerts()"><h3>⚠️ Критические запасы (' + tc + ')</h3><span id="alertsArrow">' + (alertsOpen ? '▼' : '▶') + '</span></div><div class="alert-body' + (alertsOpen ? '' : ' hidden') + '">'; for (var s in bs) { h += '<div class="alert-section">' + (SECTION_NAMES[s] || s) + ':</div>'; bs[s].forEach(function(x) { h += '<div class="alert-item">🔴 ' + x.name + ': ' + x.value + ' ед. (мин: ' + x.min + ')</div>'; }); } h += '</div></div>'; ad.innerHTML = h; } else ad.innerHTML = ''; }
     function toggleAlerts() { alertsOpen = !alertsOpen; var b = document.querySelector('.alert-body'); if (b) b.classList.toggle('hidden', !alertsOpen); var a = document.getElementById('alertsArrow'); if (a) a.textContent = alertsOpen ? '▼' : '▶'; }
 
     // ===== ЛИМИТЫ =====
     function toggleLimits() { showLimitsPanel = !showLimitsPanel; var p = document.getElementById('limitsPanel'), b = document.getElementById('limitsBtn'); showLimitsPanel ? (p.classList.add('show'), b.classList.add('active'), renderLimitsPanel()) : (p.classList.remove('show'), b.classList.remove('active')); }
-    function renderLimitsPanel() { var g = document.getElementById('limitsGrid'); var it = {}; for (var c in productionData) for (var i in productionData[c]) if (i !== 'Крючки') it[i] = minLimits[i] || 0; g.innerHTML = Object.keys(it).sort().map(function(i) { return '<div class="limit-item"><span class="limit-name">' + i + '</span><div class="limit-controls"><span style="font-size:11px">Мин:</span><input type="number" class="limit-input" value="' + it[i] + '" min="0" onchange="minLimits[\'' + i + '\']=Math.max(0,parseInt(this.value)||0);saveAllData();renderAll();checkAlerts()"></div></div>'; }).join(''); }
+    function renderLimitsPanel() { var g = document.getElementById('limitsGrid'), it = {}; for (var c in productionData) for (var i in productionData[c]) it[i] = minLimits[i] || 0; g.innerHTML = Object.keys(it).sort().map(function(i) { return '<div class="limit-item"><span class="limit-name">' + i + '</span><div class="limit-controls"><span style="font-size:11px">Мин:</span><input type="number" class="limit-input" value="' + it[i] + '" min="0" onchange="minLimits[\'' + i.replace(/'/g, "\\'") + '\']=Math.max(0,parseInt(this.value)||0);saveAllData();renderAll();checkAlerts()"></div></div>'; }).join(''); }
     function saveLimits() { document.querySelectorAll('.limit-input').forEach(function(inp) { minLimits[inp.closest('.limit-item').querySelector('.limit-name').textContent] = Math.max(0, parseInt(inp.value) || 0); }); saveAllData(); renderAll(); checkAlerts(); pushToCloud(); showToast('✅ Лимиты сохранены'); }
     function quickEditLimit(item) { var v = prompt('Мин. запас для "' + item + '":\n(0 = отключить)', minLimits[item] || 0); if (v !== null) { minLimits[item] = Math.max(0, parseInt(v) || 0); saveAllData(); renderAll(); checkAlerts(); if (showLimitsPanel) renderLimitsPanel(); } }
 
@@ -905,36 +499,13 @@
     function createNoteCard(n) { var c = USER_COLORS[n.author] || '#636e72'; return '<div class="note-card' + (n.done ? ' done' : '') + '"><div class="note-header"><strong style="color:' + c + '">' + (n.author || '?') + '</strong><span style="font-size:11px;color:var(--txt2)">' + n.created + '</span></div><div class="note-text">' + n.text + '</div><div class="note-meta">' + (n.assignee ? '<span>👤 ' + n.assignee + '</span>' : '<span>👤 Без исполнителя</span>') + '</div><div class="note-actions"><button class="note-btn done-btn" onclick="toggleNoteDone(' + n.id + ')">' + (n.done ? '↩' : '✓') + '</button><button class="note-btn edit-btn" onclick="editNote(' + n.id + ')">✏️</button><button class="note-btn delete-btn" onclick="deleteNote(' + n.id + ')">🗑️</button></div></div>'; }
 
     // ===== ИТОГИ ДНЯ =====
-    function dailySummary() {
-        var today = new Date().toLocaleDateString('ru-RU'), th = changeHistory.filter(function(h) { return h.time && h.time.split(',')[0] === today; });
-        if (!th.length) { showToast('📅 Нет изменений за сегодня'); return; }
-        var sum = {}; th.forEach(function(h) { if (!sum[h.item]) sum[h.item] = { added: 0, removed: 0, start: h.old, end: h.new }; var d = h.new - h.old; d > 0 ? sum[h.item].added += d : sum[h.item].removed += Math.abs(d); sum[h.item].start = Math.min(sum[h.item].start, h.old); sum[h.item].end = h.new; });
-        var ah = '', rh = ''; for (var i in sum) { var s = sum[i]; if (s.added > 0) ah += '<div class="history-item">🟢 <strong>' + i + '</strong>: +' + s.added + ' (' + s.start + ' → ' + s.end + ')</div>'; if (s.removed > 0) rh += '<div class="history-item">🔴 <strong>' + i + '</strong>: -' + s.removed + ' (' + s.start + ' → ' + s.end + ')</div>'; }
-        changeHistory.unshift({ time: '📅 ' + today, type: 'summary', added: ah, removed: rh }); if (changeHistory.length > 150) changeHistory = changeHistory.slice(0, 150);
-        saveAllData(); renderAll(); pushToCloud(); showToast('✅ Итог дня добавлен');
-    }
+    function dailySummary() { var today = new Date().toLocaleDateString('ru-RU'), th = changeHistory.filter(function(h) { return h.time && h.time.split(',')[0] === today; }); if (!th.length) { showToast('📅 Нет изменений за сегодня'); return; } var sum = {}; th.forEach(function(h) { if (!sum[h.item]) sum[h.item] = { added: 0, removed: 0, start: h.old, end: h.new }; var d = h.new - h.old; d > 0 ? sum[h.item].added += d : sum[h.item].removed += Math.abs(d); sum[h.item].start = Math.min(sum[h.item].start, h.old); sum[h.item].end = h.new; }); var ah = '', rh = ''; for (var i in sum) { var s = sum[i]; if (s.added > 0) ah += '<div class="history-item">🟢 <strong>' + i + '</strong>: +' + s.added + ' (' + s.start + ' → ' + s.end + ')</div>'; if (s.removed > 0) rh += '<div class="history-item">🔴 <strong>' + i + '</strong>: -' + s.removed + ' (' + s.start + ' → ' + s.end + ')</div>'; } changeHistory.unshift({ time: '📅 ' + today, type: 'summary', added: ah, removed: rh }); if (changeHistory.length > 150) changeHistory = changeHistory.slice(0, 150); saveAllData(); renderAll(); pushToCloud(); showToast('✅ Итог дня добавлен'); }
     function autoDailySummary() { var ls = localStorage.getItem('lastSummaryDate'), today = new Date().toLocaleDateString('ru-RU'); if (ls !== today) { localStorage.setItem('lastSummaryDate', today); var y = new Date(Date.now() - 86400000).toLocaleDateString('ru-RU'); if (changeHistory.some(function(h) { return h.time && h.time.includes(y); }) && changeHistory.length > 0) dailySummary(); } }
 
     // ===== ГРАФИК =====
     function changeChartPeriod(d, btn) { chartPeriod = d; document.querySelectorAll('.period-btn').forEach(function(b) { b.classList.remove('active'); }); if (btn) btn.classList.add('active'); drawChart(); }
     function getShippedData() { var today = new Date().toLocaleDateString('ru-RU'); if (!shippedHistory[today]) shippedHistory[today] = { black: (productionData.assembly && productionData.assembly['Отдано черные']) || 0, white: (productionData.assembly && productionData.assembly['Отдано белые']) || 0 }; var dates = Object.keys(shippedHistory).sort(), filt = chartPeriod > 0 ? dates.slice(-chartPeriod) : dates; return { labels: filt, black: filt.map(function(d) { return shippedHistory[d].black; }), white: filt.map(function(d) { return shippedHistory[d].white; }) }; }
-    function drawChart() {
-        var c = document.getElementById('chartCanvas'); if (!c) return;
-        var wrap = document.getElementById('chartContainer'); c.width = wrap.offsetWidth - 40; c.height = 300;
-        var ctx = c.getContext('2d'), cd = getShippedData();
-        if (!cd.labels.length) { ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--txt2'); ctx.font = '14px Segoe UI'; ctx.textAlign = 'center'; ctx.fillText('Нет данных', c.width / 2, c.height / 2); return; }
-        var pad = { top: 20, right: 30, bottom: 50, left: 60 }, cw = c.width - pad.left - pad.right, ch = c.height - pad.top - pad.bottom;
-        var max = Math.ceil(Math.max.apply(null, cd.black.concat(cd.white).concat([1])) * 1.1);
-        ctx.strokeStyle = getComputedStyle(document.body).getPropertyValue('--grid'); ctx.lineWidth = 1;
-        for (var i = 0; i <= 5; i++) { var y = pad.top + (ch / 5) * i; ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(pad.left + cw, y); ctx.stroke(); ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--txt2'); ctx.font = '11px Segoe UI'; ctx.textAlign = 'right'; ctx.fillText(Math.round(max - (max / 5) * i), pad.left - 8, y + 4); }
-        ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--txt2'); ctx.font = '10px Segoe UI'; ctx.textAlign = 'center';
-        var step = Math.max(1, Math.floor(cd.labels.length / 7));
-        cd.labels.forEach(function(l, i) { if (i % step === 0 || i === cd.labels.length - 1) ctx.fillText(l.split('.').slice(0, 2).join('.'), pad.left + (cw / (cd.labels.length - 1 || 1)) * i, pad.top + ch + 18); });
-        function drawLine(data, color, prog) { ctx.strokeStyle = color; ctx.lineWidth = 2.5; ctx.beginPath(); var pts = data.length - 1, end = Math.floor(pts * prog); data.forEach(function(v, i) { var x = pad.left + (cw / (pts || 1)) * i, y = pad.top + ch - (v / max) * ch; i === 0 ? ctx.moveTo(x, y) : i <= end && ctx.lineTo(x, y); }); ctx.stroke(); data.forEach(function(v, i) { if (i <= end) { var x = pad.left + (cw / (pts || 1)) * i, y = pad.top + ch - (v / max) * ch; ctx.fillStyle = color; ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI * 2); ctx.fill(); } }); }
-        if (chartAnimation) cancelAnimationFrame(chartAnimation); var prog = 0;
-        function anim() { ctx.clearRect(0, 0, c.width, c.height); ctx.strokeStyle = getComputedStyle(document.body).getPropertyValue('--grid'); ctx.lineWidth = 1; for (var i = 0; i <= 5; i++) { var y = pad.top + (ch / 5) * i; ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(pad.left + cw, y); ctx.stroke(); ctx.fillText(Math.round(max - (max / 5) * i), pad.left - 8, y + 4); } cd.labels.forEach(function(l, i) { if (i % step === 0 || i === cd.labels.length - 1) ctx.fillText(l.split('.').slice(0, 2).join('.'), pad.left + (cw / (cd.labels.length - 1 || 1)) * i, pad.top + ch + 18); }); drawLine(cd.black, '#2d3436', prog); drawLine(cd.white, '#b2bec3', prog); ctx.fillStyle = '#2d3436'; ctx.fillRect(pad.left, pad.top - 12, 12, 12); ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--txt'); ctx.textAlign = 'left'; ctx.fillText('Черные', pad.left + 18, pad.top); ctx.fillStyle = '#b2bec3'; ctx.fillRect(pad.left + 80, pad.top - 12, 12, 12); ctx.fillText('Белые', pad.left + 98, pad.top); prog += .05; if (prog <= 1) chartAnimation = requestAnimationFrame(anim); }
-        anim(); c._cd = cd; c._pad = pad; c._max = max;
-    }
+    function drawChart() { var c = document.getElementById('chartCanvas'); if (!c) return; var wrap = document.getElementById('chartContainer'); c.width = wrap.offsetWidth - 40; c.height = 300; var ctx = c.getContext('2d'), cd = getShippedData(); if (!cd.labels.length) { ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--txt2'); ctx.font = '14px Segoe UI'; ctx.textAlign = 'center'; ctx.fillText('Нет данных', c.width / 2, c.height / 2); return; } var pad = { top: 20, right: 30, bottom: 50, left: 60 }, cw = c.width - pad.left - pad.right, ch = c.height - pad.top - pad.bottom; var max = Math.ceil(Math.max.apply(null, cd.black.concat(cd.white).concat([1])) * 1.1); ctx.strokeStyle = getComputedStyle(document.body).getPropertyValue('--grid'); ctx.lineWidth = 1; for (var i = 0; i <= 5; i++) { var y = pad.top + (ch / 5) * i; ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(pad.left + cw, y); ctx.stroke(); ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--txt2'); ctx.font = '11px Segoe UI'; ctx.textAlign = 'right'; ctx.fillText(Math.round(max - (max / 5) * i), pad.left - 8, y + 4); } ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--txt2'); ctx.font = '10px Segoe UI'; ctx.textAlign = 'center'; var step = Math.max(1, Math.floor(cd.labels.length / 7)); cd.labels.forEach(function(l, i) { if (i % step === 0 || i === cd.labels.length - 1) ctx.fillText(l.split('.').slice(0, 2).join('.'), pad.left + (cw / (cd.labels.length - 1 || 1)) * i, pad.top + ch + 18); }); function drawLine(data, color, prog) { ctx.strokeStyle = color; ctx.lineWidth = 2.5; ctx.beginPath(); var pts = data.length - 1, end = Math.floor(pts * prog); data.forEach(function(v, i) { var x = pad.left + (cw / (pts || 1)) * i, y = pad.top + ch - (v / max) * ch; i === 0 ? ctx.moveTo(x, y) : i <= end && ctx.lineTo(x, y); }); ctx.stroke(); data.forEach(function(v, i) { if (i <= end) { var x = pad.left + (cw / (pts || 1)) * i, y = pad.top + ch - (v / max) * ch; ctx.fillStyle = color; ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI * 2); ctx.fill(); } }); } if (chartAnimation) cancelAnimationFrame(chartAnimation); var prog = 0; function anim() { ctx.clearRect(0, 0, c.width, c.height); ctx.strokeStyle = getComputedStyle(document.body).getPropertyValue('--grid'); ctx.lineWidth = 1; for (var i = 0; i <= 5; i++) { var y = pad.top + (ch / 5) * i; ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(pad.left + cw, y); ctx.stroke(); ctx.fillText(Math.round(max - (max / 5) * i), pad.left - 8, y + 4); } cd.labels.forEach(function(l, i) { if (i % step === 0 || i === cd.labels.length - 1) ctx.fillText(l.split('.').slice(0, 2).join('.'), pad.left + (cw / (cd.labels.length - 1 || 1)) * i, pad.top + ch + 18); }); drawLine(cd.black, '#2d3436', prog); drawLine(cd.white, '#b2bec3', prog); ctx.fillStyle = '#2d3436'; ctx.fillRect(pad.left, pad.top - 12, 12, 12); ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--txt'); ctx.textAlign = 'left'; ctx.fillText('Черные', pad.left + 18, pad.top); ctx.fillStyle = '#b2bec3'; ctx.fillRect(pad.left + 80, pad.top - 12, 12, 12); ctx.fillText('Белые', pad.left + 98, pad.top); prog += .05; if (prog <= 1) chartAnimation = requestAnimationFrame(anim); } anim(); c._cd = cd; c._pad = pad; c._max = max; }
     document.addEventListener('mousemove', function(e) { var c = document.getElementById('chartCanvas'); if (!c || !c._cd) return; var t = document.getElementById('chartTooltip'), r = c.getBoundingClientRect(), mx = e.clientX - r.left, my = e.clientY - r.top, cd = c._cd, pad = c._pad, cw = c.width - pad.left - pad.right, pts = cd.labels.length - 1; if (pts <= 0) return; var idx = Math.round((mx - pad.left) / (cw / pts)); if (idx >= 0 && idx < cd.labels.length && mx >= pad.left && mx <= pad.left + cw && my >= pad.top && my <= pad.top + (c.height - pad.top - pad.bottom)) { t.style.display = 'block'; t.style.left = (mx + 15) + 'px'; t.style.top = (my - 30) + 'px'; t.innerHTML = '📅 ' + cd.labels[idx] + '<br>⚫ Черные: <strong>' + cd.black[idx] + '</strong><br>⚪ Белые: <strong>' + cd.white[idx] + '</strong>'; } else t.style.display = 'none'; });
 
     // ===== ЦЕЛИ =====
@@ -950,16 +521,8 @@
     function syncNow() { if (!isOnline) { showToast('❌ Нет интернета'); return; } pushToCloud().then(function() { showToast('✅'); }).catch(function() { showToast('❌'); }); }
 
     // ===== ИНИЦИАЛИЗАЦИЯ =====
-    async function init() {
-        if (darkMode) document.body.setAttribute('data-theme', 'dark');
-        renderAll(); updateStats(); renderLimitsPanel(); renderNotes(); renderGoals(); renderAdminItemList(); renderDraggableList();
-        updateAdminGroupSelect(); updateRenameSelects();
-        if (isAdmin) { document.getElementById('adminPanel').classList.add('show'); document.getElementById('limitsBtn').classList.add('admin-btn'); }
-        if (isOnline) { await loadFromCloud(); startAutoSync(); } else updateSyncStatus('sync-offline', '🟡 Оффлайн');
-        autoDailySummary();
-        setTimeout(function() { if (document.getElementById('chartCanvas')) drawChart(); }, 500);
-    }
-    function updateStats() { var st = ((productionData.assembly && productionData.assembly['Отдано черные']) || 0) + ((productionData.assembly && productionData.assembly['Отдано белые']) || 0), cc = 0; for (var c in productionData) for (var i in productionData[c]) { if (i === 'Крючки') continue; var ml = minLimits[i] || 0; if (ml > 0 && productionData[c][i] <= ml) cc++; } document.getElementById('statsGrid').innerHTML = '<div class="stat-card"><h4>Синхронизация</h4><div class="stat-value" style="font-size:24px">' + (isOnline ? '🟢' : '🟡') + '</div></div><div class="stat-card"><h4>Отгружено всего</h4><div class="stat-value">' + st + '</div></div><div class="stat-card"><h4>Критических запасов</h4><div class="stat-value" style="color:var(--red)">' + cc + '</div></div>'; }
+    async function init() { if (darkMode) document.body.setAttribute('data-theme', 'dark'); renderAll(); updateStats(); renderLimitsPanel(); renderNotes(); renderGoals(); renderAdminItemList(); renderDraggableList(); updateAdminGroupSelect(); updateRenameSelects(); if (isAdmin) { document.getElementById('adminPanel').classList.add('show'); document.getElementById('limitsBtn').classList.add('admin-btn'); } if (isOnline) { await loadFromCloud(); startAutoSync(); } else updateSyncStatus('sync-offline', '🟡 Оффлайн'); autoDailySummary(); setTimeout(function() { if (document.getElementById('chartCanvas')) drawChart(); }, 500); }
+    function updateStats() { var st = ((productionData.assembly && productionData.assembly['Отдано черные']) || 0) + ((productionData.assembly && productionData.assembly['Отдано белые']) || 0), cc = 0; for (var c in productionData) for (var i in productionData[c]) { var ml = minLimits[i] || 0; if (ml > 0 && productionData[c][i] <= ml) cc++; } document.getElementById('statsGrid').innerHTML = '<div class="stat-card"><h4>Синхронизация</h4><div class="stat-value" style="font-size:24px">' + (isOnline ? '🟢' : '🟡') + '</div></div><div class="stat-card"><h4>Отгружено всего</h4><div class="stat-value">' + st + '</div></div><div class="stat-card"><h4>Критических запасов</h4><div class="stat-value" style="color:var(--red)">' + cc + '</div></div>'; }
     function toggleTheme() { darkMode = !darkMode; darkMode ? document.body.setAttribute('data-theme', 'dark') : document.body.removeAttribute('data-theme'); saveAllData(); }
     function switchTab(name) { document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); }); document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); }); event.target.classList.add('active'); document.getElementById('tab-' + name).classList.add('active'); if (name === 'stats') updateStats(); if (name === 'goals') renderGoals(); if (name === 'chart') setTimeout(drawChart, 100); }
     function clearHistory() { if (confirm('Очистить историю?')) { changeHistory = []; saveAllData(); renderAll(); pushToCloud(); } }
