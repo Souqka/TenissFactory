@@ -168,6 +168,8 @@
         .debug-output .log-error { color: #ff6b6b; }
         .debug-output .log-action { color: #74b9ff; }
         .debug-toggle { position: fixed; bottom: 5px; right: 5px; z-index: 10001; background: #1a1a2e; color: #00ff88; border: 2px solid #00ff88; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-family: monospace; font-size: 12px; font-weight: bold; }
+        .tg-test-btn { position: fixed; bottom: 38px; right: 5px; z-index: 10001; background: #1a1a2e; color: #74b9ff; border: 2px solid #74b9ff; padding: 3px 8px; border-radius: 5px; cursor: pointer; font-family: monospace; font-size: 11px; font-weight: bold; opacity: 0.6; }
+        .tg-test-btn:hover { opacity: 1; }
 
         .toast { position: fixed; bottom: 20px; right: 20px; background: var(--green); color: #fff; padding: 10px 20px; border-radius: 20px; box-shadow: var(--shadow); display: none; z-index: 999; }
         ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: var(--bg2); }
@@ -214,6 +216,7 @@
     </div>
     <div class="toast" id="toast">✓ Сохранено</div>
     <button class="debug-toggle" onclick="toggleDebugConsole()">🐛</button>
+    <button class="tg-test-btn" onclick="testTelegramReport()" title="Тестовый Telegram-отчёт">📤</button>
     <div class="debug-console" id="debugConsole"><div class="debug-header"><span>🔍 КОНСОЛЬ ОТЛАДКИ</span><div><button class="clear-btn" onclick="clearDebugConsole()">Очистить</button><button onclick="toggleDebugConsole()">✕</button></div></div><div class="debug-output" id="debugOutput"></div></div>
 
     <script>
@@ -227,7 +230,7 @@
     // ===== КОНФИГУРАЦИЯ =====
     var SYNC_URL = 'https://script.google.com/macros/s/AKfycbzTeiQslDVeA9Zcyr9HodMjda76w5RA6LM0h8_NV2Y7T-0hyHAU1KZVH545ZsuD7CV1iw/exec';
     var SYNC_INTERVAL = 15000;
-    var PASSWORD = '1980';
+    var PASSWORD = '0000';
     var USER_LIST = ['Админ', 'Илья', 'Глеб', 'Артур', 'Наём. Раб.'];
     var USER_COLORS = { 'Админ': '#e74c3c', 'Илья': '#3498db', 'Глеб': '#e67e22', 'Артур': '#9b59b6', 'Наём. Раб.': '#95a5a6' };
     var SECTION_NAMES = { supplies: '📦 Запасы', production: '⚙️ Производство', assembly: '🔧 Сборка' };
@@ -280,12 +283,11 @@
 
     debugLog('info', '🔵 Приложение запущено', { user: currentUser, isAdmin: isAdmin, online: isOnline });
 
-    // ===== TELEGRAM: ОТПРАВКА ОТЧЁТА В 23:00 (БЕЗ ИТОГОВ ДНЯ) =====
+    // ===== TELEGRAM: ОТПРАВКА ОТЧЁТА В 23:00 =====
     function checkTelegramReport() {
         var now = new Date();
         var hours = now.getHours();
         var today = now.toLocaleDateString('ru-RU');
-        
         if (hours >= 23 && lastTelegramReport !== today) {
             sendDailyTelegramReport();
             localStorage.setItem('lastTelegramReport', today);
@@ -293,7 +295,6 @@
     }
 
     function sendDailyTelegramReport() {
-        // Критические запасы из Отдела 1
         var criticalSupplies = [];
         for (var item in productionData.supplies) {
             var val = productionData.supplies[item];
@@ -302,38 +303,23 @@
                 criticalSupplies.push('🔴 ' + item + ': ' + val + ' ед. (мин: ' + min + ')');
             }
         }
-
-        // Отправка тестового отчёта через консоль
-function testTelegramReport() {
-    sendDailyTelegramReport();
-    console.log('✅ Тестовый отчёт отправлен в Telegram');
-    showToast('✅ Тестовый отчёт отправлен в Telegram');
-}
-        // Статус плана
         var planTotal = dailyGoals.total || 100;
         var packedToday = goalPacked.black + goalPacked.white;
         var planPercent = planTotal > 0 ? Math.round((packedToday / planTotal) * 100) : 0;
         var planDone = packedToday >= planTotal;
-
-        var msg = '<b>📅 ЕЖЕДНЕВНЫЙ ОТЧЁТ</b>\n';
-        msg += 'Дата: ' + new Date().toLocaleDateString('ru-RU') + '\n\n';
-
-        // Критические запасы
-        if (criticalSupplies.length > 0) {
-            msg += '<b>⚠️ Критические запасы (Отдел 1):</b>\n';
-            msg += criticalSupplies.join('\n') + '\n\n';
-        } else {
-            msg += '<b>✅ Критических запасов нет</b>\n\n';
-        }
-
-        // План
-        msg += '<b>🎯 Цель на день:</b>\n';
-        msg += 'План: ' + planTotal + ' рамок\n';
-        msg += 'Упаковано: ' + packedToday + ' рамок (' + planPercent + '%)\n';
+        var msg = '<b>📅 ЕЖЕДНЕВНЫЙ ОТЧЁТ</b>\nДата: ' + new Date().toLocaleDateString('ru-RU') + '\n\n';
+        if (criticalSupplies.length > 0) { msg += '<b>⚠️ Критические запасы (Отдел 1):</b>\n' + criticalSupplies.join('\n') + '\n\n'; }
+        else { msg += '<b>✅ Критических запасов нет</b>\n\n'; }
+        msg += '<b>🎯 Цель на день:</b>\nПлан: ' + planTotal + ' рамок\nУпаковано: ' + packedToday + ' рамок (' + planPercent + '%)\n';
         msg += planDone ? '✅ План ВЫПОЛНЕН!' : '❌ План НЕ ВЫПОЛНЕН (осталось: ' + (planTotal - packedToday) + ')';
-
         sendTelegram(msg);
         debugLog('info', '📤 Ежедневный Telegram-отчёт отправлен');
+    }
+
+    // ===== ТЕСТОВАЯ ОТПРАВКА TELEGRAM-ОТЧЁТА =====
+    function testTelegramReport() {
+        sendDailyTelegramReport();
+        showToast('✅ Тестовый отчёт отправлен в Telegram');
     }
 
     // ===== СОХРАНЕНИЕ =====
@@ -378,39 +364,11 @@ function testTelegramReport() {
     function renderAdminItemList() { var list = document.getElementById('adminItemList'), html = ''; for (var cat in CATEGORY_STRUCTURE) { var struct = CATEGORY_STRUCTURE[cat], cn = SECTION_NAMES[cat] || cat, order = GROUP_ORDER[cat] || [], shownG = {}; order.forEach(function(gn) { if (struct.groups[gn]) { shownG[gn] = true; html += '<div style="grid-column:1/-1;font-weight:600;color:var(--txt2);margin-top:10px">' + cn + ' → ' + gn + ':</div>'; struct.groups[gn].forEach(function(item) { html += '<div class="admin-item-card"><div class="item-info"><strong>' + item + '</strong> <small>' + cn + ' → ' + gn + '</small></div><button class="btn btn-delete" onclick="adminDeleteItem(\'' + cat + '\',\'' + item + '\')">✕</button></div>'; }); } }); for (var gn in struct.groups) { if (!shownG[gn]) { html += '<div style="grid-column:1/-1;font-weight:600;color:var(--txt2);margin-top:10px">' + cn + ' → ' + gn + ':</div>'; struct.groups[gn].forEach(function(item) { html += '<div class="admin-item-card"><div class="item-info"><strong>' + item + '</strong> <small>' + cn + ' → ' + gn + '</small></div><button class="btn btn-delete" onclick="adminDeleteItem(\'' + cat + '\',\'' + item + '\')">✕</button></div>'; }); } } if (struct.singles.length > 0) { html += '<div style="grid-column:1/-1;font-weight:600;color:var(--txt2);margin-top:10px">' + cn + ' (одиночные):</div>'; struct.singles.forEach(function(item) { html += '<div class="admin-item-card"><div class="item-info"><strong>' + item + '</strong> <small>' + cn + '</small></div><button class="btn btn-delete" onclick="adminDeleteItem(\'' + cat + '\',\'' + item + '\')">✕</button></div>'; }); } } if (!html) html = '<p style="color:var(--txt2)">Нет элементов</p>'; list.innerHTML = html; }
 
     // ===== ЦЕЛИ =====
-    function checkMidnightReset() {
-        var today = new Date().toLocaleDateString('ru-RU');
-        if (goalPacked.date !== today) {
-            if (goalPacked.date) {
-                packedHistory[goalPacked.date] = { black: goalPacked.black, white: goalPacked.white };
-                var keys = Object.keys(packedHistory).sort();
-                while (keys.length > 30) { delete packedHistory[keys.shift()]; }
-            }
-            goalPacked = { black: 0, white: 0, date: today, startBlack: (productionData.assembly && productionData.assembly['Упакованные черные']) || 0, startWhite: (productionData.assembly && productionData.assembly['Упакованные белые']) || 0 };
-            localStorage.setItem('goalPacked', JSON.stringify(goalPacked));
-            saveAllData();
-            debugLog('info', '🕛 Сброс счётчика целей', { date: today });
-        }
-    }
+    function checkMidnightReset() { var today = new Date().toLocaleDateString('ru-RU'); if (goalPacked.date !== today) { if (goalPacked.date) { packedHistory[goalPacked.date] = { black: goalPacked.black, white: goalPacked.white }; var keys = Object.keys(packedHistory).sort(); while (keys.length > 30) { delete packedHistory[keys.shift()]; } } goalPacked = { black: 0, white: 0, date: today, startBlack: (productionData.assembly && productionData.assembly['Упакованные черные']) || 0, startWhite: (productionData.assembly && productionData.assembly['Упакованные белые']) || 0 }; localStorage.setItem('goalPacked', JSON.stringify(goalPacked)); saveAllData(); debugLog('info', '🕛 Сброс счётчика целей', { date: today }); } }
     function updateGoalPacked() { if (!goalPacked.date || goalPacked.date !== new Date().toLocaleDateString('ru-RU')) { checkMidnightReset(); } var currentBlack = (productionData.assembly && productionData.assembly['Упакованные черные']) || 0; var currentWhite = (productionData.assembly && productionData.assembly['Упакованные белые']) || 0; goalPacked.black = Math.max(0, currentBlack - goalPacked.startBlack); goalPacked.white = Math.max(0, currentWhite - goalPacked.startWhite); localStorage.setItem('goalPacked', JSON.stringify(goalPacked)); }
 
     // ===== ИЗМЕНЕНИЕ ЗНАЧЕНИЙ =====
-    function changeItemValue(cat, item, delta) {
-        if (!productionData[cat]) { productionData[cat] = {}; }
-        if (productionData[cat][item] === undefined) { productionData[cat][item] = 1; minLimits[item] = minLimits[item] || 1; }
-        var old = productionData[cat][item];
-        if (typeof delta === 'string') { productionData[cat][item] = Math.max(0, parseInt(delta) || 0); var act = 'ввод'; }
-        else { productionData[cat][item] = Math.max(0, old + delta); var act = delta > 0 ? '+' + delta : '' + delta; }
-        var inputId = 'qty_' + cat + '_' + item.replace(/[^a-zA-Zа-яА-Я0-9]/g, '_');
-        var inputEl = document.getElementById(inputId);
-        if (inputEl) { inputEl.value = productionData[cat][item]; }
-        var valEl = document.getElementById('val_' + inputId);
-        if (valEl) { valEl.textContent = productionData[cat][item]; var ml = minLimits[item] || 0; if (ml > 0 && productionData[cat][item] <= ml) { valEl.classList.add('critical'); } else { valEl.classList.remove('critical'); } }
-        changeHistory.unshift({ time: new Date().toLocaleString('ru-RU'), user: currentUser, item: item, old: old, new: productionData[cat][item], act: act });
-        if (changeHistory.length > 150) changeHistory = changeHistory.slice(0, 150);
-        if (cat === 'assembly' && (item === 'Упакованные черные' || item === 'Упакованные белые')) { updateGoalPacked(); }
-        checkAlerts(); saveAllData(); pushToCloud();
-    }
+    function changeItemValue(cat, item, delta) { if (!productionData[cat]) { productionData[cat] = {}; } if (productionData[cat][item] === undefined) { productionData[cat][item] = 1; minLimits[item] = minLimits[item] || 1; } var old = productionData[cat][item]; if (typeof delta === 'string') { productionData[cat][item] = Math.max(0, parseInt(delta) || 0); var act = 'ввод'; } else { productionData[cat][item] = Math.max(0, old + delta); var act = delta > 0 ? '+' + delta : '' + delta; } var inputId = 'qty_' + cat + '_' + item.replace(/[^a-zA-Zа-яА-Я0-9]/g, '_'); var inputEl = document.getElementById(inputId); if (inputEl) { inputEl.value = productionData[cat][item]; } var valEl = document.getElementById('val_' + inputId); if (valEl) { valEl.textContent = productionData[cat][item]; var ml = minLimits[item] || 0; if (ml > 0 && productionData[cat][item] <= ml) { valEl.classList.add('critical'); } else { valEl.classList.remove('critical'); } } changeHistory.unshift({ time: new Date().toLocaleString('ru-RU'), user: currentUser, item: item, old: old, new: productionData[cat][item], act: act }); if (changeHistory.length > 150) changeHistory = changeHistory.slice(0, 150); if (cat === 'assembly' && (item === 'Упакованные черные' || item === 'Упакованные белые')) { updateGoalPacked(); } checkAlerts(); saveAllData(); pushToCloud(); }
 
     function createItemHTML(cat, item, val, sub) { var ml = minLimits[item] || 0, crit = ml > 0 && val <= ml; var safeCat = cat.replace(/'/g, "\\'"), safeItem = item.replace(/'/g, "\\'"); var inputId = 'qty_' + cat + '_' + item.replace(/[^a-zA-Zа-яА-Я0-9]/g, '_'); return '<div class="inventory-item' + (sub ? ' sub' : '') + '"><div class="item-name"><span>' + item + (isAdmin ? ' <span class="rename-icon" onclick="quickRename(\'' + safeCat + '\',\'' + safeItem + '\')" title="Переименовать">✏️</span>' : '') + ' <span class="min-badge" onclick="quickEditLimit(\'' + safeItem + '\')">мин:' + ml + '</span></span><span class="item-value' + (crit ? ' critical' : '') + '" id="val_' + inputId + '">' + val + '</span></div><div class="item-controls"><button class="btn btn-minus10" onclick="changeItemValue(\'' + safeCat + '\',\'' + safeItem + '\',-10)">-10</button><button class="btn btn-minus1" onclick="changeItemValue(\'' + safeCat + '\',\'' + safeItem + '\',-1)">-1</button><input type="number" class="qty-input" id="' + inputId + '" value="' + val + '" min="0" onchange="changeItemValue(\'' + safeCat + '\',\'' + safeItem + '\',this.value)"><button class="btn btn-plus1" onclick="changeItemValue(\'' + safeCat + '\',\'' + safeItem + '\',1)">+1</button><button class="btn btn-plus10" onclick="changeItemValue(\'' + safeCat + '\',\'' + safeItem + '\',10)">+10</button></div></div>'; }
     function renderCategorySection(cat, contId) { var struct = CATEGORY_STRUCTURE[cat]; if (!struct) return; var order = GROUP_ORDER[cat] || [], html = '', shownG = {}; order.forEach(function(gn) { if (struct.groups[gn]) { shownG[gn] = true; html += '<h3 class="subsection-title">' + gn + '</h3>'; struct.groups[gn].forEach(function(item) { var val = 1; if (productionData[cat] && productionData[cat][item] !== undefined) val = productionData[cat][item]; else { if (!productionData[cat]) productionData[cat] = {}; productionData[cat][item] = 1; if (minLimits[item] === undefined) minLimits[item] = 1; } html += createItemHTML(cat, item, val, true); }); } }); for (var gn in struct.groups) { if (!shownG[gn]) { html += '<h3 class="subsection-title">' + gn + '</h3>'; struct.groups[gn].forEach(function(item) { var val = 1; if (productionData[cat] && productionData[cat][item] !== undefined) val = productionData[cat][item]; else { if (!productionData[cat]) productionData[cat] = {}; productionData[cat][item] = 1; if (minLimits[item] === undefined) minLimits[item] = 1; } html += createItemHTML(cat, item, val, true); }); } } if (struct.singles.length > 0) { html += '<h3 class="subsection-title">Прочее</h3>'; struct.singles.forEach(function(item) { var val = 1; if (productionData[cat] && productionData[cat][item] !== undefined) val = productionData[cat][item]; else { if (!productionData[cat]) productionData[cat] = {}; productionData[cat][item] = 1; if (minLimits[item] === undefined) minLimits[item] = 1; } html += createItemHTML(cat, item, val, false); }); } document.getElementById(contId).innerHTML = html; }
@@ -435,22 +393,9 @@ function testTelegramReport() {
     function dailySummary() { var today = new Date().toLocaleDateString('ru-RU'), th = changeHistory.filter(function(h) { return h.time && h.time.split(',')[0] === today; }); if (!th.length) { showToast('📅 Нет изменений за сегодня'); return; } var sum = {}; th.forEach(function(h) { if (!sum[h.item]) sum[h.item] = { added: 0, removed: 0, start: h.old, end: h.new }; var d = h.new - h.old; d > 0 ? sum[h.item].added += d : sum[h.item].removed += Math.abs(d); sum[h.item].start = Math.min(sum[h.item].start, h.old); sum[h.item].end = h.new; }); var ah = '', rh = ''; for (var i in sum) { var s = sum[i]; if (s.added > 0) ah += '<div class="history-item">🟢 <strong>' + i + '</strong>: +' + s.added + ' (' + s.start + ' → ' + s.end + ')</div>'; if (s.removed > 0) rh += '<div class="history-item">🔴 <strong>' + i + '</strong>: -' + s.removed + ' (' + s.start + ' → ' + s.end + ')</div>'; } changeHistory.unshift({ time: '📅 ' + today, type: 'summary', added: ah, removed: rh }); if (changeHistory.length > 150) changeHistory = changeHistory.slice(0, 150); saveAllData(); renderAll(); pushToCloud(); showToast('✅ Итог дня добавлен'); }
     function autoDailySummary() { var ls = localStorage.getItem('lastSummaryDate'), today = new Date().toLocaleDateString('ru-RU'); if (ls !== today) { localStorage.setItem('lastSummaryDate', today); var y = new Date(Date.now() - 86400000).toLocaleDateString('ru-RU'); if (changeHistory.some(function(h) { return h.time && h.time.includes(y); }) && changeHistory.length > 0) dailySummary(); } }
 
-    function renderGoals() {
-        var planTotal = dailyGoals.total || 100;
-        var packedTotal = goalPacked.black + goalPacked.white;
-        var percent = planTotal > 0 ? Math.round((packedTotal / planTotal) * 100) : 0;
-        var isDone = packedTotal >= planTotal;
-        var html = '<p style="color:var(--txt2);font-size:11px;margin-bottom:10px">⚠️ Сброс счётчика упакованных рамок происходит каждый день в 00:00 по МСК (не влияет на данные в Отделе 3)</p>';
-        html += '<div class="goal-item"><span class="goal-label">🎯 План:</span><input type="number" class="goal-input" value="' + planTotal + '" min="1" onchange="updateDailyGoal(this.value)"><span style="font-size:14px">упакованных рамок</span></div>';
-        html += '<div class="goal-item"><span class="goal-label">✅ Факт:</span><span style="font-size:18px;font-weight:bold">' + packedTotal + '</span><span style="font-size:14px">упаковано сегодня (⚫' + goalPacked.black + ' ⚪' + goalPacked.white + ')</span><span class="goal-progress' + (isDone ? ' goal-done' : ' goal-pending') + '">' + percent + '%</span></div>';
-        html += (isDone ? '<p style="color:var(--green);text-align:center;font-weight:bold;margin-top:10px">🎉 План выполнен!</p>' : '<p style="color:var(--txt2);text-align:center;margin-top:10px">Осталось упаковать: ' + (planTotal - packedTotal) + ' рамок</p>');
-        var dates = Object.keys(packedHistory).sort().reverse();
-        if (dates.length > 0) { html += '<h3 style="margin-top:20px;color:var(--txt);font-size:14px">📋 История упакованных рамок (30 дней):</h3><div style="max-height:250px;overflow-y:auto"><table class="goal-history-table"><thead><tr><th>Дата</th><th>⚫ Черные</th><th>⚪ Белые</th><th>Всего</th></tr></thead><tbody>'; dates.forEach(function(date) { var data = packedHistory[date] || { black: 0, white: 0 }; html += '<tr><td>' + date + '</td><td>' + data.black + '</td><td>' + data.white + '</td><td><strong>' + (data.black + data.white) + '</strong></td></tr>'; }); html += '</tbody></table></div>'; } else { html += '<p style="color:var(--txt2);margin-top:15px">Нет данных об упакованных рамках</p>'; }
-        document.getElementById('goalsContent').innerHTML = html;
-    }
+    function renderGoals() { var planTotal = dailyGoals.total || 100; var packedTotal = goalPacked.black + goalPacked.white; var percent = planTotal > 0 ? Math.round((packedTotal / planTotal) * 100) : 0; var isDone = packedTotal >= planTotal; var html = '<p style="color:var(--txt2);font-size:11px;margin-bottom:10px">⚠️ Сброс счётчика упакованных рамок происходит каждый день в 00:00 по МСК (не влияет на данные в Отделе 3)</p>'; html += '<div class="goal-item"><span class="goal-label">🎯 План:</span><input type="number" class="goal-input" value="' + planTotal + '" min="1" onchange="updateDailyGoal(this.value)"><span style="font-size:14px">упакованных рамок</span></div>'; html += '<div class="goal-item"><span class="goal-label">✅ Факт:</span><span style="font-size:18px;font-weight:bold">' + packedTotal + '</span><span style="font-size:14px">упаковано сегодня (⚫' + goalPacked.black + ' ⚪' + goalPacked.white + ')</span><span class="goal-progress' + (isDone ? ' goal-done' : ' goal-pending') + '">' + percent + '%</span></div>'; html += (isDone ? '<p style="color:var(--green);text-align:center;font-weight:bold;margin-top:10px">🎉 План выполнен!</p>' : '<p style="color:var(--txt2);text-align:center;margin-top:10px">Осталось упаковать: ' + (planTotal - packedTotal) + ' рамок</p>'); var dates = Object.keys(packedHistory).sort().reverse(); if (dates.length > 0) { html += '<h3 style="margin-top:20px;color:var(--txt);font-size:14px">📋 История упакованных рамок (30 дней):</h3><div style="max-height:250px;overflow-y:auto"><table class="goal-history-table"><thead><tr><th>Дата</th><th>⚫ Черные</th><th>⚪ Белые</th><th>Всего</th></tr></thead><tbody>'; dates.forEach(function(date) { var data = packedHistory[date] || { black: 0, white: 0 }; html += '<tr><td>' + date + '</td><td>' + data.black + '</td><td>' + data.white + '</td><td><strong>' + (data.black + data.white) + '</strong></td></tr>'; }); html += '</tbody></table></div>'; } else { html += '<p style="color:var(--txt2);margin-top:15px">Нет данных об упакованных рамках</p>'; } document.getElementById('goalsContent').innerHTML = html; }
     function updateDailyGoal(v) { dailyGoals.total = Math.max(1, parseInt(v) || 100); saveAllData(); renderGoals(); pushToCloud(); }
 
-    // ===== СИНХРОНИЗАЦИЯ =====
     function startAutoSync() { stopAutoSync(); syncTimer = setInterval(syncData, SYNC_INTERVAL); }
     function stopAutoSync() { if (syncTimer) { clearInterval(syncTimer); syncTimer = null; } }
     async function loadFromCloud() { if (!isOnline) return; try { updateSyncStatus('sync-loading', '🔄 Загрузка...'); var r = await fetch(SYNC_URL + '?t=' + Date.now()); var cd = JSON.parse(await r.text()); var lt = parseInt(localStorage.getItem('lastUpdateTime') || '0'), ct = cd.t || 0; if (cd.d && (isFirstSync || ct > lt)) { productionData = cd.d; if (cd.l) minLimits = cd.l; if (cd.h) changeHistory = cd.h; if (cd.n) notes = cd.n.filter(function(n) { return n.created && !n.created.includes('T'); }); if (cd.g) dailyGoals = cd.g; if (cd.s) CATEGORY_STRUCTURE = cd.s; if (cd.o) GROUP_ORDER = cd.o; if (cd.p) packedHistory = cd.p; if (cd.gp) goalPacked = cd.gp; localStorage.setItem('lastUpdateTime', ct); renderAll(); updateStats(); renderNotes(); renderGoals(); updateSyncStatus('sync-online', '🟢 Загружено'); } else if (ct < lt) await pushToCloud(); else updateSyncStatus('sync-online', '🟢 OK'); isFirstSync = false; } catch(e) { updateSyncStatus('sync-error', '🔴 Ошибка'); } }
