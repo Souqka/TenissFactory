@@ -303,6 +303,12 @@
             }
         }
 
+        // Отправка тестового отчёта через консоль
+function testTelegramReport() {
+    sendDailyTelegramReport();
+    console.log('✅ Тестовый отчёт отправлен в Telegram');
+    showToast('✅ Тестовый отчёт отправлен в Telegram');
+}
         // Статус плана
         var planTotal = dailyGoals.total || 100;
         var packedToday = goalPacked.black + goalPacked.white;
